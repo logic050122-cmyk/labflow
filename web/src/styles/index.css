@@ -1,0 +1,4 @@
+/* 样式入口只负责按顺序汇总文件，具体规则按职责拆开维护。 */
+@import "./base.css";
+@import "./layout.css";
+@import "./pages.css";

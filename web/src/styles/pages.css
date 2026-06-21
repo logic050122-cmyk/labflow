@@ -1,0 +1,129 @@
+/* 公共占位卡片由所有空页面复用，后续会逐模块替换为真实内容。 */
+.page-placeholder {
+  position: relative;
+  max-width: 940px;
+  min-height: 560px;
+  padding: clamp(34px, 6vw, 76px);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  box-shadow: 18px 18px 0 rgba(22, 48, 43, 0.06);
+  animation: page-in 420ms ease-out both;
+}
+
+.page-placeholder::after {
+  position: absolute;
+  right: -100px;
+  bottom: -130px;
+  width: 360px;
+  height: 360px;
+  border: 1px solid rgba(30, 98, 88, 0.2);
+  border-radius: 50%;
+  content: "";
+}
+
+.page-placeholder__marker {
+  width: 46px;
+  height: 5px;
+  margin-bottom: 42px;
+  background: var(--accent);
+}
+
+.page-placeholder__eyebrow {
+  margin: 0 0 16px;
+  color: var(--green);
+  font-family: Georgia, serif;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+}
+
+.page-placeholder h1 {
+  max-width: 700px;
+  margin: 0;
+  font-family: Georgia, "Songti SC", serif;
+  font-size: clamp(44px, 7vw, 82px);
+  font-weight: 400;
+  line-height: 1;
+}
+
+.page-placeholder__description {
+  max-width: 540px;
+  margin: 28px 0 0;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+.page-placeholder__empty {
+  position: absolute;
+  right: clamp(32px, 6vw, 72px);
+  bottom: clamp(32px, 6vw, 64px);
+  z-index: 1;
+  display: grid;
+  gap: 6px;
+  max-width: 260px;
+  padding-left: 16px;
+  border-left: 2px solid var(--green);
+}
+
+.page-placeholder__empty span {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.page-placeholder__empty small {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.auth-page {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 80px 24px;
+}
+
+.auth-page .page-placeholder {
+  width: min(720px, 100%);
+  min-height: 480px;
+}
+
+.auth-page__brand {
+  position: absolute;
+  top: 28px;
+  left: 32px;
+  color: var(--ink);
+  font-family: Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.auth-page__link {
+  margin-top: 28px;
+  color: var(--green);
+  font-size: 13px;
+  text-underline-offset: 5px;
+}
+
+/* 页面第一次进入时轻微上移并淡入。 */
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+/* 移动端缩小阴影，并让底部提示横向占满可用空间。 */
+@media (max-width: 800px) {
+  .page-placeholder {
+    min-height: 500px;
+    box-shadow: 8px 8px 0 rgba(22, 48, 43, 0.06);
+  }
+
+  .page-placeholder__empty {
+    right: 28px;
+    bottom: 28px;
+    left: 28px;
+  }
+}

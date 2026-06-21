@@ -1,0 +1,48 @@
+/* 全局变量和浏览器基础样式，其他 CSS 文件通过 var(...) 复用颜色。 */
+:root {
+  font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+  color: #16302b;
+  background: #f2efe5;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  --ink: #16302b;
+  --muted: #6d756e;
+  --paper: #fffdf7;
+  --canvas: #f2efe5;
+  --line: #d7d7c8;
+  --accent: #e46f3c;
+  --green: #1e6258;
+}
+
+/* border-box 让元素设置的宽高包含内边距和边框，更容易计算布局。 */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  min-width: 320px;
+  min-height: 100%;
+  margin: 0;
+}
+
+/* 两层线性渐变叠加，形成页面背景上的浅色网格。 */
+body {
+  min-height: 100vh;
+  background:
+    linear-gradient(rgba(22, 48, 43, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(22, 48, 43, 0.04) 1px, transparent 1px),
+    var(--canvas);
+  background-size: 32px 32px;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+}

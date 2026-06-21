@@ -1,0 +1,205 @@
+/* 桌面端采用固定侧栏，主内容通过左边距为侧栏留出空间。 */
+.app-shell {
+  min-height: 100vh;
+}
+
+.app-sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 20;
+  display: flex;
+  width: 272px;
+  flex-direction: column;
+  padding: 30px 24px;
+  color: #f8f5e9;
+  background: var(--ink);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.brand__mark {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  color: #ffc6a6;
+  font-family: Georgia, serif;
+  font-size: 15px;
+}
+
+.brand strong {
+  display: block;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 23px;
+  letter-spacing: 0.02em;
+}
+
+.brand small,
+.app-sidebar__footer small {
+  display: block;
+  margin-top: 3px;
+  color: #9fb1a9;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+}
+
+.app-sidebar__label {
+  margin: 62px 10px 18px;
+  color: #89a098;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+}
+
+.app-nav {
+  display: grid;
+  gap: 6px;
+}
+
+.app-nav a {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 13px 12px;
+  border-left: 2px solid transparent;
+  color: #bdc9c4;
+  text-decoration: none;
+  transition: 160ms ease;
+}
+
+.app-nav a span {
+  color: #708a80;
+  font-family: Georgia, serif;
+  font-size: 11px;
+}
+
+.app-nav a:hover,
+.app-nav a.router-link-active {
+  border-left-color: var(--accent);
+  color: #fffdf7;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.app-sidebar__footer {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-top: auto;
+  padding: 16px 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 12px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #df9b52;
+  box-shadow: 0 0 0 4px rgba(223, 155, 82, 0.13);
+}
+
+.app-main {
+  min-height: 100vh;
+  margin-left: 272px;
+}
+
+.app-header {
+  display: flex;
+  height: 72px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 42px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 253, 247, 0.76);
+  backdrop-filter: blur(12px);
+}
+
+.app-header p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+
+.app-header__edition {
+  padding: 6px 9px;
+  border: 1px solid var(--line);
+  font-family: Georgia, serif;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+}
+
+.menu-button,
+.app-shell__backdrop {
+  display: none;
+}
+
+.app-content {
+  padding: clamp(28px, 5vw, 72px);
+}
+
+/* 屏幕较窄时侧栏移出画面，并通过按钮和遮罩控制开关。 */
+@media (max-width: 800px) {
+  .app-sidebar {
+    width: min(84vw, 300px);
+    transform: translateX(-105%);
+    transition: transform 180ms ease;
+  }
+
+  .app-sidebar--open {
+    transform: translateX(0);
+  }
+
+  .app-shell__backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: block;
+    border: 0;
+    background: rgba(17, 34, 30, 0.56);
+  }
+
+  .app-main {
+    margin-left: 0;
+  }
+
+  .app-header {
+    justify-content: flex-start;
+    gap: 16px;
+    padding: 0 20px;
+  }
+
+  .app-header p {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .app-header__edition {
+    margin-left: auto;
+  }
+
+  .menu-button {
+    display: grid;
+    width: 38px;
+    height: 38px;
+    place-content: center;
+    gap: 5px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+  }
+
+  .menu-button span {
+    width: 16px;
+    height: 1px;
+    background: var(--ink);
+  }
+
+  .app-content {
+    padding: 22px 16px 40px;
+  }
+}
