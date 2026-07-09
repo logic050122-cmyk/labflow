@@ -1,0 +1,192 @@
+{
+  "server/migrations/001_initial_schema.sql": {
+    "mtime": 1781950430.5315478,
+    "ast_hash": "518995596dd68a980dc65f8f2cda0840",
+    "semantic_hash": "518995596dd68a980dc65f8f2cda0840"
+  },
+  "server/package.json": {
+    "mtime": 1781928917.3728287,
+    "ast_hash": "f36d2fd65fc219ac9b884258854fb22b",
+    "semantic_hash": "f36d2fd65fc219ac9b884258854fb22b"
+  },
+  "server/src/app.ts": {
+    "mtime": 1782035079.6550233,
+    "ast_hash": "968d7fcda5762947883b171bb3552924",
+    "semantic_hash": "968d7fcda5762947883b171bb3552924"
+  },
+  "server/src/common/http.ts": {
+    "mtime": 1782034857.916931,
+    "ast_hash": "17f5849d142f374a6bc726c6d2d9642c",
+    "semantic_hash": "17f5849d142f374a6bc726c6d2d9642c"
+  },
+  "server/src/config/db.ts": {
+    "mtime": 1782031783.5022569,
+    "ast_hash": "8161c701aab9d3f9b4560220f71b31d0",
+    "semantic_hash": "8161c701aab9d3f9b4560220f71b31d0"
+  },
+  "server/src/config/env.ts": {
+    "mtime": 1782031981.261235,
+    "ast_hash": "b6e258a0b969e16f8bc7cb013c01bd42",
+    "semantic_hash": "b6e258a0b969e16f8bc7cb013c01bd42"
+  },
+  "server/src/server.ts": {
+    "mtime": 1782031917.400562,
+    "ast_hash": "c62b6e005677d70fc01861538661f691",
+    "semantic_hash": "c62b6e005677d70fc01861538661f691"
+  },
+  "server/tsconfig.json": {
+    "mtime": 1781928917.5321155,
+    "ast_hash": "f25cb3ae82e1512bc22a0557b03b17ae",
+    "semantic_hash": "f25cb3ae82e1512bc22a0557b03b17ae"
+  },
+  "web/package.json": {
+    "mtime": 1782229672.339269,
+    "ast_hash": "3e60e1af042643f669f97d1a88af31c5",
+    "semantic_hash": "3e60e1af042643f669f97d1a88af31c5"
+  },
+  "web/src/App.vue": {
+    "mtime": 1781931400.2815514,
+    "ast_hash": "b494cb4ef2c7c97809b159564f7dc77f",
+    "semantic_hash": "b494cb4ef2c7c97809b159564f7dc77f"
+  },
+  "web/src/api/auth.ts": {
+    "mtime": 1782270481.524218,
+    "ast_hash": "15cb5b227fcbd27e20e6ac3591064d3a",
+    "semantic_hash": "15cb5b227fcbd27e20e6ac3591064d3a"
+  },
+  "web/src/api/http.ts": {
+    "mtime": 1782285314.0373998,
+    "ast_hash": "f5d9eb1044ed0a7ab2149ecc695de84d",
+    "semantic_hash": "f5d9eb1044ed0a7ab2149ecc695de84d"
+  },
+  "web/src/components/auth/BrandLogo.vue": {
+    "mtime": 1782041728.0582285,
+    "ast_hash": "34aac852735bf5e6676f07cc3a7f0108",
+    "semantic_hash": "34aac852735bf5e6676f07cc3a7f0108"
+  },
+  "web/src/main.ts": {
+    "mtime": 1782229768.6301405,
+    "ast_hash": "343da9e1561b331f9c005627fef9f4dd",
+    "semantic_hash": "343da9e1561b331f9c005627fef9f4dd"
+  },
+  "web/src/router/index.ts": {
+    "mtime": 1782043462.341499,
+    "ast_hash": "0cb625ff359132444c91252bf8da8179",
+    "semantic_hash": "0cb625ff359132444c91252bf8da8179"
+  },
+  "web/src/shims-vue.d.ts": {
+    "mtime": 1782035900.6751292,
+    "ast_hash": "c9c4e213ea3084850dc61d562bd41047",
+    "semantic_hash": "c9c4e213ea3084850dc61d562bd41047"
+  },
+  "web/src/stores/auth.ts": {
+    "mtime": 1782272184.35526,
+    "ast_hash": "65b6ef63c40e73b476a77db46e865222",
+    "semantic_hash": "65b6ef63c40e73b476a77db46e865222"
+  },
+  "web/src/types/api.ts": {
+    "mtime": 1781931400.4468172,
+    "ast_hash": "849c30464a861724e3ae4acbf8db0993",
+    "semantic_hash": "849c30464a861724e3ae4acbf8db0993"
+  },
+  "web/src/views/LoginView.vue": {
+    "mtime": 1782270121.8303638,
+    "ast_hash": "c3f032b9279412994338d9c2cc57efe4",
+    "semantic_hash": "c3f032b9279412994338d9c2cc57efe4"
+  },
+  "web/src/views/RegisterView.vue": {
+    "mtime": 1782232259.5645065,
+    "ast_hash": "c1017f9c6c4eeb0ec317682fc2fb2b54",
+    "semantic_hash": "c1017f9c6c4eeb0ec317682fc2fb2b54"
+  },
+  "web/src/vite-env.d.ts": {
+    "mtime": 1781929262.3402529,
+    "ast_hash": "0352474ba2918efe13895edbc3780d94",
+    "semantic_hash": "0352474ba2918efe13895edbc3780d94"
+  },
+  "web/tsconfig.json": {
+    "mtime": 1781949219.2581668,
+    "ast_hash": "c3ad758b9181b26f32a7500f056c1694",
+    "semantic_hash": "c3ad758b9181b26f32a7500f056c1694"
+  },
+  "web/vite.config.ts": {
+    "mtime": 1782048221.2517548,
+    "ast_hash": "6d7e7b66c9fe1e6c771dd55def18f7b4",
+    "semantic_hash": "6d7e7b66c9fe1e6c771dd55def18f7b4"
+  },
+  ".agents/skills/delegate-code-to-chatgpt/SKILL.md": {
+    "mtime": 1782268208.923525,
+    "ast_hash": "f972f95f60a4cffe73754af589355412",
+    "semantic_hash": "f972f95f60a4cffe73754af589355412"
+  },
+  ".agents/skills/delegate-code-to-chatgpt/agents/openai.yaml": {
+    "mtime": 1782235113.6443763,
+    "ast_hash": "283daccec0944f378bebd3654372901d",
+    "semantic_hash": "283daccec0944f378bebd3654372901d"
+  },
+  "AGENTS.md": {
+    "mtime": 1782230877.1491315,
+    "ast_hash": "c06f1960558390d50b20ac6e737100ec",
+    "semantic_hash": "c06f1960558390d50b20ac6e737100ec"
+  },
+  "README.md": {
+    "mtime": 1781926593.683625,
+    "ast_hash": "68b329da9893e34099c7d8ad5cb9c940",
+    "semantic_hash": "68b329da9893e34099c7d8ad5cb9c940"
+  },
+  "design-qa.md": {
+    "mtime": 1782042273.1804628,
+    "ast_hash": "10f0b939c7e006fc705bb914560afa39",
+    "semantic_hash": "10f0b939c7e006fc705bb914560afa39"
+  },
+  "docs/API.md": {
+    "mtime": 1781945153.6266687,
+    "ast_hash": "0a85ef8e10400a1923754b4a360174e5",
+    "semantic_hash": "0a85ef8e10400a1923754b4a360174e5"
+  },
+  "docs/ARCHITECTURE.md": {
+    "mtime": 1781946392.1488652,
+    "ast_hash": "e7c381c3c7169cda6891394099fdafed",
+    "semantic_hash": "e7c381c3c7169cda6891394099fdafed"
+  },
+  "docs/DATABASE.md": {
+    "mtime": 1781947631.2386613,
+    "ast_hash": "dd816a83edcf745223b81e3f5a108e0a",
+    "semantic_hash": "dd816a83edcf745223b81e3f5a108e0a"
+  },
+  "docs/DEV_LOG.md": {
+    "mtime": 1782231784.7911282,
+    "ast_hash": "406059d5fc1484a8b40c100652034eae",
+    "semantic_hash": "406059d5fc1484a8b40c100652034eae"
+  },
+  "docs/PROJECT_PLAN.md": {
+    "mtime": 1781927068.6219757,
+    "ast_hash": "7111d563c13176eca0f49bf67236e2b0",
+    "semantic_hash": "7111d563c13176eca0f49bf67236e2b0"
+  },
+  "docs/TODO.md": {
+    "mtime": 1782055077.1788044,
+    "ast_hash": "96e2fcea36f3036613dab6d8c69df3ba",
+    "semantic_hash": "96e2fcea36f3036613dab6d8c69df3ba"
+  },
+  "docs/notes.md": {
+    "mtime": 1782231589.356185,
+    "ast_hash": "5d5165ed958acfbf665983cfa1ef6342",
+    "semantic_hash": "5d5165ed958acfbf665983cfa1ef6342"
+  },
+  "web/index.html": {
+    "mtime": 1781929261.743382,
+    "ast_hash": "d751cfc1c4dd954365ea53cc7c69aa54",
+    "semantic_hash": "d751cfc1c4dd954365ea53cc7c69aa54"
+  },
+  "web/src/assets/auth-illustration.png": {
+    "mtime": 1782041555.567308,
+    "ast_hash": "9feb2c063094629a9618893a4fba8b48",
+    "semantic_hash": "9feb2c063094629a9618893a4fba8b48"
+  },
+  "web/src/assets/labflow-logo.png": {
+    "mtime": 315504000.0,
+    "ast_hash": "71de57bbca6d07e569c7f226d05171d3",
+    "semantic_hash": "71de57bbca6d07e569c7f226d05171d3"
+  }
+}

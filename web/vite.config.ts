@@ -13,6 +13,13 @@ export default defineConfig({
     }
   },
   server: {
-  port: 5173
-}
+    port: 5173,
+    // 开发环境把 /api 请求转发给 Express，页面无需处理跨域或写死后端地址。
+    proxy: {
+      "/api": {
+        target: "http://127.0.0.1:3000",
+        changeOrigin: true
+      }
+    }
+  }
 });

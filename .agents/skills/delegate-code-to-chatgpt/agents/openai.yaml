@@ -1,0 +1,7 @@
+interface:
+  display_name: "网页 GPT 代码委托"
+  short_description: "将适合的大型 LabFlow 编码任务委托给网页端 GPT"
+  default_prompt: "使用 $delegate-code-to-chatgpt 判断并委托这个 LabFlow 编码任务。"
+
+policy:
+  allow_implicit_invocation: true

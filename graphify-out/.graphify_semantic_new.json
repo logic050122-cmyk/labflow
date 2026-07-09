@@ -1,0 +1,1298 @@
+{
+  "nodes": [
+    {
+      "id": "agents_labflow_project_rules",
+      "label": "LabFlow Project Rules",
+      "file_type": "document",
+      "source_file": "D:\\labflow\\AGENTS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agents_labflow_core_business_flow",
+      "label": "LabFlow Core Business Flow",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\AGENTS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agents_role_rules",
+      "label": "Owner and Member Role Rules",
+      "file_type": "rationale",
+      "source_file": "D:\\labflow\\AGENTS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agents_task_status_rules",
+      "label": "Task Status Rules",
+      "file_type": "rationale",
+      "source_file": "D:\\labflow\\AGENTS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agents_backend_layering_rules",
+      "label": "Backend Layering Rules",
+      "file_type": "rationale",
+      "source_file": "D:\\labflow\\AGENTS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agents_frontend_layering_rules",
+      "label": "Frontend Layering Rules",
+      "file_type": "rationale",
+      "source_file": "D:\\labflow\\AGENTS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agents_api_contract_rules",
+      "label": "API Contract Rules",
+      "file_type": "rationale",
+      "source_file": "D:\\labflow\\AGENTS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agents_database_rules",
+      "label": "Database Rules",
+      "file_type": "rationale",
+      "source_file": "D:\\labflow\\AGENTS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agents_document_maintenance_rules",
+      "label": "Document Maintenance Rules",
+      "file_type": "rationale",
+      "source_file": "D:\\labflow\\AGENTS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_project_plan_project_plan_document",
+      "label": "Project Plan Document",
+      "file_type": "document",
+      "source_file": "D:\\labflow\\docs\\PROJECT_PLAN.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_project_plan_labflow_platform",
+      "label": "LabFlow Platform",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\docs\\PROJECT_PLAN.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_project_plan_core_business_loop",
+      "label": "Core Business Loop",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\docs\\PROJECT_PLAN.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_project_plan_system_user_project_role_model",
+      "label": "System User and Project Role Model",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\docs\\PROJECT_PLAN.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_project_plan_owner_role",
+      "label": "Owner Role",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\docs\\PROJECT_PLAN.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_project_plan_member_role",
+      "label": "Member Role",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\docs\\PROJECT_PLAN.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_project_plan_first_version_scope",
+      "label": "First Version Scope",
+      "file_type": "rationale",
+      "source_file": "D:\\labflow\\docs\\PROJECT_PLAN.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_architecture_architecture_document",
+      "label": "Architecture Document",
+      "file_type": "document",
+      "source_file": "D:\\labflow\\docs\\ARCHITECTURE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_architecture_modular_monolith_architecture",
+      "label": "Modular Monolith Architecture",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\docs\\ARCHITECTURE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_architecture_permission_model",
+      "label": "Architecture Permission Model",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\docs\\ARCHITECTURE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_architecture_backend_layering",
+      "label": "Architecture Backend Layering",
+      "file_type": "rationale",
+      "source_file": "D:\\labflow\\docs\\ARCHITECTURE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_architecture_frontend_layering",
+      "label": "Architecture Frontend Layering",
+      "file_type": "rationale",
+      "source_file": "D:\\labflow\\docs\\ARCHITECTURE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_architecture_business_module_boundaries",
+      "label": "Business Module Boundaries",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\docs\\ARCHITECTURE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_architecture_project_collaboration_flow",
+      "label": "Project Collaboration Flow",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\docs\\ARCHITECTURE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_architecture_task_state_machine",
+      "label": "Task State Machine",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\docs\\ARCHITECTURE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_api_api_design_document",
+      "label": "API Design Document",
+      "file_type": "document",
+      "source_file": "D:\\labflow\\docs\\API.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_api_rest_api_contract",
+      "label": "REST API Contract",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\docs\\API.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_api_unified_response_format",
+      "label": "Unified Response Format",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\docs\\API.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_api_permission_markers",
+      "label": "API Permission Markers",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\docs\\API.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_api_resource_ownership_check",
+      "label": "Resource Ownership Check",
+      "file_type": "rationale",
+      "source_file": "D:\\labflow\\docs\\API.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_api_auth_endpoints",
+      "label": "Auth Endpoints",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\docs\\API.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_api_project_endpoints",
+      "label": "Project Endpoints",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\docs\\API.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_api_task_endpoints",
+      "label": "Task Endpoints",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\docs\\API.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_api_task_state_side_effects",
+      "label": "Task State Side Effects",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\docs\\API.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_database_database_design_document",
+      "label": "Database Design Document",
+      "file_type": "document",
+      "source_file": "D:\\labflow\\docs\\DATABASE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_database_mysql_data_model",
+      "label": "MySQL Data Model",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\docs\\DATABASE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_database_users_table",
+      "label": "users Table",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\docs\\DATABASE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_database_projects_table",
+      "label": "projects Table",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\docs\\DATABASE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_database_project_members_table",
+      "label": "project_members Table",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\docs\\DATABASE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_database_tasks_table",
+      "label": "tasks Table",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\docs\\DATABASE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_database_notifications_table",
+      "label": "notifications Table",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\docs\\DATABASE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_database_operation_logs_table",
+      "label": "operation_logs Table",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\docs\\DATABASE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_database_task_status_values",
+      "label": "Task Status Values",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\docs\\DATABASE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_todo_first_version_development_sequence",
+      "label": "First Version Development Sequence",
+      "file_type": "document",
+      "source_file": "D:\\labflow\\docs\\TODO.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_todo_final_acceptance_criteria",
+      "label": "Final Acceptance Criteria",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\docs\\TODO.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_dev_log_dev_log_document",
+      "label": "Development Log Document",
+      "file_type": "document",
+      "source_file": "D:\\labflow\\docs\\DEV_LOG.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "web_src_assets_auth_illustration_auth_illustration",
+      "label": "Auth Illustration",
+      "file_type": "image",
+      "source_file": "D:\\labflow\\web\\src\\assets\\auth-illustration.png",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "web_src_assets_auth_illustration_futuristic_dashboard",
+      "label": "Futuristic Dashboard",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\web\\src\\assets\\auth-illustration.png",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "web_src_assets_auth_illustration_data_analytics_chart",
+      "label": "Data Analytics Chart",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\web\\src\\assets\\auth-illustration.png",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "web_src_assets_labflow_logo_labflow_logo",
+      "label": "LabFlow Logo",
+      "file_type": "image",
+      "source_file": "D:\\labflow\\web\\src\\assets\\labflow-logo.png",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "web_src_assets_labflow_logo_laboratory_flask_icon",
+      "label": "Laboratory Flask Icon",
+      "file_type": "image",
+      "source_file": "D:\\labflow\\web\\src\\assets\\labflow-logo.png",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "web_src_assets_labflow_logo_blue_brand_color",
+      "label": "Blue Brand Color",
+      "file_type": "concept",
+      "source_file": "D:\\labflow\\web\\src\\assets\\labflow-logo.png",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "agents_labflow_project_rules",
+      "target": "agents_labflow_core_business_flow",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agents_labflow_core_business_flow",
+      "target": "agents_role_rules",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agents_labflow_core_business_flow",
+      "target": "agents_task_status_rules",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agents_api_contract_rules",
+      "target": "docs_api_api_design_document",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agents_database_rules",
+      "target": "docs_database_database_design_document",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agents_document_maintenance_rules",
+      "target": "docs_api_api_design_document",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agents_document_maintenance_rules",
+      "target": "docs_database_database_design_document",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agents_document_maintenance_rules",
+      "target": "docs_dev_log_dev_log_document",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agents_document_maintenance_rules",
+      "target": "docs_todo_first_version_development_sequence",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agents_role_rules",
+      "target": "docs_architecture_permission_model",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "D:\\labflow\\AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agents_task_status_rules",
+      "target": "docs_database_task_status_values",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "D:\\labflow\\AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agents_backend_layering_rules",
+      "target": "docs_architecture_backend_layering",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "D:\\labflow\\AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agents_frontend_layering_rules",
+      "target": "docs_architecture_frontend_layering",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "D:\\labflow\\AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_project_plan_project_plan_document",
+      "target": "docs_project_plan_labflow_platform",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\PROJECT_PLAN.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_project_plan_labflow_platform",
+      "target": "docs_project_plan_core_business_loop",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\PROJECT_PLAN.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_project_plan_system_user_project_role_model",
+      "target": "docs_project_plan_owner_role",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\PROJECT_PLAN.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_project_plan_system_user_project_role_model",
+      "target": "docs_project_plan_member_role",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\PROJECT_PLAN.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_project_plan_first_version_scope",
+      "target": "docs_project_plan_core_business_loop",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\PROJECT_PLAN.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_architecture_architecture_document",
+      "target": "docs_architecture_modular_monolith_architecture",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\ARCHITECTURE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_architecture_modular_monolith_architecture",
+      "target": "docs_architecture_business_module_boundaries",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\ARCHITECTURE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_architecture_modular_monolith_architecture",
+      "target": "docs_architecture_backend_layering",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\ARCHITECTURE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_architecture_modular_monolith_architecture",
+      "target": "docs_architecture_frontend_layering",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\ARCHITECTURE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_architecture_permission_model",
+      "target": "docs_project_plan_system_user_project_role_model",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "D:\\labflow\\docs\\ARCHITECTURE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_architecture_project_collaboration_flow",
+      "target": "docs_project_plan_core_business_loop",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "D:\\labflow\\docs\\ARCHITECTURE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_architecture_task_state_machine",
+      "target": "docs_database_task_status_values",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "D:\\labflow\\docs\\ARCHITECTURE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_api_api_design_document",
+      "target": "docs_api_rest_api_contract",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\API.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_api_rest_api_contract",
+      "target": "docs_api_unified_response_format",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\API.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_api_rest_api_contract",
+      "target": "docs_api_permission_markers",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\API.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_api_permission_markers",
+      "target": "docs_api_resource_ownership_check",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\API.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_api_auth_endpoints",
+      "target": "docs_api_rest_api_contract",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\API.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_api_project_endpoints",
+      "target": "docs_api_permission_markers",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\API.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_api_task_endpoints",
+      "target": "docs_api_task_state_side_effects",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\API.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_api_task_state_side_effects",
+      "target": "docs_database_notifications_table",
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "D:\\labflow\\docs\\API.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_api_task_state_side_effects",
+      "target": "docs_database_operation_logs_table",
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "D:\\labflow\\docs\\API.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_api_project_endpoints",
+      "target": "docs_database_projects_table",
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "D:\\labflow\\docs\\API.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_api_task_endpoints",
+      "target": "docs_database_tasks_table",
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "D:\\labflow\\docs\\API.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_api_auth_endpoints",
+      "target": "docs_database_users_table",
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "D:\\labflow\\docs\\API.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_api_api_design_document",
+      "target": "docs_database_database_design_document",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\API.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_api_api_design_document",
+      "target": "docs_project_plan_project_plan_document",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\API.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_database_database_design_document",
+      "target": "docs_database_mysql_data_model",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\DATABASE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_database_mysql_data_model",
+      "target": "docs_database_users_table",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\DATABASE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_database_mysql_data_model",
+      "target": "docs_database_projects_table",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\DATABASE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_database_mysql_data_model",
+      "target": "docs_database_project_members_table",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\DATABASE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_database_mysql_data_model",
+      "target": "docs_database_tasks_table",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\DATABASE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_database_mysql_data_model",
+      "target": "docs_database_notifications_table",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\DATABASE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_database_mysql_data_model",
+      "target": "docs_database_operation_logs_table",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\DATABASE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_database_projects_table",
+      "target": "docs_database_project_members_table",
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\DATABASE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_database_projects_table",
+      "target": "docs_database_tasks_table",
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\DATABASE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_database_users_table",
+      "target": "docs_database_projects_table",
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\DATABASE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_database_users_table",
+      "target": "docs_database_project_members_table",
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\DATABASE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_database_users_table",
+      "target": "docs_database_tasks_table",
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\DATABASE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_database_tasks_table",
+      "target": "docs_database_notifications_table",
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\DATABASE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_database_tasks_table",
+      "target": "docs_database_operation_logs_table",
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\DATABASE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_database_projects_table",
+      "target": "docs_database_operation_logs_table",
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\DATABASE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_todo_first_version_development_sequence",
+      "target": "docs_project_plan_project_plan_document",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\TODO.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_todo_final_acceptance_criteria",
+      "target": "docs_project_plan_core_business_loop",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\TODO.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_todo_final_acceptance_criteria",
+      "target": "docs_api_unified_response_format",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "D:\\labflow\\docs\\TODO.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_todo_final_acceptance_criteria",
+      "target": "docs_database_task_status_values",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\TODO.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_dev_log_dev_log_document",
+      "target": "docs_architecture_architecture_document",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\DEV_LOG.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_dev_log_dev_log_document",
+      "target": "docs_database_database_design_document",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\DEV_LOG.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_dev_log_dev_log_document",
+      "target": "docs_api_api_design_document",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\DEV_LOG.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_dev_log_dev_log_document",
+      "target": "docs_todo_first_version_development_sequence",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\docs\\DEV_LOG.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_project_plan_first_version_scope",
+      "target": "agents_document_maintenance_rules",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.65,
+      "source_file": "D:\\labflow\\docs\\PROJECT_PLAN.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "web_src_assets_auth_illustration_auth_illustration",
+      "target": "web_src_assets_auth_illustration_futuristic_dashboard",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\web\\src\\assets\\auth-illustration.png",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "web_src_assets_auth_illustration_auth_illustration",
+      "target": "web_src_assets_auth_illustration_data_analytics_chart",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\web\\src\\assets\\auth-illustration.png",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "web_src_assets_auth_illustration_data_analytics_chart",
+      "target": "web_src_assets_auth_illustration_futuristic_dashboard",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "D:\\labflow\\web\\src\\assets\\auth-illustration.png",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "web_src_assets_labflow_logo_labflow_logo",
+      "target": "web_src_assets_labflow_logo_laboratory_flask_icon",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\web\\src\\assets\\labflow-logo.png",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "web_src_assets_labflow_logo_labflow_logo",
+      "target": "web_src_assets_labflow_logo_blue_brand_color",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\labflow\\web\\src\\assets\\labflow-logo.png",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "core_labflow_collaboration_loop",
+      "label": "Core LabFlow Collaboration Loop",
+      "nodes": [
+        "agents_labflow_core_business_flow",
+        "docs_project_plan_core_business_loop",
+        "docs_architecture_project_collaboration_flow",
+        "docs_api_task_state_side_effects",
+        "docs_todo_final_acceptance_criteria"
+      ],
+      "relation": "form",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "D:\\labflow\\docs\\PROJECT_PLAN.md"
+    },
+    {
+      "id": "owner_member_permission_model",
+      "label": "Owner Member Permission Model",
+      "nodes": [
+        "agents_role_rules",
+        "docs_architecture_permission_model",
+        "docs_api_permission_markers",
+        "docs_project_plan_system_user_project_role_model",
+        "docs_database_projects_table",
+        "docs_database_project_members_table"
+      ],
+      "relation": "form",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "D:\\labflow\\AGENTS.md"
+    },
+    {
+      "id": "task_status_lifecycle",
+      "label": "Task Status Lifecycle",
+      "nodes": [
+        "agents_task_status_rules",
+        "docs_api_task_endpoints",
+        "docs_api_task_state_side_effects",
+        "docs_architecture_task_state_machine",
+        "docs_database_task_status_values",
+        "docs_database_tasks_table"
+      ],
+      "relation": "form",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "D:\\labflow\\docs\\DATABASE.md"
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0
+}

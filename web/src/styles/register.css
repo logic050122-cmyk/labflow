@@ -1,0 +1,90 @@
+/* 注册页直接以单卡片居中展示，保持和参考图一致的聚焦感。 */
+.register-page {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 16px;
+  background: linear-gradient(135deg, #f0f4ff 0%, #e7edff 100%);
+}
+
+/* 注册卡片比登录卡片更高，靠更窄的宽度控制整体阅读密度。 */
+.auth-card--register {
+  max-width: 342px;
+  padding: 28px 30px 0;
+}
+
+.register-brand {
+  display: grid;
+  justify-items: center;
+}
+
+.register-brand p {
+  margin: -2px 0 0;
+  color: #4b5563;
+  font-size: 10px;
+}
+
+.auth-card__header--centered {
+  margin-top: 12px;
+  text-align: center;
+}
+
+.auth-card__header--centered h1 {
+  font-size: 18px;
+}
+
+.auth-card__header--centered p {
+  margin-top: 7px;
+  font-size: 12px;
+}
+
+/* 注册表单字段更多，所以行距比登录页更紧凑。 */
+.auth-card__fields--register {
+  gap: 11px;
+  margin-top: 17px;
+}
+
+.auth-card--register .auth-field .el-form-item__label {
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.auth-card--register .auth-field .el-input__wrapper {
+  height: 36px;
+  border-color: #c7cee0;
+  border-radius: 3px;
+  background: #f4f6ff;
+}
+
+.auth-card--register .auth-submit {
+  margin-top: 15px;
+  border-radius: 3px;
+  background: #07529f;
+}
+
+.auth-divider {
+  height: 1px;
+  margin-top: 23px;
+  background: #e4e7ec;
+}
+
+.auth-card--register .auth-switch {
+  margin-top: 21px;
+}
+
+.auth-copyright--register {
+  display: block;
+  margin-top: 22px;
+  font-size: 9px;
+  line-height: 1;
+  text-align: center;
+}
+
+@media (max-width: 390px) {
+  /* 极窄屏只做左右内边距收缩，不改核心尺寸，避免卡片被挤变形。 */
+  .auth-card--register {
+    padding-right: 22px;
+    padding-left: 22px;
+  }
+}

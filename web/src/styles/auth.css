@@ -1,0 +1,273 @@
+.brand-logo {
+  --brand-logo-width: 112px;
+  position: relative;
+  display: inline-block;
+  width: var(--brand-logo-width);
+  height: calc(var(--brand-logo-width) / 2.2);
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+
+.brand-logo img {
+  position: absolute;
+  top: -92%;
+  left: -15%;
+  width: 128%;
+  max-width: none;
+  mix-blend-mode: multiply;
+}
+
+/* 登录页按“介绍区 + 表单区”双栏排版，和文档里的桌面布局保持一致。 */
+.login-page {
+  display: grid;
+  min-height: 100vh;
+  grid-template-columns: 1fr 1fr;
+  background: #f9f9ff;
+}
+
+/* 左侧只负责品牌感和产品说明，不承担表单交互。 */
+.login-intro {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  padding: clamp(42px, 5vw, 58px) clamp(42px, 5vw, 64px) 40px;
+  background: #eef2ff;
+}
+
+.login-intro__copy {
+  /* 品牌原图的图标比设计稿更高，用负间距保持标题和主视觉的原始纵向节奏。 */
+  margin-top: -7px;
+}
+
+.login-intro__copy h1 {
+  margin: 0;
+  color: #111827;
+  font-size: clamp(25px, 2.25vw, 31px);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.login-intro__copy p {
+  margin: 10px 0 0;
+  color: #344054;
+  font-size: 14px;
+}
+
+/* 这张图是登录页的核心视觉，固定方形比例以稳定对齐原稿。 */
+.login-intro__image {
+  width: min(100%, 366px);
+  aspect-ratio: 1;
+  margin: 32px auto 28px;
+  object-fit: cover;
+  box-shadow: 0 12px 26px rgba(5, 36, 55, 0.16);
+}
+
+.auth-copyright {
+  margin-top: auto;
+  color: #667085;
+  font-size: 11px;
+  letter-spacing: 0.01em;
+}
+
+/* 右侧把表单卡片居中，保证桌面端和参考图一样是独立登录区。 */
+.login-panel {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 40px;
+}
+
+.auth-card {
+  width: 100%;
+  border: 1px solid #e4e7ec;
+  border-radius: 7px;
+  background: var(--auth-surface);
+  box-shadow: 0 12px 32px rgba(16, 24, 40, 0.08);
+}
+
+/* 登录卡片要比注册卡片更紧凑，避免占满右半屏。 */
+.auth-card--login {
+  max-width: 352px;
+  padding: 30px 27px 23px;
+}
+
+.auth-card__header h1,
+.auth-card__header h2 {
+  margin: 0;
+  color: var(--auth-text);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.auth-card__header p {
+  margin: 4px 0 0;
+  color: var(--auth-muted);
+  font-size: 12px;
+}
+
+/* 表单项统一间距，保证字段、提示和按钮之间的节奏稳定。 */
+.auth-card__fields {
+  display: grid;
+  gap: 14px;
+  margin-top: 29px;
+}
+
+.auth-field {
+  display: block;
+  margin-bottom: 0;
+}
+
+.auth-field .el-form-item__label {
+  display: block;
+  height: auto;
+  margin-bottom: 7px;
+  padding: 0;
+  color: #24272e;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: normal;
+}
+
+.auth-field .el-form-item__content {
+  display: block;
+  line-height: normal;
+}
+
+.auth-field .el-input__wrapper {
+  width: 100%;
+  height: 37px;
+  padding: 0 11px;
+  border: 1px solid var(--auth-border);
+  border-radius: 0;
+  background: #ffffff;
+  box-shadow: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.auth-field .el-input__inner {
+  color: var(--auth-text);
+  font-size: 12px;
+}
+
+.auth-field .el-input__inner::placeholder {
+  color: #98a2b3;
+}
+
+.auth-field .el-input__wrapper.is-focus {
+  border-color: var(--auth-blue);
+  box-shadow: 0 0 0 3px rgba(7, 95, 197, 0.12);
+}
+
+.auth-field.is-error .el-input__wrapper {
+  border-color: #d92d20;
+}
+
+.auth-field .el-form-item__error {
+  position: static;
+  padding-top: 5px;
+  color: #b42318;
+  font-size: 11px;
+}
+
+.auth-submit {
+  width: 100%;
+  height: 38px;
+  margin-top: 26px;
+  border: 0;
+  border-radius: 1px;
+  color: #ffffff;
+  background: var(--auth-blue);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 150ms ease, transform 150ms ease;
+}
+
+.auth-submit.el-button {
+  margin-left: 0;
+  color: #ffffff;
+  background: var(--auth-blue);
+}
+
+.auth-submit.el-button:hover,
+.auth-submit.el-button:focus {
+  color: #ffffff;
+  background: var(--auth-blue-dark);
+}
+
+.auth-submit:hover {
+  background: var(--auth-blue-dark);
+}
+
+.auth-submit:active {
+  transform: translateY(1px);
+}
+
+.auth-submit:disabled,
+.auth-submit.is-loading {
+  cursor: wait;
+  opacity: 0.68;
+  transform: none;
+}
+
+.auth-status {
+  margin: 10px 0 -4px;
+  color: var(--auth-muted);
+  font-size: 11px;
+  text-align: center;
+}
+
+.auth-switch {
+  margin: 29px 0 0;
+  color: var(--auth-blue);
+  font-size: 12px;
+  text-align: center;
+}
+
+.auth-card--login .auth-switch {
+  margin-top: 22px;
+}
+
+.auth-switch a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.auth-switch a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 760px) {
+  /* 小屏下改成单栏，先保留信息区，再把表单收窄到可触达范围。 */
+  .login-page {
+    grid-template-columns: 1fr;
+  }
+
+  .login-intro {
+    min-height: auto;
+    padding: 28px 24px 22px;
+  }
+
+  .login-intro__copy {
+    margin-top: 14px;
+  }
+
+  .login-intro__copy h1 {
+    font-size: 23px;
+  }
+
+  .login-intro__image {
+    display: none;
+  }
+
+  .login-intro .auth-copyright {
+    display: none;
+  }
+
+  .login-panel {
+    min-height: auto;
+    padding: 48px 20px;
+  }
+}

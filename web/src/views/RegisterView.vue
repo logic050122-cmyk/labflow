@@ -1,11 +1,168 @@
 <script setup lang="ts">
-import PagePlaceholder from "@/components/PagePlaceholder.vue";
+import { reactive, ref } from "vue";
+
+import BrandLogo from "@/components/auth/BrandLogo.vue";
+import { register } from "@/api/auth";
+
+// 保存用户在注册表单中输入的内容。
+const form = reactive({
+  username: "",
+  email: "",
+  password: "",
+  confirmPassword: ""
+});
+
+// 保存每个输入框对应的错误提示。
+const errors = reactive({
+  username: "",
+  email: "",
+  password: "",
+  confirmPassword: ""
+});
+
+// 保存注册成功或失败后显示在页面上的提示文字。
+const statusMessage = ref("");
+
+// 用来判断用户填写的邮箱格式是否基本正确。
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// 验证注册表单中的输入内容。
+const validate = () => {
+  errors.username = "";
+  errors.email = "";
+  errors.password = "";
+  errors.confirmPassword = "";
+
+  if (!form.username.trim()) {
+    errors.username = "请输入用户名";
+  }
+
+  if (form.email.trim() && !emailPattern.test(form.email)) {
+    errors.email = "请输入正确的电子邮箱";
+  }
+
+  if (!form.password) {
+    errors.password = "请输入密码";
+  }
+
+  if (!form.confirmPassword) {
+    errors.confirmPassword = "请再次输入密码";
+  } else if (form.confirmPassword !== form.password) {
+    errors.confirmPassword = "两次输入的密码不一致";
+  }
+
+  return (
+    !errors.username &&
+    !errors.email &&
+    !errors.password &&
+    !errors.confirmPassword
+  );
+};
+
+// 验证通过后，将注册数据发送给后端。
+const handleSubmit = async () => {
+  statusMessage.value = "";
+
+  if (!validate()) {
+    return;
+  }
+
+  try {
+    const username = form.username.trim();
+
+    await register({
+      username,
+      password: form.password,
+      // 当前注册页面没有单独的昵称输入框，暂时使用用户名作为昵称。
+      nickname: username,
+      email: form.email.trim() || undefined
+    });
+    statusMessage.value = "注册成功，请前往登录";
+  } catch (error: unknown) {
+    statusMessage.value = error instanceof Error ? error.message : "注册失败，请稍后重试";
+  }
+};
 </script>
 
 <template>
-  <main class="auth-page">
-    <RouterLink class="auth-page__brand" to="/dashboard">LabFlow</RouterLink>
-    <PagePlaceholder eyebrow="ACCESS / 02" title="注册" description="注册表单将在认证模块开发时接入。" />
-    <RouterLink class="auth-page__link" to="/login">返回登录页</RouterLink>
+  <main class="register-page">
+    <el-form class="auth-card auth-card--register" :model="form" @submit.prevent="handleSubmit">
+      <header class="register-brand">
+        <BrandLogo :width="112" />
+        <p>项目协作管理平台</p>
+      </header>
+
+      <div class="auth-card__header auth-card__header--centered">
+        <h1>创建账号</h1>
+        <p>加入我们，开启高效的团队协作</p>
+      </div>
+
+      <div class="auth-card__fields auth-card__fields--register">
+        <el-form-item
+          class="auth-field"
+          label="用户名"
+          :error="errors.username"
+        >
+          <el-input
+            id="register-username"
+            v-model="form.username"
+            placeholder="输入您的用户名"
+            autocomplete="username"
+          />
+        </el-form-item>
+
+        <el-form-item
+          class="auth-field"
+          label="电子邮箱"
+          :error="errors.email"
+        >
+          <el-input
+            id="register-email"
+            v-model="form.email"
+            type="email"
+            placeholder="输入您的电子邮箱（选填）"
+            autocomplete="email"
+          />
+        </el-form-item>
+
+        <el-form-item
+          class="auth-field"
+          label="密码"
+          :error="errors.password"
+        >
+          <el-input
+            id="register-password"
+            v-model="form.password"
+            type="password"
+            placeholder="输入您的密码"
+            autocomplete="new-password"
+            show-password
+          />
+        </el-form-item>
+
+        <el-form-item
+          class="auth-field"
+          label="确认密码"
+          :error="errors.confirmPassword"
+        >
+          <el-input
+            id="register-confirm-password"
+            v-model="form.confirmPassword"
+            type="password"
+            placeholder="再次输入您的密码"
+            autocomplete="new-password"
+            show-password
+          />
+        </el-form-item>
+      </div>
+
+      <el-button class="auth-submit" native-type="submit">注册</el-button>
+      <p v-if="statusMessage" class="auth-status" role="status" aria-live="polite">
+        {{ statusMessage }}
+      </p>
+      <div class="auth-divider" aria-hidden="true"></div>
+      <p class="auth-switch">已有账号？<RouterLink to="/login">去登录</RouterLink></p>
+      <small class="auth-copyright auth-copyright--register">© 2024 LabFlow. All rights reserved.</small>
+    </el-form>
   </main>
 </template>

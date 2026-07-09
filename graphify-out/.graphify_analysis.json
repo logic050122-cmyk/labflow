@@ -1,0 +1,384 @@
+{
+  "communities": {
+    "0": [
+      "web_src_api_auth",
+      "web_src_api_auth_login",
+      "web_src_api_auth_loginpayload",
+      "web_src_api_auth_loginresult",
+      "web_src_api_auth_register",
+      "web_src_api_auth_registerpayload",
+      "web_src_api_http",
+      "web_src_api_http_http",
+      "web_src_api_http_request",
+      "web_src_components_auth_brandlogo",
+      "web_src_stores_auth",
+      "web_src_stores_auth_useauthstore",
+      "web_src_types_api",
+      "web_src_types_api_apiresponse",
+      "web_src_types_api_pagedata",
+      "web_src_views_loginview",
+      "web_src_views_loginview_authstore",
+      "web_src_views_loginview_errors",
+      "web_src_views_loginview_form",
+      "web_src_views_loginview_handlesubmit",
+      "web_src_views_loginview_statusmessage",
+      "web_src_views_loginview_validate",
+      "web_src_views_registerview",
+      "web_src_views_registerview_errors",
+      "web_src_views_registerview_form",
+      "web_src_views_registerview_handlesubmit",
+      "web_src_views_registerview_statusmessage",
+      "web_src_views_registerview_validate"
+    ],
+    "1": [
+      "web_package",
+      "web_package_dependencies",
+      "web_package_dependencies_axios",
+      "web_package_dependencies_element_plus",
+      "web_package_dependencies_pinia",
+      "web_package_dependencies_vue",
+      "web_package_dependencies_vue_router",
+      "web_package_devdependencies",
+      "web_package_devdependencies_types_node",
+      "web_package_devdependencies_typescript",
+      "web_package_devdependencies_vite",
+      "web_package_devdependencies_vitejs_plugin_vue",
+      "web_package_devdependencies_vue_tsc",
+      "web_package_name",
+      "web_package_private",
+      "web_package_scripts",
+      "web_package_scripts_build",
+      "web_package_scripts_dev",
+      "web_package_scripts_preview",
+      "web_package_scripts_typecheck",
+      "web_package_type",
+      "web_package_version"
+    ],
+    "2": [
+      "server_src_app",
+      "server_src_app_createapp",
+      "server_src_common_http",
+      "server_src_common_http_apiresponse",
+      "server_src_common_http_apperror",
+      "server_src_common_http_apperror_constructor",
+      "server_src_common_http_errorhandler",
+      "server_src_common_http_notfoundhandler",
+      "server_src_common_http_sendsuccess",
+      "server_src_config_db",
+      "server_src_config_db_closedatabase",
+      "server_src_config_db_connectdatabase",
+      "server_src_config_db_db",
+      "server_src_config_env",
+      "server_src_config_env_env",
+      "server_src_config_env_readnumber",
+      "server_src_config_env_readstring",
+      "server_src_server",
+      "server_src_server_registershutdown",
+      "server_src_server_startserver"
+    ],
+    "3": [
+      "web_tsconfig",
+      "web_tsconfig_compileroptions",
+      "web_tsconfig_compileroptions_allowimportingtsextensions",
+      "web_tsconfig_compileroptions_baseurl",
+      "web_tsconfig_compileroptions_esmoduleinterop",
+      "web_tsconfig_compileroptions_isolatedmodules",
+      "web_tsconfig_compileroptions_jsx",
+      "web_tsconfig_compileroptions_lib",
+      "web_tsconfig_compileroptions_module",
+      "web_tsconfig_compileroptions_moduleresolution",
+      "web_tsconfig_compileroptions_noemit",
+      "web_tsconfig_compileroptions_paths",
+      "web_tsconfig_compileroptions_resolvejsonmodule",
+      "web_tsconfig_compileroptions_skiplibcheck",
+      "web_tsconfig_compileroptions_strict",
+      "web_tsconfig_compileroptions_target",
+      "web_tsconfig_compileroptions_types",
+      "web_tsconfig_compileroptions_usedefineforclassfields",
+      "web_tsconfig_include",
+      "web_tsconfig_paths"
+    ],
+    "4": [
+      "server_package",
+      "server_package_dependencies",
+      "server_package_dependencies_dotenv",
+      "server_package_dependencies_express",
+      "server_package_dependencies_mysql2",
+      "server_package_devdependencies",
+      "server_package_devdependencies_tsx",
+      "server_package_devdependencies_types_express",
+      "server_package_devdependencies_types_node",
+      "server_package_devdependencies_typescript",
+      "server_package_name",
+      "server_package_private",
+      "server_package_scripts",
+      "server_package_scripts_build",
+      "server_package_scripts_dev",
+      "server_package_scripts_start",
+      "server_package_scripts_typecheck",
+      "server_package_version"
+    ],
+    "5": [
+      "server_tsconfig",
+      "server_tsconfig_compileroptions",
+      "server_tsconfig_compileroptions_esmoduleinterop",
+      "server_tsconfig_compileroptions_forceconsistentcasinginfilenames",
+      "server_tsconfig_compileroptions_module",
+      "server_tsconfig_compileroptions_moduleresolution",
+      "server_tsconfig_compileroptions_nouncheckedindexedaccess",
+      "server_tsconfig_compileroptions_outdir",
+      "server_tsconfig_compileroptions_resolvejsonmodule",
+      "server_tsconfig_compileroptions_rootdir",
+      "server_tsconfig_compileroptions_skiplibcheck",
+      "server_tsconfig_compileroptions_sourcemap",
+      "server_tsconfig_compileroptions_strict",
+      "server_tsconfig_compileroptions_target",
+      "server_tsconfig_exclude",
+      "server_tsconfig_include"
+    ],
+    "6": [
+      "docs_api_auth_endpoints",
+      "docs_api_permission_markers",
+      "docs_api_project_endpoints",
+      "docs_api_resource_ownership_check",
+      "docs_api_rest_api_contract",
+      "docs_api_task_endpoints",
+      "docs_api_task_state_side_effects",
+      "docs_database_mysql_data_model",
+      "docs_database_notifications_table",
+      "docs_database_operation_logs_table",
+      "docs_database_project_members_table",
+      "docs_database_projects_table",
+      "docs_database_tasks_table",
+      "docs_database_users_table"
+    ],
+    "7": [
+      "agents_api_contract_rules",
+      "agents_database_rules",
+      "agents_document_maintenance_rules",
+      "docs_api_api_design_document",
+      "docs_architecture_project_collaboration_flow",
+      "docs_database_database_design_document",
+      "docs_dev_log_dev_log_document",
+      "docs_project_plan_core_business_loop",
+      "docs_project_plan_first_version_scope",
+      "docs_project_plan_labflow_platform",
+      "docs_project_plan_project_plan_document",
+      "docs_todo_first_version_development_sequence"
+    ],
+    "8": [
+      "agents_labflow_core_business_flow",
+      "agents_labflow_project_rules",
+      "agents_role_rules",
+      "agents_task_status_rules",
+      "docs_api_unified_response_format",
+      "docs_architecture_permission_model",
+      "docs_architecture_task_state_machine",
+      "docs_database_task_status_values",
+      "docs_project_plan_member_role",
+      "docs_project_plan_owner_role",
+      "docs_project_plan_system_user_project_role_model",
+      "docs_todo_final_acceptance_criteria"
+    ],
+    "9": [
+      "agents_backend_layering_rules",
+      "agents_frontend_layering_rules",
+      "docs_architecture_architecture_document",
+      "docs_architecture_backend_layering",
+      "docs_architecture_business_module_boundaries",
+      "docs_architecture_frontend_layering",
+      "docs_architecture_modular_monolith_architecture"
+    ],
+    "10": [
+      "web_src_app",
+      "web_src_main",
+      "web_src_main_app",
+      "web_src_router_index",
+      "web_src_router_index_router"
+    ],
+    "11": [
+      "web_src_assets_auth_illustration_auth_illustration",
+      "web_src_assets_auth_illustration_data_analytics_chart",
+      "web_src_assets_auth_illustration_futuristic_dashboard"
+    ],
+    "12": [
+      "web_src_assets_labflow_logo_blue_brand_color",
+      "web_src_assets_labflow_logo_labflow_logo",
+      "web_src_assets_labflow_logo_laboratory_flask_icon"
+    ],
+    "13": [
+      "web_src_shims_vue_d",
+      "web_src_shims_vue_d_vue"
+    ],
+    "14": [
+      "web_src_vite_env_d"
+    ],
+    "15": [
+      "web_vite_config"
+    ]
+  },
+  "cohesion": {
+    "0": 0.10317460317460317,
+    "1": 0.09090909090909091,
+    "2": 0.1736842105263158,
+    "3": 0.1,
+    "4": 0.1111111111111111,
+    "5": 0.125,
+    "6": 0.26373626373626374,
+    "7": 0.25757575757575757,
+    "8": 0.16666666666666666,
+    "9": 0.2857142857142857,
+    "10": 0.5,
+    "11": 1.0,
+    "12": 0.6666666666666666,
+    "13": 1.0,
+    "14": 1.0,
+    "15": 1.0
+  },
+  "gods": [
+    {
+      "id": "web_tsconfig_compileroptions",
+      "label": "compilerOptions",
+      "degree": 17
+    },
+    {
+      "id": "server_tsconfig_compileroptions",
+      "label": "compilerOptions",
+      "degree": 13
+    },
+    {
+      "id": "docs_database_mysql_data_model",
+      "label": "MySQL Data Model",
+      "degree": 7
+    },
+    {
+      "id": "docs_api_api_design_document",
+      "label": "API Design Document",
+      "degree": 6
+    },
+    {
+      "id": "docs_database_projects_table",
+      "label": "projects Table",
+      "degree": 6
+    },
+    {
+      "id": "docs_database_tasks_table",
+      "label": "tasks Table",
+      "degree": 6
+    },
+    {
+      "id": "server_package_scripts",
+      "label": "scripts",
+      "degree": 5
+    },
+    {
+      "id": "server_src_app_createapp",
+      "label": "createApp()",
+      "degree": 5
+    },
+    {
+      "id": "web_package_scripts",
+      "label": "scripts",
+      "degree": 5
+    },
+    {
+      "id": "agents_document_maintenance_rules",
+      "label": "Document Maintenance Rules",
+      "degree": 5
+    }
+  ],
+  "surprises": [
+    {
+      "source": "Owner and Member Role Rules",
+      "target": "Architecture Permission Model",
+      "source_files": [
+        "AGENTS.md",
+        "docs/ARCHITECTURE.md"
+      ],
+      "confidence": "INFERRED",
+      "relation": "semantically_similar_to",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; semantically similar concepts with no structural link"
+    },
+    {
+      "source": "Task Status Rules",
+      "target": "Task Status Values",
+      "source_files": [
+        "AGENTS.md",
+        "docs/DATABASE.md"
+      ],
+      "confidence": "INFERRED",
+      "relation": "semantically_similar_to",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; semantically similar concepts with no structural link"
+    },
+    {
+      "source": "Backend Layering Rules",
+      "target": "Architecture Backend Layering",
+      "source_files": [
+        "AGENTS.md",
+        "docs/ARCHITECTURE.md"
+      ],
+      "confidence": "INFERRED",
+      "relation": "semantically_similar_to",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; semantically similar concepts with no structural link"
+    },
+    {
+      "source": "Frontend Layering Rules",
+      "target": "Architecture Frontend Layering",
+      "source_files": [
+        "AGENTS.md",
+        "docs/ARCHITECTURE.md"
+      ],
+      "confidence": "INFERRED",
+      "relation": "semantically_similar_to",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; semantically similar concepts with no structural link"
+    },
+    {
+      "source": "First Version Scope",
+      "target": "Document Maintenance Rules",
+      "source_files": [
+        "docs/PROJECT_PLAN.md",
+        "AGENTS.md"
+      ],
+      "confidence": "INFERRED",
+      "relation": "conceptually_related_to",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; peripheral node `First Version Scope` unexpectedly reaches hub `Document Maintenance Rules`"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `Final Acceptance Criteria` connect `Business Roles Tasks` to `Documentation Governance`?",
+      "why": "High betweenness centrality (0.021) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `REST API Contract` connect `API Database Contracts` to `Business Roles Tasks`, `Documentation Governance`?",
+      "why": "High betweenness centrality (0.019) - this node is a cross-community bridge."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `name`, `version`, `private` to the rest of the system?",
+      "why": "91 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Auth Frontend` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.10317460317460317 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Web Dependencies` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.09090909090909091 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Web TS Config` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.1 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Server Dependencies` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.1111111111111111 - nodes in this community are weakly interconnected."
+    }
+  ]
+}
