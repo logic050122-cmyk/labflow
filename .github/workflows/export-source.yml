@@ -1,0 +1,26 @@
+name: Export source ZIP
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create source ZIP
+        run: |
+          rm -rf .git
+          rm -f .github/workflows/export-source.yml
+          zip -r labflow-main-latest.zip . -x "labflow-main-latest.zip"
+
+      - name: Upload source ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: labflow-main-latest
+          path: labflow-main-latest.zip
+          if-no-files-found: error
