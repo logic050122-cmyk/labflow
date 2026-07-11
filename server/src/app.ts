@@ -1,6 +1,7 @@
 import express from "express";
 
 import { errorHandler, notFoundHandler } from "./common/http";
+import { authRoutes } from "./modules/auth/auth.routes";
 
 // app.ts 只负责“组装 Express 应用”，不负责监听端口。
 // 这样测试时可以直接创建 app，不必真的启动一个服务器进程。
@@ -12,7 +13,9 @@ export const createApp = () => {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));// 让后端能读取表单格式请求体
 
-  // 后续业务模块的 routes 会统一挂载在这里，目前不放任何业务路由。
+  // authRoutes 内部的 /register 会和这里的 /api/auth 拼成完整地址
+  // POST /api/auth/register。
+  app.use("/api/auth", authRoutes);
 
   // 404 和错误处理中间件必须放在所有正常路由之后。
   app.use(notFoundHandler);

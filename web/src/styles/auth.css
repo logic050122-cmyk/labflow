@@ -106,6 +106,19 @@
   font-size: 12px;
 }
 
+/* 注册成功提示放在登录表单上方，让用户跳转后能立即看到结果。 */
+.auth-success-alert {
+  margin-top: 20px;
+}
+
+.auth-success-alert .el-alert__title {
+  font-size: 12px;
+}
+
+.auth-card--login .auth-success-alert + .auth-card__fields {
+  margin-top: 18px;
+}
+
 /* 表单项统一间距，保证字段、提示和按钮之间的节奏稳定。 */
 .auth-card__fields {
   display: grid;

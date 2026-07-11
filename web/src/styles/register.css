@@ -88,3 +88,10 @@
     padding-left: 22px;
   }
 }
+
+@media (max-height: 760px) {
+  /* 字段增多后，矮屏从页面顶部开始排版，避免卡片顶部被居中布局裁掉。 */
+  .register-page {
+    place-items: start center;
+  }
+}

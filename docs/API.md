@@ -4,7 +4,7 @@
 
 本文档定义第一版 REST API 的公共契约、模块接口、权限和状态流转。后续新增或修改接口必须同步更新本文档。
 
-当前阶段只做接口设计，不编写 controller、service 或其他业务代码。
+本文档记录第一版接口契约。后续编写 controller、service 或其他业务代码时，接口字段和响应结构必须与本文档保持一致。
 
 ## 2. 公共约定
 
@@ -107,6 +107,27 @@
 | POST | `/api/auth/logout` | User | 前端清除登录态；第一版不维护服务端会话 |
 
 注册请求字段：`username`、`password`、`nickname`，可选 `email`、`phone`、`direction`。登录请求字段：`username`、`password`。
+
+注册成功响应：
+
+```json
+{
+  "code": 0,
+  "message": "注册成功",
+  "data": {
+    "user": {
+      "id": 1,
+      "username": "alice",
+      "nickname": "小林",
+      "email": "alice@example.com",
+      "createdAt": "2026-07-09T10:00:00.000Z",
+      "updatedAt": "2026-07-09T10:00:00.000Z"
+    }
+  }
+}
+```
+
+注册接口不返回 `password` 或 `passwordHash`。用户名重复返回 `40901`；必填字段为空、字段类型错误或超过数据库字段长度返回 `40001`。
 
 ### 4.2 用户 users
 

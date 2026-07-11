@@ -24,7 +24,7 @@
 开始第一个业务模块前，应先完成以下基础事项：
 
 - [ ] 安装并锁定前端依赖，完成类型检查和构建验证
-- [ ] 建立后端按业务模块组织的目录约定
+- [x] 建立后端按业务模块组织的目录约定
 - [x] 根据 `DATABASE.md` 建立第一版数据库迁移
 - [ ] 配置 JWT 认证中间件入口
 - [ ] 配置项目成员关系和 Owner 权限校验入口
@@ -54,6 +54,12 @@
 ### 模块 1：用户注册登录
 
 - [ ] 模块完成
+- [x] 注册接口：完成 `POST /api/auth/register` 的参数校验、用户名重复检查、密码哈希和用户写入
+- [ ] 登录接口：校验账号密码并返回 JWT
+- [ ] JWT 配置
+- [ ] 认证中间件
+- [ ] 当前用户接口 `/api/auth/me`
+- [ ] 前端登录成功跳转和登录态恢复
 - 开发目标：完成账号注册、账号密码登录、JWT 登录态、获取当前用户和退出登录；不做第三方登录和手机验证码。
 - 涉及后端目录：`server/src/modules/auth`、`server/src/modules/users`、`server/src/middlewares`。
 - 涉及前端目录：`web/src/views/LoginView.vue`、`web/src/views/RegisterView.vue`、`web/src/api`、`web/src/stores`、`web/src/router`、`web/src/types`。

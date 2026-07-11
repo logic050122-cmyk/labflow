@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref } from "vue";
+import { useRoute } from "vue-router";
 
 import authIllustration from "@/assets/auth-illustration.png";
 import BrandLogo from "@/components/auth/BrandLogo.vue";
@@ -7,10 +8,16 @@ import { useAuthStore } from "@/stores/auth";
 
 // 登录成功后，通过 authStore 保存后端返回的 Token。
 const authStore = useAuthStore();
+const route = useRoute();
+
+// 注册页会通过路由参数告诉登录页：注册已成功，并带回刚注册的用户名。
+const registeredSuccessfully = route.query.registered === "1";
+const registeredUsername =
+  typeof route.query.username === "string" ? route.query.username : "";
 
 // 保存用户在登录表单中输入的内容。
 const form = reactive({
-  username: "",
+  username: registeredUsername,
   password: ""
 });
 
@@ -20,7 +27,7 @@ const errors = reactive({
   password: ""
 });
 
-// 保存登录成功或失败后显示在页面上的提示文字。
+// 保存登录失败后显示在页面上的错误提示。
 const statusMessage = ref("");
 
 // 验证表单输入，输入了内容就为true，否则为false。
@@ -79,6 +86,16 @@ const handleSubmit = async () => {
           <h2>欢迎登录</h2>
           <p>登录以继续访问您的项目</p>
         </header>
+
+        <el-alert
+          v-if="registeredSuccessfully"
+          class="auth-success-alert"
+          title="注册成功，请使用新账号登录"
+          type="success"
+          show-icon
+          :closable="false"
+        />
+
         <div class="auth-card__fields">
           <el-form-item
             class="auth-field"

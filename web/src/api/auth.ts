@@ -16,6 +16,8 @@ export interface RegisterPayload {
   password: string;
   nickname: string;
   email?: string;
+  phone?: string;
+  direction?: string;
 }
 
 // 登录成功后，后端返回的数据类型。
@@ -43,7 +45,7 @@ export async function login(payload: LoginPayload) {
 }
 
 // 注册接口函数。
-// payload 是用户名、密码、昵称、邮箱等注册信息。
+// payload 与 PROJECT_PLAN.md 的注册信息保持一致。
 export async function register(payload: RegisterPayload) {
   return await request({
     // 请求方式：POST。

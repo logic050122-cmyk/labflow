@@ -1,13 +1,19 @@
 <script setup lang="ts">
 import { reactive, ref } from "vue";
+import { useRouter } from "vue-router";
 
 import BrandLogo from "@/components/auth/BrandLogo.vue";
 import { register } from "@/api/auth";
 
+const router = useRouter();
+
 // 保存用户在注册表单中输入的内容。
 const form = reactive({
   username: "",
+  nickname: "",
   email: "",
+  phone: "",
+  direction: "",
   password: "",
   confirmPassword: ""
 });
@@ -15,12 +21,13 @@ const form = reactive({
 // 保存每个输入框对应的错误提示。
 const errors = reactive({
   username: "",
+  nickname: "",
   email: "",
   password: "",
   confirmPassword: ""
 });
 
-// 保存注册成功或失败后显示在页面上的提示文字。
+// 保存注册失败后显示在当前页面上的提示文字。
 const statusMessage = ref("");
 
 // 用来判断用户填写的邮箱格式是否基本正确。
@@ -29,6 +36,7 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // 验证注册表单中的输入内容。
 const validate = () => {
   errors.username = "";
+  errors.nickname = "";
   errors.email = "";
   errors.password = "";
   errors.confirmPassword = "";
@@ -37,11 +45,15 @@ const validate = () => {
     errors.username = "请输入用户名";
   }
 
-  if (form.email.trim() && !emailPattern.test(form.email)) {
+  if (!form.nickname.trim()) {
+    errors.nickname = "请输入昵称";
+  }
+
+  if (form.email.trim() && !emailPattern.test(form.email.trim())) {
     errors.email = "请输入正确的电子邮箱";
   }
 
-  if (!form.password) {
+  if (!form.password.trim()) {
     errors.password = "请输入密码";
   }
 
@@ -53,6 +65,7 @@ const validate = () => {
 
   return (
     !errors.username &&
+    !errors.nickname &&
     !errors.email &&
     !errors.password &&
     !errors.confirmPassword
@@ -73,11 +86,20 @@ const handleSubmit = async () => {
     await register({
       username,
       password: form.password,
-      // 当前注册页面没有单独的昵称输入框，暂时使用用户名作为昵称。
-      nickname: username,
-      email: form.email.trim() || undefined
+      nickname: form.nickname.trim(),
+      email: form.email.trim() || undefined,
+      phone: form.phone.trim() || undefined,
+      direction: form.direction.trim() || undefined
     });
-    statusMessage.value = "注册成功，请前往登录";
+
+    // 注册成功后进入登录页，并让登录页显示注册成功提示。
+    await router.push({
+      name: "login",
+      query: {
+        registered: "1",
+        username
+      }
+    });
   } catch (error: unknown) {
     statusMessage.value = error instanceof Error ? error.message : "注册失败，请稍后重试";
   }
@@ -108,6 +130,21 @@ const handleSubmit = async () => {
             v-model="form.username"
             placeholder="输入您的用户名"
             autocomplete="username"
+            :maxlength="50"
+          />
+        </el-form-item>
+
+        <el-form-item
+          class="auth-field"
+          label="昵称"
+          :error="errors.nickname"
+        >
+          <el-input
+            id="register-nickname"
+            v-model="form.nickname"
+            placeholder="输入您的昵称"
+            autocomplete="nickname"
+            :maxlength="50"
           />
         </el-form-item>
 
@@ -122,6 +159,27 @@ const handleSubmit = async () => {
             type="email"
             placeholder="输入您的电子邮箱（选填）"
             autocomplete="email"
+            :maxlength="100"
+          />
+        </el-form-item>
+
+        <el-form-item class="auth-field" label="手机号">
+          <el-input
+            id="register-phone"
+            v-model="form.phone"
+            type="tel"
+            placeholder="输入您的手机号（选填）"
+            autocomplete="tel"
+            :maxlength="20"
+          />
+        </el-form-item>
+
+        <el-form-item class="auth-field" label="所属方向">
+          <el-input
+            id="register-direction"
+            v-model="form.direction"
+            placeholder="例如：前端、后端、测试（选填）"
+            :maxlength="50"
           />
         </el-form-item>
 
