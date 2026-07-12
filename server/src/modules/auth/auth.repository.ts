@@ -76,7 +76,9 @@ export const findUserByUsername = async (
 };
 
 // 插入成功后按 ID 读取安全的用户信息，作为注册接口响应。
-const findPublicUserById = async (id: number): Promise<AuthPublicUser | null> => {
+export const findPublicUserById = async (
+  id: number
+): Promise<AuthPublicUser | null> => {
   const [rows] = await db.query<PublicUserRow[]>(
     `SELECT id, username, nickname, email, created_at, updated_at
      FROM users

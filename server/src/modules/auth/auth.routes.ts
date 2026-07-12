@@ -1,6 +1,8 @@
 import { Router } from "express";
 
-import { login, register } from "./auth.controller";
+import { authenticate } from "../../middlewares/auth.middleware";
+
+import { getMe, login, register } from "./auth.controller";
 
 // authRoutes 只负责把 HTTP 方法和路径交给对应 controller。
 export const authRoutes = Router();
@@ -10,3 +12,6 @@ authRoutes.post("/register", register);
 
 // 完整地址是 POST /api/auth/login。
 authRoutes.post("/login", login);
+
+// 必须先通过 authenticate，controller 才能读取 request.userId。
+authRoutes.get("/me", authenticate, getMe);

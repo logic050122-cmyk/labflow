@@ -4,6 +4,22 @@
 
 ## 2026-07-12
 
+### 当前用户接口
+
+- 新增受保护接口 `GET /api/auth/me`，通过认证中间件取得当前用户 ID。
+- repository 按用户 ID 查询安全用户信息，service 处理用户不存在的情况，controller 返回统一响应。
+- 接口不返回密码或密码哈希；token 对应用户不存在时返回 `40401`。
+- 同步更新 `docs/API.md` 和 `docs/TODO.md`；本次未修改前端登录状态和路由跳转。
+- 真实 MySQL 联调验证了注册、登录、获取当前用户及认证错误分支；临时测试账号已清理。
+
+### JWT 认证中间件
+
+- 新增 `authenticate` 中间件，从 `Authorization: Bearer <token>` 读取并验证 JWT。
+- 验证成功后把 `userId` 写入 Express 请求对象，供后续受保护接口使用。
+- 缺少或格式错误的认证信息返回 `40102`，无效、篡改或过期 token 返回 `40103`。
+- 新增 Express Request 类型扩展；本次未新增受保护接口，也未修改前端登录状态。
+- 中间件联调验证了有效、缺失、格式错误、多余字段、篡改和过期 token 等分支。
+
 ### 登录接口
 
 - 新增 `POST /api/auth/login`，接收用户名和密码，登录成功后返回 JWT token。

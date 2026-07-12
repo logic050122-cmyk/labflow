@@ -53,3 +53,8 @@ export interface RegisterResult {
 export interface LoginResult {
   token: string;
 }
+
+// /api/auth/me 返回当前登录用户的安全信息。
+export interface CurrentUserResult {
+  user: AuthPublicUser;
+}

@@ -8,8 +8,13 @@ import { promisify } from "util";
 import { AppError } from "../../common/http";
 import { signAccessToken } from "../../config/jwt";
 
-import { createUser, findUserByUsername } from "./auth.repository";
+import {
+  createUser,
+  findPublicUserById,
+  findUserByUsername
+} from "./auth.repository";
 import type {
+  CurrentUserResult,
   LoginInput,
   LoginResult,
   RegisterInput,
@@ -120,4 +125,17 @@ export const loginUser = async (input: LoginInput): Promise<LoginResult> => {
   return {
     token: signAccessToken(user.id)
   };
+};
+
+// 根据认证中间件提供的用户 ID 查询当前登录用户。
+export const getCurrentUser = async (
+  userId: number
+): Promise<CurrentUserResult> => {
+  const user = await findPublicUserById(userId);
+
+  if (!user) {
+    throw new AppError("当前用户不存在", 404, 40401);
+  }
+
+  return { user };
 };
