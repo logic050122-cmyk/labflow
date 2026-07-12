@@ -9,6 +9,12 @@ export interface RegisterInput {
   direction?: string;
 }
 
+// validator 校验完成后交给 service 的登录数据。
+export interface LoginInput {
+  username: string;
+  password: string;
+}
+
 // repository 写入 users 表时使用的数据。
 // 这里故意只保存 passwordHash，避免把明文密码传到数据库层。
 export interface CreateUserInput {
@@ -18,6 +24,13 @@ export interface CreateUserInput {
   email?: string;
   phone?: string;
   direction?: string;
+}
+
+// repository 查询登录用户时返回的数据，密码哈希只供 service 校验密码。
+export interface AuthUserWithPassword {
+  id: number;
+  username: string;
+  passwordHash: string;
 }
 
 // 可以返回给前端的用户信息。
@@ -34,4 +47,9 @@ export interface AuthPublicUser {
 // 注册接口 data 字段的结构，方便后续 controller 和前端保持一致。
 export interface RegisterResult {
   user: AuthPublicUser;
+}
+
+// 登录成功后只返回访问令牌，用户信息将在 /api/auth/me 中获取。
+export interface LoginResult {
+  token: string;
 }

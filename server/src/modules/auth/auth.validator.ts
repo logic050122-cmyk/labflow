@@ -1,6 +1,6 @@
 import { AppError } from "../../common/http";
 
-import type { RegisterInput } from "./auth.types";
+import type { LoginInput, RegisterInput } from "./auth.types";
 
 // Express 的 request.body 默认不能直接相信，所以先把它缩小为对象类型。
 // “键是字符串，值暂时未知的对象”。可以有任意多个
@@ -96,4 +96,18 @@ export const validateRegisterRequest = (body: unknown): RegisterInput => {
     phone,
     direction
   };
+};
+
+// 登录只接收用户名和密码，不在这里处理密码校验等业务逻辑。
+export const validateLoginRequest = (body: unknown): LoginInput => {
+  const requestBody = ensureRequestBody(body);
+
+  const username = readRequiredText(requestBody.username, "用户名");
+  if (username.length > 50) {
+    throw new AppError("用户名不能超过 50 个字符", 400, 40001);
+  }
+
+  const password = readPassword(requestBody.password);
+
+  return { username, password };
 };

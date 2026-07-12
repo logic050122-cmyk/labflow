@@ -2,7 +2,11 @@ import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 import { db } from "../../config/db";
 
-import type { AuthPublicUser, CreateUserInput } from "./auth.types";
+import type {
+  AuthPublicUser,
+  AuthUserWithPassword,
+  CreateUserInput
+} from "./auth.types";
 
 // 数据库查询结果使用 snake_case 字段名，和 users 表的列名保持一致。
 interface AuthUserRow extends RowDataPacket {
@@ -50,7 +54,7 @@ const toPublicUser = (row: PublicUserRow): AuthPublicUser => {
 // ]
 export const findUserByUsername = async (
   username: string
-): Promise<AuthUserRow | null> => {
+): Promise<AuthUserWithPassword | null> => {
   const [rows] = await db.query<AuthUserRow[]>(
     `SELECT id, username, password_hash
      FROM users
@@ -59,7 +63,16 @@ export const findUserByUsername = async (
     [username] //是一个参数数组，用来给 SQL 里的 ? 传值。
   );
 
-  return rows[0] ?? null; //两个？表示 如果 rows[0] 是 undefined，则返回 null；否则返回 rows[0]。
+  const user = rows[0];
+  if (!user) {
+    return null;
+  }
+
+  return {
+    id: Number(user.id),
+    username: user.username,
+    passwordHash: user.password_hash
+  };
 };
 
 // 插入成功后按 ID 读取安全的用户信息，作为注册接口响应。
