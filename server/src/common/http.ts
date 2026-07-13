@@ -18,7 +18,13 @@ export const sendSuccess = <T>(
   data: T,
   message = "success"
 ): Response<ApiResponse<T>> => {
-  return response.json({ code: 0, message, data });//返回一个 JSON 响应，包含 code、message 和 data 字段
+  const body: ApiResponse<T> = {
+    code: 0,
+    message,
+    data
+  };
+
+  return response.json(body);
 };
 
 // 可预期的业务错误使用 AppError，并同时携带 HTTP 状态码和项目错误码。

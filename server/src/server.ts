@@ -19,7 +19,7 @@ const startServer = async () => {
 // Ctrl+C 或部署平台要求停止时，先停止接收新请求，再关闭数据库连接池。
 // 这种有顺序的退出方式称为“优雅退出”，可减少数据处理中断。
 const registerShutdown = (server: Server) => {
-  const shutdown = (signal: NodeJS.Signals) => {
+  const shutdown = (signal: NodeJS.Signals) => {//定义一个 shutdown 函数，接收一个信号参数
     console.log(`${signal} received, shutting down.`);
 
     server.close(() => {
@@ -32,6 +32,8 @@ const registerShutdown = (server: Server) => {
 };
 
 // 顶层统一捕获启动失败，避免进程在未知状态下继续运行。
+// 启动服务器。
+// 如果启动过程中出错，就打印错误，并退出程序。
 startServer().catch((error: unknown) => {
   console.error("Failed to start LabFlow server.", error);
   process.exit(1);
