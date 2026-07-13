@@ -104,7 +104,6 @@
 | POST | `/api/auth/register` | Public | 用户注册 |
 | POST | `/api/auth/login` | Public | 登录并获取 JWT |
 | GET | `/api/auth/me` | User | 获取当前用户 |
-| POST | `/api/auth/logout` | User | 前端清除登录态；第一版不维护服务端会话 |
 
 注册请求字段：`username`、`password`、`nickname`，可选 `email`、`phone`、`direction`。登录请求字段：`username`、`password`。
 

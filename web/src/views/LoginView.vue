@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 import authIllustration from "@/assets/auth-illustration.png";
 import BrandLogo from "@/components/auth/BrandLogo.vue";
@@ -9,6 +9,7 @@ import { useAuthStore } from "@/stores/auth";
 // 登录成功后，通过 authStore 保存后端返回的 Token。
 const authStore = useAuthStore();
 const route = useRoute();
+const router = useRouter();
 
 // 注册页会通过路由参数告诉登录页：注册已成功，并带回刚注册的用户名。
 const registeredSuccessfully = route.query.registered === "1";
@@ -60,6 +61,15 @@ const handleSubmit = async () => {
       username: form.username.trim(),
       password: form.password
     });
+
+    // 如果是被路由守卫拦截后跳来的，登录成功后回到原页面。
+    const redirect =
+      typeof route.query.redirect === "string" &&
+      route.query.redirect.startsWith("/")
+        ? route.query.redirect
+        : "/dashboard";
+
+    await router.replace(redirect);
   } catch (error: unknown) {
     statusMessage.value = error instanceof Error ? error.message : "登录失败，请稍后重试";
   }

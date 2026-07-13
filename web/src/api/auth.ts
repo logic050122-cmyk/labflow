@@ -26,6 +26,20 @@ export interface LoginResult {
   token: string;
 }
 
+// 当前登录用户的基础信息，与 GET /api/auth/me 响应保持一致。
+export interface AuthUser {
+  id: number;
+  username: string;
+  nickname: string;
+  email: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CurrentUserResult {
+  user: AuthUser;
+}
+
 // 登录接口函数。
 // payload 是用户名和密码。
 // request<LoginResult> 表示：这个接口成功后，返回的数据应该是 LoginResult 类型。
@@ -41,6 +55,14 @@ export async function login(payload: LoginPayload) {
     // 发送给后端的数据。
     // Axios 里 POST 请求体用 data 表示。
     data: payload
+  });
+}
+
+// 根据请求头中的 token 获取当前登录用户。
+export async function getCurrentUser() {
+  return await request<CurrentUserResult>({
+    method: "GET",
+    url: "/auth/me"
   });
 }
 
