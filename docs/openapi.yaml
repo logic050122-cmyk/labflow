@@ -1,0 +1,355 @@
+openapi: 3.0.3
+info:
+  title: LabFlow API
+  version: 1.0.0
+  description: |
+    LabFlow 当前已实现的认证接口定义。
+    本文件只描述已经在 Express 应用中真实挂载的接口，供 Apifox 导入和调试使用。
+servers:
+  - url: http://127.0.0.1:3000
+    description: 本地开发服务器
+tags:
+  - name: Auth
+    description: 用户注册、登录和当前用户信息
+paths:
+  /api/auth/register:
+    post:
+      tags:
+        - Auth
+      summary: 用户注册
+      operationId: registerUser
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            example:
+              username: alice
+              password: Test123456!
+              nickname: 小林
+              email: alice@example.com
+      responses:
+        '200':
+          description: 注册成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /api/auth/login:
+    post:
+      tags:
+        - Auth
+      summary: 用户登录并获取 JWT
+      operationId: loginUser
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              username: alice
+              password: Test123456!
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/UnauthorizedLogin'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /api/auth/me:
+    get:
+      tags:
+        - Auth
+      summary: 获取当前用户
+      operationId: getCurrentUser
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 获取当前用户成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentUserResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 登录接口返回的 JWT。请求头格式为 Authorization: Bearer <token>。
+
+  schemas:
+    RegisterRequest:
+      type: object
+      required:
+        - username
+        - password
+        - nickname
+      properties:
+        username:
+          type: string
+          maxLength: 50
+          description: 登录用户名
+          example: alice
+        password:
+          type: string
+          format: password
+          description: 登录密码
+          example: Test123456!
+        nickname:
+          type: string
+          maxLength: 50
+          description: 用户昵称
+          example: 小林
+        email:
+          type: string
+          format: email
+          maxLength: 100
+          description: 可选邮箱
+          example: alice@example.com
+        phone:
+          type: string
+          maxLength: 20
+          description: 可选手机号
+          example: '13800138000'
+        direction:
+          type: string
+          maxLength: 50
+          description: 可选所属方向
+          example: 软件工程
+
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          maxLength: 50
+          description: 登录用户名
+          example: alice
+        password:
+          type: string
+          format: password
+          description: 登录密码
+          example: Test123456!
+
+    User:
+      type: object
+      required:
+        - id
+        - username
+        - nickname
+        - email
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        username:
+          type: string
+          example: alice
+        nickname:
+          type: string
+          example: 小林
+        email:
+          type: string
+          format: email
+          nullable: true
+          example: alice@example.com
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-07-09T10:00:00.000Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2026-07-09T10:00:00.000Z'
+
+    RegisterResponseData:
+      type: object
+      required:
+        - user
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+
+    LoginResponseData:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+          description: JWT 访问令牌
+          example: eyJhbGciOiJIUzI1NiIs...
+
+    CurrentUserResponseData:
+      type: object
+      required:
+        - user
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+
+    RegisterResponse:
+      type: object
+      required:
+        - code
+        - message
+        - data
+      properties:
+        code:
+          type: integer
+          example: 0
+        message:
+          type: string
+          example: 注册成功
+        data:
+          $ref: '#/components/schemas/RegisterResponseData'
+
+    LoginResponse:
+      type: object
+      required:
+        - code
+        - message
+        - data
+      properties:
+        code:
+          type: integer
+          example: 0
+        message:
+          type: string
+          example: 登录成功
+        data:
+          $ref: '#/components/schemas/LoginResponseData'
+
+    CurrentUserResponse:
+      type: object
+      required:
+        - code
+        - message
+        - data
+      properties:
+        code:
+          type: integer
+          example: 0
+        message:
+          type: string
+          example: 获取当前用户成功
+        data:
+          $ref: '#/components/schemas/CurrentUserResponseData'
+
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+        - data
+      properties:
+        code:
+          type: integer
+          example: 40101
+        message:
+          type: string
+          example: 用户名或密码错误
+        data:
+          type: object
+          nullable: true
+          example: null
+
+  responses:
+    BadRequest:
+      description: 请求参数错误
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: 40001
+            message: 请求参数不正确
+            data: null
+
+    Unauthorized:
+      description: 未登录、Token 格式错误或 Token 无效
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: 40102
+            message: 请先登录
+            data: null
+
+    UnauthorizedLogin:
+      description: 用户名不存在或密码错误
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: 40101
+            message: 用户名或密码错误
+            data: null
+
+    NotFound:
+      description: 当前用户不存在
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: 40401
+            message: 当前用户不存在
+            data: null
+
+    Conflict:
+      description: 用户名已存在
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: 40901
+            message: 用户名已存在
+            data: null
+
+    ServerError:
+      description: 服务器内部错误
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: 50000
+            message: 服务器内部错误
+            data: null
