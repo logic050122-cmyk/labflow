@@ -4,6 +4,12 @@
 
 ## 2026-07-13
 
+### VS Code 后端断点调试
+
+- 新增 `.vscode/launch.json`，通过 Node.js 和 `tsx` 直接启动 TypeScript 后端，支持在源代码中设置断点。
+- 调试配置读取 `server/.env`，工作目录保持为 `server`，不修改认证逻辑和数据库配置。
+- 验证了调试运行方式、后端类型检查和临时端口启动，Express 与 MySQL 连接正常。
+
 ### 前端登录跳转和登录态恢复
 
 - 登录成功后保存 token、调用 `/api/auth/me` 获取当前用户，并跳转到工作台。
