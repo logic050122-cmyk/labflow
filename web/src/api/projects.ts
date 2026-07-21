@@ -1,7 +1,9 @@
 import { request } from "@/api/http";
 import type {
   CreateProjectRequest,
-  CreateProjectResult
+  CreateProjectResult,
+  GetProjectsParams,
+  ProjectListResult
 } from "@/types/projects";
 
 // 页面不直接使用 axios，所有项目请求统一经过 api/http.ts。
@@ -11,5 +13,14 @@ export async function createProject(payload: CreateProjectRequest) {
     method: "POST",
     url: "/projects",
     data: payload
+  });
+}
+
+export async function getProjects(params: GetProjectsParams = {}) {
+  // request 会自动补 /api 前缀、读取 localStorage 里的 token，并只返回 data 部分。
+  return await request<ProjectListResult>({
+    method: "GET",
+    url: "/projects",
+    params
   });
 }

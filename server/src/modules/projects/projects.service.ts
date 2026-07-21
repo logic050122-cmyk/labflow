@@ -4,22 +4,25 @@ import { AppError } from "../../common/http";
 import { db } from "../../config/db";
 
 import {
+  findProjectsByUser,
   insertProject,
   insertProjectOwner
 } from "./projects.repository";
 import type {
   CreateProjectInput,
-  CreateProjectResult
+  CreateProjectResult,
+  ListProjectsInput,
+  ListProjectsResult
 } from "./projects.types";
 
 const createInviteCode = (): string => {
   // projects.invite_code 是 32 位字符串，这里生成 16 字节的十六进制邀请码。
-  return randomBytes(16).toString("hex").toUpperCase();
+  return randomBytes(16).toString("hex").toUpperCase(); //随机生成一个16字节的随机数，并将其转换为大写的十六进制字符串
 };
 
 const isDuplicateEntryError = (error: unknown): boolean => {
   // MySQL 唯一索引冲突时返回 ER_DUP_ENTRY，转换成明确的业务错误。
-  return (
+  return ( //返回 true 如果 error 是一个对象且不为 null，并且具有 code 属性且其值为 "ER_DUP_ENTRY"，否则返回 false
     typeof error === "object" &&
     error !== null &&
     "code" in error &&
@@ -40,7 +43,7 @@ export const createProject = async (
 
     // status、ownerUserId 和 inviteCode 都由后端决定，不信任客户端传入。
     const project = await insertProject(connection, {
-      ...input,
+      ...input, //...是展开运算符，表示把 input 对象的所有属性展开成单独的键值对
       ownerUserId,
       status: "active",
       inviteCode: createInviteCode()
@@ -64,4 +67,24 @@ export const createProject = async (
     // 无论成功还是失败，都要把连接还回连接池。
     connection.release();
   }
+};
+
+export const listProjects = async (
+  input: ListProjectsInput,
+  currentUserId: number
+): Promise<ListProjectsResult> => {
+  // service 不接受前端传来的 userId，而是接收认证中间件确认过的 currentUserId。
+  // repository 必须收到当前登录用户 ID，查询条件不能由前端指定其他用户。
+  const result = await findProjectsByUser({
+    ...input, // 展开 input 对象的所有属性
+    userId: currentUserId
+  });
+
+  // 这里补齐分页字段，让 controller 返回的 data 符合 API.md 的统一分页格式。
+  return {
+    list: result.list,
+    total: result.total,
+    page: input.page,
+    pageSize: input.pageSize
+  };
 };

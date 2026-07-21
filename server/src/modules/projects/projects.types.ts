@@ -30,5 +30,37 @@ export interface CreateProjectResult {
   project: Project;
 }
 
+export interface ListProjectsInput {
+  page: number;
+  pageSize: number;
+  status?: ProjectStatus;
+}
+
+export interface ListProjectsRepositoryInput extends ListProjectsInput {
+  userId: number;
+}
+
+export interface ProjectListItem {
+  id: number;
+  name: string;
+  description: string | null;
+  ownerUserId: number;
+  status: ProjectStatus;
+  role: ProjectRole;
+  startDate: string;
+  endDate: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ListProjectsResult {
+  list: ProjectListItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 // 项目状态是项目自身的数据，不放进 CreateProjectInput，避免客户端创建时改状态。
 export type ProjectStatus = "active" | "finished" | "archived";
+
+export type ProjectRole = "owner" | "member";

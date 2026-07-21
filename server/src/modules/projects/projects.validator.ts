@@ -1,6 +1,10 @@
 import { AppError } from "../../common/http";
 
-import type { CreateProjectInput } from "./projects.types";
+import type {
+  CreateProjectInput,
+  ListProjectsInput,
+  ProjectStatus
+} from "./projects.types";
 
 type RequestBody = Record<string, unknown>;
 
@@ -95,5 +99,60 @@ export const validateCreateProjectRequest = (body: unknown): CreateProjectInput 
     description,
     startDate,
     endDate
+  };
+};
+
+const readPositiveInteger = (
+  value: unknown,
+  fieldName: string,
+  defaultValue: number,
+  maxValue?: number
+): number => {
+  // 没有传分页参数时使用默认值；传了以后必须是正整数。
+  if (value === undefined || value === "") {
+    return defaultValue;
+  }
+
+  if (typeof value !== "string" && typeof value !== "number") {
+    throw new AppError(`${fieldName}必须是正整数`, 400, 40001);
+  }
+
+  const numberValue = Number(value);
+  if (!Number.isInteger(numberValue) || numberValue < 1) {
+    throw new AppError(`${fieldName}必须是正整数`, 400, 40001);
+  }
+
+  if (maxValue && numberValue > maxValue) {
+    throw new AppError(`${fieldName}不能超过 ${maxValue}`, 400, 40001);
+  }
+
+  return numberValue;
+};
+
+const PROJECT_STATUSES: ProjectStatus[] = ["active", "finished", "archived"];
+
+export const validateListProjectsRequest = (query: unknown): ListProjectsInput => {
+  // Express 的 request.query 类型比较宽，这里先转换成普通对象再读取字段。
+  const requestQuery = ensureRequestBody(query);
+  const page = readPositiveInteger(requestQuery.page, "page", 1);
+  const pageSize = readPositiveInteger(requestQuery.pageSize, "pageSize", 20, 100);
+
+  const statusValue = requestQuery.status;
+  if (statusValue === undefined || statusValue === "") {
+    // 不传 status 表示查询当前用户参与的全部项目。
+    return { page, pageSize };
+  }
+
+  if (
+    typeof statusValue !== "string" ||
+    !PROJECT_STATUSES.includes(statusValue as ProjectStatus)
+  ) {
+    throw new AppError("项目状态不正确", 400, 40001);
+  }
+
+  return {
+    page,
+    pageSize,
+    status: statusValue as ProjectStatus
   };
 };

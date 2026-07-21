@@ -1,18 +1,51 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
 
 import BrandLogo from "@/components/auth/BrandLogo.vue";
 import CreateProjectDialog from "@/components/projects/CreateProjectDialog.vue";
-import { createProject } from "@/api/projects";
+import { createProject, getProjects } from "@/api/projects";
 import { useAuthStore } from "@/stores/auth";
-import type { CreateProjectRequest } from "@/types/projects";
+import type {
+  CreateProjectRequest,
+  ProjectListItem,
+  ProjectStatus
+} from "@/types/projects";
 
 const authStore = useAuthStore();
 const router = useRouter();
 // 控制创建项目弹窗的显示状态，初始为 false，页面打开时默认不显示。
 const createProjectDialogVisible = ref(false);
+// 列表数据和页面状态放在当前页面，因为暂时没有其他页面共享这些数据。
+const projects = ref<ProjectListItem[]>([]); // 存储项目列表数据
+const projectTotal = ref(0); // 存储项目总数
+const projectListLoading = ref(false);  // 控制项目列表加载状态，初始为 false，表示未加载。
+const projectListError = ref(""); // 存储项目列表加载错误信息，初始为空字符串，表示没有错误。
+
+// 后端保存英文状态，页面展示时统一转换成中文，避免模板里散落判断。
+const projectStatusText: Record<ProjectStatus, string> = {
+  active: "进行中",
+  finished: "已完成",
+  archived: "已归档"
+};
+
+const loadProjects = async () => {
+  // 每次进入页面或创建项目成功后都会调用这里，重新取得最新列表。
+  projectListLoading.value = true;
+  projectListError.value = "";
+
+  try {
+    // 当前页面先加载第一页 20 条，分页控件留到列表数据量变大时再接入。
+    const result = await getProjects({ page: 1, pageSize: 20 });
+    projects.value = result.list;
+    projectTotal.value = result.total;
+  } catch (error) {
+    projectListError.value = error instanceof Error ? error.message : "项目列表加载失败";
+  } finally {
+    projectListLoading.value = false;
+  }
+};
 
 const handleLogout = async () => {
   authStore.logout();
@@ -25,11 +58,14 @@ const handleCreateProject = async (project: CreateProjectRequest) => {
     await createProject(project);
     createProjectDialogVisible.value = false;
     ElMessage.success("项目创建成功");
+    await loadProjects();
   } catch (error) {
     // request() 已经把后端 message 转成 Error，这里直接展示给用户。
     ElMessage.error(error instanceof Error ? error.message : "项目创建失败");
   }
 };
+
+onMounted(loadProjects);
 </script>
 
 <template>
@@ -78,14 +114,57 @@ const handleCreateProject = async (project: CreateProjectRequest) => {
             <h2>项目列表</h2>
             <p>你创建或参与的项目会显示在这里。</p>
           </div>
-          <span class="projects-panel__count">0 个项目</span>
+          <span class="projects-panel__count">{{ projectTotal }} 个项目</span>
         </div>
 
-        <el-empty class="projects-empty" :image-size="96" description="暂时还没有项目">
+        <div v-if="projectListLoading" v-loading="true" class="projects-loading" />
+
+        <el-alert
+          v-else-if="projectListError"
+          class="projects-load-error"
+          type="error"
+          :closable="false"
+          show-icon
+        >
+          <template #title>
+            {{ projectListError }}
+            <el-button link type="primary" @click="loadProjects">重新加载</el-button>
+          </template>
+        </el-alert>
+
+        <el-table v-else-if="projects.length" :data="projects" class="projects-table">
+          <el-table-column label="项目" min-width="220">
+            <template #default="{ row }: { row: ProjectListItem }">
+              <strong class="projects-table__name">{{ row.name }}</strong>
+              <p class="projects-table__description">{{ row.description || "暂无描述" }}</p>
+            </template>
+          </el-table-column>
+          <el-table-column label="状态" width="110">
+            <template #default="{ row }: { row: ProjectListItem }">
+              <el-tag :type="row.status === 'active' ? 'success' : 'info'" effect="plain">
+                {{ projectStatusText[row.status] }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="我的角色" width="110">
+            <template #default="{ row }: { row: ProjectListItem }">
+              <el-tag :type="row.role === 'owner' ? 'primary' : 'info'">
+                {{ row.role === "owner" ? "负责人" : "成员" }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="项目周期" min-width="190">
+            <template #default="{ row }: { row: ProjectListItem }">
+              {{ row.startDate }} 至 {{ row.endDate }}
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <el-empty v-else class="projects-empty" :image-size="96" description="暂时还没有项目">
           <template #description>
             <div class="projects-empty__description">
               <p>暂时还没有项目</p>
-              <span>可以先填写创建信息，项目保存接口将在下一步接入。</span>
+              <span>点击“创建项目”，建立你的第一个协作项目。</span>
             </div>
           </template>
         </el-empty>
