@@ -156,3 +156,17 @@ export const validateListProjectsRequest = (query: unknown): ListProjectsInput =
     status: statusValue as ProjectStatus
   };
 };
+
+// 路径参数来自 URL，必须先转换成正整数，不能把原始字符串直接交给 SQL。
+export const validateProjectIdParam = (value: unknown): number => {
+  if (typeof value !== "string" || !/^\d+$/.test(value)) {
+    throw new AppError("项目 ID 必须是正整数", 400, 40001);
+  }
+
+  const projectId = Number(value);
+  if (!Number.isSafeInteger(projectId) || projectId < 1) {
+    throw new AppError("项目 ID 必须是正整数", 400, 40001);
+  }
+
+  return projectId;
+};

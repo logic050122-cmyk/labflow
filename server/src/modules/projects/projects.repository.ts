@@ -184,3 +184,29 @@ export const findProjectsByUser = async (
     total: Number(countRows[0]?.total ?? 0)
   };
 };
+
+export const findProjectByIdForUser = async (input: {
+  projectId: number;
+  userId: number;
+}): Promise<ProjectListItem | null> => {
+  // 通过 project_members 过滤当前用户，非成员即使知道项目 ID 也查不到详情。
+  const [rows] = await db.query<ProjectListRow[]>(
+    `SELECT projects.id, projects.name, projects.description,
+            projects.owner_user_id, projects.status,
+            projects.start_date, projects.end_date,
+            projects.created_at, projects.updated_at,
+            CASE
+              WHEN projects.owner_user_id = ? THEN 'owner'
+              ELSE 'member'
+            END AS role
+     FROM project_members
+     INNER JOIN projects ON projects.id = project_members.project_id
+     WHERE project_members.user_id = ?
+       AND projects.id = ?
+     LIMIT 1`,
+    [input.userId, input.userId, input.projectId]
+  );
+
+  const project = rows[0];
+  return project ? toProjectListItem(project) : null;
+};

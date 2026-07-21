@@ -3,6 +3,7 @@ import type {
   CreateProjectRequest,
   CreateProjectResult,
   GetProjectsParams,
+  ProjectDetailResult,
   ProjectListResult
 } from "@/types/projects";
 
@@ -22,5 +23,12 @@ export async function getProjects(params: GetProjectsParams = {}) {
     method: "GET",
     url: "/projects",
     params
+  });
+}
+
+export async function getProject(projectId: number) {
+  return await request<ProjectDetailResult>({
+    method: "GET",
+    url: `/projects/${projectId}`
   });
 }

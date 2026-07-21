@@ -60,6 +60,11 @@ export interface ListProjectsResult {
   pageSize: number;
 }
 
+// 项目详情沿用项目列表项的安全字段，不把邀请码暴露给项目成员。
+export interface GetProjectResult {
+  project: ProjectListItem;
+}
+
 // 项目状态是项目自身的数据，不放进 CreateProjectInput，避免客户端创建时改状态。
 export type ProjectStatus = "active" | "finished" | "archived";
 

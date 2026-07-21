@@ -24,6 +24,12 @@ const router = createRouter({
       component: () => import("@/views/DashboardView.vue"),
       meta: { title: "工作台", requiresAuth: true }
     },
+    {
+      path: "/projects/:projectId",
+      name: "project-detail",
+      component: () => import("@/views/ProjectDetailView.vue"),
+      meta: { title: "项目详情", requiresAuth: true }
+    },
     // 未知地址统一回到工作台，未登录时会再由守卫跳转到登录页。
     { path: "/:pathMatch(.*)*", redirect: "/dashboard" }
   ]

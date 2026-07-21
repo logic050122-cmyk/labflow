@@ -4,6 +4,7 @@ import { AppError } from "../../common/http";
 import { db } from "../../config/db";
 
 import {
+  findProjectByIdForUser,
   findProjectsByUser,
   insertProject,
   insertProjectOwner
@@ -11,6 +12,7 @@ import {
 import type {
   CreateProjectInput,
   CreateProjectResult,
+  GetProjectResult,
   ListProjectsInput,
   ListProjectsResult
 } from "./projects.types";
@@ -87,4 +89,21 @@ export const listProjects = async (
     page: input.page,
     pageSize: input.pageSize
   };
+};
+
+export const getProject = async (
+  projectId: number,
+  currentUserId: number
+): Promise<GetProjectResult> => {
+  const project = await findProjectByIdForUser({
+    projectId,
+    userId: currentUserId
+  });
+
+  // 不区分“项目不存在”和“不是成员”，避免把其他项目是否存在暴露出去。
+  if (!project) {
+    throw new AppError("项目不存在或你不是项目成员", 404, 40401);
+  }
+
+  return { project };
 };

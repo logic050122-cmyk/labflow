@@ -65,6 +65,13 @@ const handleCreateProject = async (project: CreateProjectRequest) => {
   }
 };
 
+const handleProjectClick = (project: ProjectListItem) => {
+  void router.push({
+    name: "project-detail",
+    params: { projectId: project.id }
+  });
+};
+
 onMounted(loadProjects);
 </script>
 
@@ -132,7 +139,12 @@ onMounted(loadProjects);
           </template>
         </el-alert>
 
-        <el-table v-else-if="projects.length" :data="projects" class="projects-table">
+        <el-table
+          v-else-if="projects.length"
+          :data="projects"
+          class="projects-table"
+          @row-click="handleProjectClick"
+        >
           <el-table-column label="项目" min-width="220">
             <template #default="{ row }: { row: ProjectListItem }">
               <strong class="projects-table__name">{{ row.name }}</strong>

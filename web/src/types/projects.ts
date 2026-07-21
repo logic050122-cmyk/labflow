@@ -53,3 +53,10 @@ export interface GetProjectsParams {
 }
 
 export type ProjectListResult = PageData<ProjectListItem>;
+
+// 详情页使用与列表相同的安全字段，不返回邀请码。
+export type ProjectDetail = ProjectListItem;
+
+export interface ProjectDetailResult {
+  project: ProjectDetail;
+}

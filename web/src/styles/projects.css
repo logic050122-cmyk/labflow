@@ -221,6 +221,10 @@
   color: #27364c;
 }
 
+.projects-table .el-table__row {
+  cursor: pointer;
+}
+
 .projects-table__description {
   margin: 5px 0 0;
   color: #8a94a6;

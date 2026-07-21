@@ -193,6 +193,8 @@
 
 项目列表请求支持 `page`、`pageSize` 和可选的 `status`；`pageSize` 最大为 100。列表项返回 `id`、`name`、`description`、`ownerUserId`、`status`、当前用户的 `role`、`startDate`、`endDate`、`createdAt`、`updatedAt`，不返回邀请码。查询条件必须使用当前登录用户 ID，不能由客户端指定其他用户。
 
+项目详情只返回当前用户作为项目成员可以查看的项目，字段与项目列表项一致，并包含当前用户的 `role`；不返回邀请码。项目不存在或当前用户不是项目成员时，统一返回 `40401`。
+
 数据库和计划书均定义了 `active`、`finished`、`archived` 三种项目状态，因此第一版保留“完成项目”接口，不采用只有归档而无法进入 `finished` 的设计。只有 `finished` 项目可以归档；重复完成、完成已归档项目或归档非 `finished` 项目返回 `409xx` 状态冲突。
 
 ### 4.4 项目成员 members
