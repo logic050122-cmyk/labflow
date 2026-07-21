@@ -8,3 +8,20 @@ export interface CreateProjectRequest {
 }
 
 export type ProjectStatus = "active" | "finished" | "archived";
+
+export interface Project {
+  id: number;
+  name: string;
+  description: string | null;
+  ownerUserId: number;
+  status: ProjectStatus;
+  startDate: string;
+  endDate: string;
+  inviteCode: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateProjectResult {
+  project: Project;
+}
