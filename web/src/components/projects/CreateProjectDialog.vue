@@ -22,11 +22,14 @@ interface CreateProjectFormErrors {
   startDate: string;
   endDate: string;
 }
-
+    //Partial是TypeScript的一个工具类型，
+    //它将给定类型的所有属性变为可选的。
+    // 这里表示initialValue可以是CreateProjectRequest类型的部分属性集合，
+    // 允许传入部分字段来初始化表单。
 const props = defineProps<{
   modelValue: boolean;
   title?: string;
-  initialValue?: Partial<CreateProjectRequest>;
+  initialValue?: Partial<CreateProjectRequest>; 
 }>();
 
 const emit = defineEmits<{

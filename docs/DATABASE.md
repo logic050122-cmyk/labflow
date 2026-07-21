@@ -244,6 +244,9 @@ erDiagram
 - 数据库名：`labflow`。
 - 首个迁移文件：`server/migrations/001_initial_schema.sql`。
 - 目标环境：MySQL 8.0+，字符集 `utf8mb4`，存储引擎 InnoDB。
+- 演示数据修复文件：`server/migrations/002_refresh_demo_projects.sql`。该脚本不修改表结构，
+  只会更新旧分页演示数据中 ID 为 `6` 至 `29`、Owner 为演示账号且邀请码以
+  `SEEDPAGE` 开头的项目；不满足保护条件时不会修改任何记录。
 - 在 Navicat 中打开迁移文件并对有建库权限的 MySQL 连接执行，随后刷新连接，
   即可看到 `labflow` 及本文档定义的 8 张表。
 - 脚本使用 `CREATE DATABASE IF NOT EXISTS` 和 `CREATE TABLE IF NOT EXISTS`，
