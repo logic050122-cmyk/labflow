@@ -25,6 +25,8 @@ interface CreateProjectFormErrors {
 
 const props = defineProps<{
   modelValue: boolean;
+  title?: string;
+  initialValue?: Partial<CreateProjectRequest>;
 }>();
 
 const emit = defineEmits<{
@@ -55,7 +57,7 @@ const clearErrors = () => {
 };
 
 const resetForm = () => {
-  Object.assign(form, emptyForm());
+  Object.assign(form, emptyForm(), props.initialValue ?? {});
   clearErrors();
 };
 
@@ -150,7 +152,7 @@ watch(
 <template>
   <el-dialog
     :model-value="props.modelValue"
-    title="创建项目"
+    :title="props.title || '创建项目'"
     width="520px"
     destroy-on-close
     @update:model-value="emit('update:modelValue', $event)"

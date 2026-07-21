@@ -2,11 +2,12 @@ import type { RequestHandler } from "express";
 
 import { AppError, sendSuccess } from "../../common/http";
 
-import { createProject, getProject, listProjects } from "./projects.service";
+import { createProject, getProject, listProjects, updateProject } from "./projects.service";
 import {
   validateCreateProjectRequest,
   validateListProjectsRequest,
-  validateProjectIdParam
+  validateProjectIdParam,
+  validateUpdateProjectRequest
 } from "./projects.validator";
 
 // controller 只负责连接 HTTP 请求和 service，不在这里写事务或 SQL。
@@ -56,6 +57,21 @@ export const detail: RequestHandler = async (request, response, next) => {
     const projectId = validateProjectIdParam(request.params.projectId);
     const result = await getProject(projectId, request.userId);
     sendSuccess(response, result, "项目详情获取成功");
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const update: RequestHandler = async (request, response, next) => {
+  try {
+    if (!request.userId) {
+      throw new AppError("请先登录", 401, 40102);
+    }
+
+    const projectId = validateProjectIdParam(request.params.projectId);
+    const input = validateUpdateProjectRequest(request.body);
+    const result = await updateProject(projectId, request.userId, input);
+    sendSuccess(response, result, "项目更新成功");
   } catch (error) {
     next(error);
   }

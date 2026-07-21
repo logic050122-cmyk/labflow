@@ -69,11 +69,12 @@
 
 ### 模块 2：创建项目
 
-- [ ] 模块完成
+- [x] 模块完成
 - [x] 第一步：固定创建项目请求字段和前后端基础校验
 - [x] 第二步：接入创建项目接口，并在事务中写入项目和 Owner 成员关系
 - [x] 第三步：实现当前用户项目列表接口和前端列表加载
 - [x] 第四步：实现项目详情接口、成员访问校验和前端详情页
+- [x] 第五步：补齐 Owner 编辑项目接口、权限校验和前端编辑表单
 - 开发目标：登录用户创建、查看和编辑项目；创建项目时自动成为该项目唯一 Owner。
 - 涉及后端目录：`server/src/modules/projects`、`server/src/modules/members`。
 - 涉及前端目录：`web/src/views/ProjectsView.vue`、`web/src/views/ProjectDetailView.vue`、`web/src/api`、`web/src/stores`、`web/src/components`、`web/src/types`。

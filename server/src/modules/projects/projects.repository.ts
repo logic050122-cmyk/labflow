@@ -210,3 +210,24 @@ export const findProjectByIdForUser = async (input: {
   const project = rows[0];
   return project ? toProjectListItem(project) : null;
 };
+
+export const updateProject = async (input: {
+  projectId: number;
+  name: string;
+  description?: string;
+  startDate: string;
+  endDate: string;
+}): Promise<void> => {
+  await db.execute(
+    `UPDATE projects
+     SET name = ?, description = ?, start_date = ?, end_date = ?
+     WHERE id = ?`,
+    [
+      input.name,
+      input.description ?? null,
+      input.startDate,
+      input.endDate,
+      input.projectId
+    ]
+  );
+};

@@ -4,7 +4,9 @@ import type {
   CreateProjectResult,
   GetProjectsParams,
   ProjectDetailResult,
-  ProjectListResult
+  ProjectListResult,
+  UpdateProjectRequest,
+  UpdateProjectResult
 } from "@/types/projects";
 
 // 页面不直接使用 axios，所有项目请求统一经过 api/http.ts。
@@ -30,5 +32,16 @@ export async function getProject(projectId: number) {
   return await request<ProjectDetailResult>({
     method: "GET",
     url: `/projects/${projectId}`
+  });
+}
+
+export async function updateProject(
+  projectId: number,
+  payload: UpdateProjectRequest
+) {
+  return await request<UpdateProjectResult>({
+    method: "PUT",
+    url: `/projects/${projectId}`,
+    data: payload
   });
 }

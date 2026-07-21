@@ -10,6 +10,8 @@ export interface CreateProjectRequest {
   endDate: string;
 }
 
+export interface UpdateProjectRequest extends CreateProjectRequest {}
+
 export type ProjectStatus = "active" | "finished" | "archived";
 
 export interface Project {
@@ -58,5 +60,9 @@ export type ProjectListResult = PageData<ProjectListItem>;
 export type ProjectDetail = ProjectListItem;
 
 export interface ProjectDetailResult {
+  project: ProjectDetail;
+}
+
+export interface UpdateProjectResult {
   project: ProjectDetail;
 }

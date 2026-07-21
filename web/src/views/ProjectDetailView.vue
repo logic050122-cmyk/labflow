@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
+import { ElMessage } from "element-plus";
 import { useRoute, useRouter } from "vue-router";
 
 import BrandLogo from "@/components/auth/BrandLogo.vue";
-import { getProject } from "@/api/projects";
+import CreateProjectDialog from "@/components/projects/CreateProjectDialog.vue";
+import { getProject, updateProject } from "@/api/projects";
 import { useAuthStore } from "@/stores/auth";
-import type { ProjectDetail, ProjectStatus } from "@/types/projects";
+import type { CreateProjectRequest, ProjectDetail, ProjectStatus } from "@/types/projects";
 
 const route = useRoute();
 const router = useRouter();
@@ -14,6 +16,8 @@ const authStore = useAuthStore();
 const project = ref<ProjectDetail | null>(null);
 const loading = ref(false);
 const errorMessage = ref("");
+const editDialogVisible = ref(false);
+const editLoading = ref(false);
 
 const projectStatusText: Record<ProjectStatus, string> = {
   active: "进行中",
@@ -49,6 +53,24 @@ const goBackToProjects = () => {
 const handleLogout = async () => {
   authStore.logout();
   await router.replace("/login");
+};
+
+const handleUpdateProject = async (payload: CreateProjectRequest) => {
+  if (!project.value) {
+    return;
+  }
+
+  editLoading.value = true;
+  try {
+    const result = await updateProject(project.value.id, payload);
+    project.value = result.project;
+    editDialogVisible.value = false;
+    ElMessage.success("项目更新成功");
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : "项目更新失败");
+  } finally {
+    editLoading.value = false;
+  }
 };
 
 onMounted(loadProject);
@@ -111,6 +133,12 @@ onMounted(loadProject);
           </div>
         </div>
 
+        <div v-if="project.role === 'owner'" class="project-detail-card__actions">
+          <el-button type="primary" :loading="editLoading" @click="editDialogVisible = true">
+            编辑项目
+          </el-button>
+        </div>
+
         <div class="project-detail-card__grid">
           <div>
             <span>项目编号</span>
@@ -130,6 +158,19 @@ onMounted(loadProject);
           </div>
         </div>
       </section>
+
+      <CreateProjectDialog
+        v-if="project"
+        v-model="editDialogVisible"
+        title="编辑项目"
+        :initial-value="{
+          name: project.name,
+          description: project.description || '',
+          startDate: project.startDate,
+          endDate: project.endDate
+        }"
+        @submit="handleUpdateProject"
+      />
     </section>
   </main>
 </template>
@@ -190,6 +231,12 @@ onMounted(loadProject);
   display: flex;
   flex: 0 0 auto;
   gap: 8px;
+}
+
+.project-detail-card__actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 22px;
 }
 
 .project-detail-card__grid {

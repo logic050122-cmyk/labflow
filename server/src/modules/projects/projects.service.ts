@@ -7,14 +7,17 @@ import {
   findProjectByIdForUser,
   findProjectsByUser,
   insertProject,
-  insertProjectOwner
+  insertProjectOwner,
+  updateProject as updateProjectRecord
 } from "./projects.repository";
 import type {
   CreateProjectInput,
   CreateProjectResult,
   GetProjectResult,
   ListProjectsInput,
-  ListProjectsResult
+  ListProjectsResult,
+  UpdateProjectInput,
+  UpdateProjectResult
 } from "./projects.types";
 
 const createInviteCode = (): string => {
@@ -106,4 +109,33 @@ export const getProject = async (
   }
 
   return { project };
+};
+
+export const updateProject = async (
+  projectId: number,
+  currentUserId: number,
+  input: UpdateProjectInput
+): Promise<UpdateProjectResult> => {
+  const project = await findProjectByIdForUser({ projectId, userId: currentUserId });
+
+  if (!project) {
+    throw new AppError("项目不存在或你不是项目成员", 404, 40401);
+  }
+
+  if (project.ownerUserId !== currentUserId) {
+    throw new AppError("仅项目负责人可以编辑项目", 403, 40301);
+  }
+
+  await updateProjectRecord({ projectId, ...input });
+
+  const updatedProject = await findProjectByIdForUser({
+    projectId,
+    userId: currentUserId
+  });
+
+  if (!updatedProject) {
+    throw new AppError("项目更新后无法读取最新数据", 500, 50001);
+  }
+
+  return { project: updatedProject };
 };

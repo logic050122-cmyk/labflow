@@ -30,6 +30,12 @@ export interface CreateProjectResult {
   project: Project;
 }
 
+export interface UpdateProjectInput extends CreateProjectInput {}
+
+export interface UpdateProjectResult {
+  project: ProjectListItem;
+}
+
 export interface ListProjectsInput {
   page: number;
   pageSize: number;

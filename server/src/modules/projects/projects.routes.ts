@@ -2,7 +2,7 @@ import { Router } from "express";
 
 import { authenticate } from "../../middlewares/auth.middleware";
 
-import { create, detail, list } from "./projects.controller";
+import { create, detail, list, update } from "./projects.controller";
 
 export const projectRoutes = Router();
 
@@ -10,4 +10,5 @@ export const projectRoutes = Router();
 // GET 和 POST 使用同一个路径，但分别对应“查看列表”和“创建项目”两种 HTTP 方法。
 projectRoutes.get("/", authenticate, list);
 projectRoutes.post("/", authenticate, create);
+projectRoutes.put("/:projectId", authenticate, update);
 projectRoutes.get("/:projectId", authenticate, detail);

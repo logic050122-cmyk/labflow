@@ -3,7 +3,8 @@ import { AppError } from "../../common/http";
 import type {
   CreateProjectInput,
   ListProjectsInput,
-  ProjectStatus
+  ProjectStatus,
+  UpdateProjectInput
 } from "./projects.types";
 
 type RequestBody = Record<string, unknown>;
@@ -100,6 +101,10 @@ export const validateCreateProjectRequest = (body: unknown): CreateProjectInput 
     startDate,
     endDate
   };
+};
+
+export const validateUpdateProjectRequest = (body: unknown): UpdateProjectInput => {
+  return validateCreateProjectRequest(body);
 };
 
 const readPositiveInteger = (
