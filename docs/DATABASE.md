@@ -77,7 +77,7 @@ erDiagram
 | `created_at` | DATETIME | 是 | 创建时间 |
 | `updated_at` | DATETIME | 是 | 更新时间 |
 
-约束：`invite_code` 唯一；`owner_user_id` 关联 `users.id`，并作为项目负责人的唯一判断依据；项目创建时必须同时写入一条 `role=owner` 的成员关系。
+约束：`invite_code` 唯一；`owner_user_id` 关联 `users.id`，并作为项目负责人的唯一判断依据；项目创建时必须同时写入一条 `role=owner` 的成员关系。数据库中的 `start_date`、`end_date` 保留可空，但创建项目 API 在 validator 层要求这两个字段必填，并统一接收 `YYYY-MM-DD`。
 
 ### 4.3 project_members
 

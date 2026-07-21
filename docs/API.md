@@ -189,7 +189,7 @@
 | POST | `/api/projects/:projectId/finish` | ProjectOwner | 完成项目，`active -> finished` |
 | POST | `/api/projects/:projectId/archive` | ProjectOwner | 归档项目，`finished -> archived` |
 
-创建/编辑字段：`name`、`description`、`startDate`、`endDate`；创建时项目状态默认为 `active`，不能通过编辑接口直接修改状态。加入项目请求字段为 `inviteCode`。
+创建/编辑字段：`name`、`description`、`startDate`、`endDate`。创建项目请求中，`name`、`startDate`、`endDate` 必填，`description` 选填；项目日期统一使用 `YYYY-MM-DD`（ISO 8601 date-only）格式，截止日期不能早于开始日期。创建时项目状态默认为 `active`，不能通过编辑接口直接修改状态；`ownerId`、`userId` 和 `status` 不由客户端提交。加入项目请求字段为 `inviteCode`。
 
 数据库和计划书均定义了 `active`、`finished`、`archived` 三种项目状态，因此第一版保留“完成项目”接口，不采用只有归档而无法进入 `finished` 的设计。只有 `finished` 项目可以归档；重复完成、完成已归档项目或归档非 `finished` 项目返回 `409xx` 状态冲突。
 

@@ -157,7 +157,7 @@
   font-weight: 600;
 }
 
-/* 模块 2 的交互尚未接入，禁用态必须清楚表达，不伪装成可用功能。 */
+/* 邀请码加入属于后续模块，尚未接入时保持清楚的禁用态。 */
 .projects-actions .el-button.is-disabled {
   color: #9aa3b1;
   background: #ffffff;
