@@ -4,16 +4,50 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "调试 LabFlow 后端",
-      "runtimeExecutable": "node",
-      "runtimeArgs": ["--import", "tsx"],
-      "program": "${workspaceFolder}/server/src/server.ts",
+      "name": "调试 LabFlow 后端（当前源码）",
+      // 与 package.json 的 dev 命令保持一致，避免误运行旧的 dist/server.js。
+      "runtimeExecutable": "npm.cmd",
+      "runtimeArgs": ["run", "dev"],
       "cwd": "${workspaceFolder}/server",
       "envFile": "${workspaceFolder}/server/.env",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "skipFiles": ["<node_internals>/**"],
-      "sourceMaps": true
+      "sourceMaps": true,
+      "autoAttachChildProcesses": true,
+      "presentation": {
+        "group": "LabFlow",
+        "order": 2
+      }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "调试 LabFlow 前端",
+      // Windows 下直接使用 npm.cmd，避免 PowerShell 执行策略拦截 npm.ps1。
+      "runtimeExecutable": "npm.cmd",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "${workspaceFolder}/web",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": ["<node_internals>/**"],
+      "autoAttachChildProcesses": true,
+      "presentation": {
+        "group": "LabFlow",
+        "order": 3
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "⭐ 一键启动 LabFlow 前后端",
+      "configurations": ["调试 LabFlow 后端（当前源码）", "调试 LabFlow 前端"],
+      // 停止组合调试时一起关闭前后端，避免留下监听端口的后台进程。
+      "stopAll": true,
+      "presentation": {
+        "group": "LabFlow",
+        "order": 1
+      }
     }
   ]
 }
