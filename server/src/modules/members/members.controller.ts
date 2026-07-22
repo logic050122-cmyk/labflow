@@ -2,10 +2,15 @@ import type { RequestHandler } from "express";
 
 import { AppError, sendSuccess } from "../../common/http";
 
-import { joinProject, listMembersByProject } from "./members.service";
+import {
+  joinProject,
+  listMembersByProject,
+  removeProjectMember
+} from "./members.service";
 import {
   validateJoinProjectRequest,
-  validateProjectIdParam
+  validateProjectIdParam,
+  validateRemoveProjectMemberParams
 } from "./members.validator";
 
 // controller 只负责连接 HTTP 请求和 service，不在这里写事务或 SQL。
@@ -38,6 +43,25 @@ export const listProjectMembers: RequestHandler = async (
     const projectId = validateProjectIdParam(request.params.projectId);
     const result = await listMembersByProject(projectId, request.userId);
     sendSuccess(response, result, "获取项目成员成功");
+  } catch (error) {
+    next(error);
+  }
+};
+
+// controller 只读取认证用户和路径参数，具体权限、状态和任务规则由 service 校验。
+export const removeMember: RequestHandler = async (
+  request,
+  response,
+  next
+) => {
+  try {
+    if (!request.userId) {
+      throw new AppError("请先登录", 401, 40102);
+    }
+
+    const input = validateRemoveProjectMemberParams(request.params);
+    const result = await removeProjectMember(input, request.userId);
+    sendSuccess(response, result, "移除项目成员成功");
   } catch (error) {
     next(error);
   }

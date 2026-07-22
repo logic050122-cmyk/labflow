@@ -34,3 +34,19 @@ export interface ProjectMemberListItem {
 export interface ListProjectMembersResult {
   members: ProjectMemberListItem[];
 }
+
+// 移除成员接口使用的项目 ID 和目标用户 ID。
+export interface RemoveProjectMemberInput {
+  projectId: number;
+  userId: number;
+}
+
+// 移除成员时，service 需要使用项目负责人和项目状态完成业务校验。
+export interface ProjectMemberRemovalTarget {
+  ownerUserId: number;
+  status: ProjectStatus;
+}
+
+export interface RemoveProjectMemberResult {
+  removedUserId: number;
+}

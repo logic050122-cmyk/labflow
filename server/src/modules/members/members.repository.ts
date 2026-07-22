@@ -1,4 +1,8 @@
-import type { PoolConnection, RowDataPacket } from "mysql2/promise";
+import type {
+  PoolConnection,
+  ResultSetHeader,
+  RowDataPacket
+} from "mysql2/promise";
 
 import { db } from "../../config/db";
 
@@ -10,7 +14,8 @@ import type {
 
 import type {
   ProjectJoinTarget,
-  ProjectMemberListItem
+  ProjectMemberListItem,
+  ProjectMemberRemovalTarget
 } from "./members.types";
 
 interface ProjectJoinTargetRow extends RowDataPacket {
@@ -43,6 +48,15 @@ interface ProjectMemberListRow extends RowDataPacket {
   joined_at: Date | string;
   total_task_count: number | string;
   completed_task_count: number | string;
+}
+
+interface ProjectMemberRemovalTargetRow extends RowDataPacket {
+  owner_user_id: number;
+  status: ProjectStatus;
+}
+
+interface UnfinishedTaskRow extends RowDataPacket {
+  id: number;
 }
 
 const formatDateOnly = (value: Date | string): string => {
@@ -197,4 +211,81 @@ export const findProjectMembersForUser = async (input: {
   );
 
   return rows.map(toProjectMemberListItem);
+};
+
+// 查询并锁定当前用户可访问的项目，供 service 校验 Owner 和项目状态。
+export const findProjectForMemberRemovalForUpdate = async (
+  connection: PoolConnection,
+  input: { projectId: number; currentUserId: number }
+): Promise<ProjectMemberRemovalTarget | null> => {
+  const [rows] = await connection.execute<ProjectMemberRemovalTargetRow[]>(
+    `SELECT projects.owner_user_id, projects.status
+     FROM projects
+     INNER JOIN project_members AS current_membership
+       ON current_membership.project_id = projects.id
+      AND current_membership.user_id = ?
+     WHERE projects.id = ?
+     LIMIT 1
+     FOR UPDATE`,
+    [input.currentUserId, input.projectId]
+  );
+
+  const project = rows[0];
+  if (!project) {
+    return null;
+  }
+
+  return {
+    ownerUserId: Number(project.owner_user_id),
+    status: project.status
+  };
+};
+
+// 查询并锁定目标成员关系，避免校验和删除之间数据发生变化。
+export const findTargetProjectMemberForUpdate = async (
+  connection: PoolConnection,
+  input: { projectId: number; userId: number }
+): Promise<boolean> => {
+  const [rows] = await connection.execute<ProjectMembershipRow[]>(
+    `SELECT id
+     FROM project_members
+     WHERE project_id = ? AND user_id = ?
+     LIMIT 1
+     FOR UPDATE`,
+    [input.projectId, input.userId]
+  );
+
+  return Boolean(rows[0]);
+};
+
+export const hasUnfinishedTasksForMember = async (
+  connection: PoolConnection,
+  input: { projectId: number; userId: number }
+): Promise<boolean> => {
+  // 第一版只有 done 属于已完成，其他四种任务状态都会阻止成员被移除。
+  const [rows] = await connection.execute<UnfinishedTaskRow[]>(
+    `SELECT id
+     FROM tasks
+     WHERE project_id = ?
+       AND assignee_user_id = ?
+       AND status <> 'done'
+     LIMIT 1
+     FOR UPDATE`,
+    [input.projectId, input.userId]
+  );
+
+  return Boolean(rows[0]);
+};
+
+export const deleteProjectMember = async (
+  connection: PoolConnection,
+  input: { projectId: number; userId: number }
+): Promise<boolean> => {
+  const [result] = await connection.execute<ResultSetHeader>(
+    `DELETE FROM project_members
+     WHERE project_id = ? AND user_id = ?`,
+    [input.projectId, input.userId]
+  );
+
+  return result.affectedRows === 1;
 };

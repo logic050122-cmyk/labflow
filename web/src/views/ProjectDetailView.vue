@@ -169,7 +169,12 @@ onMounted(loadProject);
       </section>
 
       <!-- 成员组件自己负责请求和错误重试，详情页只提供当前项目 ID。 -->
-      <ProjectMemberList v-if="project" :project-id="project.id" />
+      <ProjectMemberList
+        v-if="project"
+        :project-id="project.id"
+        :project-role="project.role"
+        :project-status="project.status"
+      />
 
       <CreateProjectDialog
         v-if="project"

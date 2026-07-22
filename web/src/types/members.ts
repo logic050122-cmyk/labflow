@@ -14,3 +14,7 @@ export interface ProjectMemberListItem {
 export interface ListProjectMembersResult {
   members: ProjectMemberListItem[];
 }
+
+export interface RemoveProjectMemberResult {
+  removedUserId: number;
+}

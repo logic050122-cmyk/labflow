@@ -1,12 +1,16 @@
 import { AppError } from "../../common/http";
 
-import type { JoinProjectInput } from "./members.types";
+import type {
+  JoinProjectInput,
+  RemoveProjectMemberInput
+} from "./members.types";
 
 type RequestBody = Record<string, unknown>;
 
 const PROJECT_INVITE_CODE_MAX_LENGTH = 32;
 const INVITE_CODE_PATTERN = /^[A-Z0-9]+$/;
 
+// Express 的 request.body 默认不能直接相信，所以先把它缩小为对象类型。
 const ensureRequestBody = (body: unknown): RequestBody => {
   if (typeof body !== "object" || body === null || Array.isArray(body)) {
     throw new AppError("请求参数格式不正确", 400, 40001);
@@ -52,4 +56,34 @@ export const validateProjectIdParam = (value: unknown): number => {
   }
 
   return projectId;
+};
+
+// 删除接口的两个 ID 都来自 URL 路径，不读取 body，也不修改 Express 的 params 对象。
+export const validateRemoveProjectMemberParams = (
+  params: Record<string, unknown>
+): RemoveProjectMemberInput => {
+  const projectIdValue = params.projectId;
+  const userIdValue = params.userId;
+
+  if (
+    typeof projectIdValue !== "string" ||
+    !/^\d+$/.test(projectIdValue) ||
+    typeof userIdValue !== "string" ||
+    !/^\d+$/.test(userIdValue)
+  ) {
+    throw new AppError("项目 ID 和用户 ID 必须是正整数", 400, 40001);
+  }
+
+  const projectId = Number(projectIdValue);
+  const userId = Number(userIdValue);
+  if (
+    !Number.isSafeInteger(projectId) ||
+    projectId < 1 ||
+    !Number.isSafeInteger(userId) ||
+    userId < 1
+  ) {
+    throw new AppError("项目 ID 和用户 ID 必须是正整数", 400, 40001);
+  }
+
+  return { projectId, userId };
 };

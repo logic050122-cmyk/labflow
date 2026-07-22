@@ -1,16 +1,26 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
+import { ElMessage, ElMessageBox } from "element-plus";
 
-import { getProjectMembers } from "@/api/members";
+import { getProjectMembers, removeProjectMember } from "@/api/members";
 import type { ProjectMemberListItem } from "@/types/members";
+import type { ProjectRole, ProjectStatus } from "@/types/projects";
 
 const props = defineProps<{
   projectId: number;
+  projectRole: ProjectRole;
+  projectStatus: ProjectStatus;
 }>();
 
 const members = ref<ProjectMemberListItem[]>([]);
 const loading = ref(false);
 const errorMessage = ref("");
+const removingUserId = ref<number | null>(null);
+
+// 前端只负责隐藏不适用的按钮，后端 service 仍会重新校验真实权限和项目状态。
+const canManageMembers = computed(() => {
+  return props.projectRole === "owner" && props.projectStatus === "active";
+});
 
 const loadMembers = async () => {
   loading.value = true;
@@ -42,6 +52,42 @@ const formatJoinedAt = (value: string): string => {
     hour: "2-digit",
     minute: "2-digit"
   });
+};
+
+const handleRemoveMember = async (member: ProjectMemberListItem) => {
+  if (!canManageMembers.value || member.role === "owner" || removingUserId.value !== null) {
+    return;
+  }
+
+  try {
+    await ElMessageBox.confirm(
+      `移除后，${member.nickname} 将无法继续访问该项目。确认移除吗？`,
+      "移除项目成员",
+      {
+        confirmButtonText: "确认移除",
+        cancelButtonText: "取消",
+        type: "warning"
+      }
+    );
+  } catch {
+    // 用户点击取消或关闭弹窗时不发送删除请求。
+    return;
+  }
+
+  removingUserId.value = member.userId;
+  try {
+    const result = await removeProjectMember(props.projectId, member.userId);
+    ElMessage.success("成员移除成功");
+
+    // 使用接口返回的 removedUserId 确认目标，再重新请求列表保持页面与数据库一致。
+    if (result.removedUserId === member.userId) {
+      await loadMembers();
+    }
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : "成员移除失败");
+  } finally {
+    removingUserId.value = null;
+  }
 };
 
 onMounted(loadMembers);
@@ -112,6 +158,27 @@ onMounted(loadMembers);
       <el-table-column label="加入时间" min-width="180">
         <template #default="scope: { row: ProjectMemberListItem }">
           {{ formatJoinedAt(scope.row.joinedAt) }}
+        </template>
+      </el-table-column>
+
+      <el-table-column
+        v-if="canManageMembers"
+        label="操作"
+        width="110"
+        fixed="right"
+      >
+        <template #default="scope: { row: ProjectMemberListItem }">
+          <el-button
+            v-if="scope.row.role === 'member'"
+            link
+            type="danger"
+            :loading="removingUserId === scope.row.userId"
+            :disabled="removingUserId !== null && removingUserId !== scope.row.userId"
+            @click="handleRemoveMember(scope.row)"
+          >
+            移除
+          </el-button>
+          <span v-else class="project-member-table__owner-action">—</span>
         </template>
       </el-table-column>
     </el-table>
@@ -189,6 +256,10 @@ onMounted(loadMembers);
 
 .project-member-table__tasks {
   color: #5c7fb5;
+}
+
+.project-member-table__owner-action {
+  color: #c0c4cc;
 }
 
 @media (max-width: 720px) {

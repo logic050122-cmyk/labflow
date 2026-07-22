@@ -4,6 +4,17 @@
 
 ## 2026-07-22
 
+### 模块 4：项目成员管理完成
+
+- 新增 `DELETE /api/projects/:projectId/members/:userId`，当前操作者只从 JWT 获取；service 在事务中完成项目成员隔离、Owner、项目状态、目标成员、Owner 保护和未完成任务校验。
+- 只有 `active` 项目的 Owner 可以移除普通 Member；非 `done` 任务返回 `40906`，Owner、非成员、非 active 项目及目标不存在分别返回既定明确错误码。
+- repository 只负责加锁查询、未完成任务检查和删除成员关系；移除操作不会删除用户、任务或其他历史数据。
+- 前端成员列表为 active 项目 Owner 显示移除操作，使用 Element Plus 二次确认；取消不发送请求，成功后重新加载真实成员列表，Member 和非 active 项目不显示操作列。
+- 修正成员移除类型命名和路径参数 validator：直接校验 `request.params`，不再把路径参数当作 body 或修改 Express 参数对象。
+- 后端 `typecheck`、`build`，前端 `typecheck`、生产 `build` 和 `git diff --check` 均通过。
+- 真实接口覆盖 `40001`、`40401`、`40301`、`40403`、`40904`、`40905`、`40906` 及成功移除；浏览器完成 Owner 确认/取消/成功刷新、Member 隐藏操作、非 active 项目隐藏操作和 390px 横向滚动验收。
+- 验收使用的临时用户、项目、成员和任务数据已全部清理，临时 HTTP 服务和脚本已关闭、删除；通知和操作日志仍按计划留到模块 10 和模块 12。
+
 ### 模块 4 第三步：项目详情页展示成员列表
 
 - 新增前端成员类型和 API 封装，调用真实的 `GET /api/projects/:projectId/members`，页面不直接使用 axios。
