@@ -39,3 +39,17 @@ export const validateJoinProjectRequest = (body: unknown): JoinProjectInput => {
 
   return { inviteCode };
 };
+
+// URL 路径参数默认是字符串，进入 service 前必须转换成安全的正整数。
+export const validateProjectIdParam = (value: unknown): number => {
+  if (typeof value !== "string" || !/^\d+$/.test(value)) {
+    throw new AppError("项目 ID 必须是正整数", 400, 40001);
+  }
+
+  const projectId = Number(value);
+  if (!Number.isSafeInteger(projectId) || projectId < 1) {
+    throw new AppError("项目 ID 必须是正整数", 400, 40001);
+  }
+
+  return projectId;
+};

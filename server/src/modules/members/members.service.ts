@@ -3,11 +3,16 @@ import { db } from "../../config/db";
 
 import {
   findJoinedProjectByIdForUser,
+  findProjectMembersForUser,
   findProjectByInviteCodeForUpdate,
   hasProjectMembership,
   insertProjectMember
 } from "./members.repository";
-import type { JoinProjectInput, JoinProjectResult } from "./members.types";
+import type {
+  JoinProjectInput,
+  JoinProjectResult,
+  ListProjectMembersResult
+} from "./members.types";
 
 const isDuplicateEntryError = (error: unknown): boolean => {
   // MySQL 唯一索引冲突时返回 ER_DUP_ENTRY，用于兜底两个并发加入请求。
@@ -79,4 +84,22 @@ export const joinProject = async (
     // 无论成功还是失败都归还连接，避免请求积累连接池资源。
     connection.release();
   }
+};
+
+export const listMembersByProject = async (
+  projectId: number,
+  currentUserId: number
+): Promise<ListProjectMembersResult> => {
+  // repository 在查询成员列表时同时限制当前用户必须属于该项目，避免泄露其他项目数据。
+  const members = await findProjectMembersForUser({
+    projectId,
+    currentUserId
+  });
+
+  // 正常项目至少包含 Owner；空数组表示项目不存在或当前用户没有成员关系。
+  if (members.length === 0) {
+    throw new AppError("项目不存在或你不是项目成员", 404, 40401);
+  }
+
+  return { members };
 };

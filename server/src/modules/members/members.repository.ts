@@ -1,12 +1,17 @@
 import type { PoolConnection, RowDataPacket } from "mysql2/promise";
 
+import { db } from "../../config/db";
+
 import type {
   ProjectListItem,
   ProjectRole,
   ProjectStatus
 } from "../projects/projects.types";
 
-import type { ProjectJoinTarget } from "./members.types";
+import type {
+  ProjectJoinTarget,
+  ProjectMemberListItem
+} from "./members.types";
 
 interface ProjectJoinTargetRow extends RowDataPacket {
   id: number;
@@ -30,6 +35,16 @@ interface JoinedProjectRow extends RowDataPacket {
   updated_at: Date | string;
 }
 
+interface ProjectMemberListRow extends RowDataPacket {
+  user_id: number;
+  username: string;
+  nickname: string;
+  role: ProjectRole;
+  joined_at: Date | string;
+  total_task_count: number | string;
+  completed_task_count: number | string;
+}
+
 const formatDateOnly = (value: Date | string): string => {
   return value instanceof Date ? value.toISOString().slice(0, 10) : value;
 };
@@ -50,6 +65,18 @@ const toProjectListItem = (row: JoinedProjectRow): ProjectListItem => ({
   endDate: formatDateOnly(row.end_date),
   createdAt: formatDateTime(row.created_at),
   updatedAt: formatDateTime(row.updated_at)
+});
+
+const toProjectMemberListItem = (
+  row: ProjectMemberListRow
+): ProjectMemberListItem => ({
+  userId: Number(row.user_id),
+  username: row.username,
+  nickname: row.nickname,
+  role: row.role,
+  joinedAt: formatDateTime(row.joined_at),
+  totalTaskCount: Number(row.total_task_count),
+  completedTaskCount: Number(row.completed_task_count)
 });
 
 export const findProjectByInviteCodeForUpdate = async (
@@ -129,4 +156,45 @@ export const findJoinedProjectByIdForUser = async (
 
   const project = rows[0];
   return project ? toProjectListItem(project) : null;
+};
+
+export const findProjectMembersForUser = async (input: {
+  projectId: number;
+  currentUserId: number;
+}): Promise<ProjectMemberListItem[]> => {
+  // EXISTS 同时完成项目成员权限隔离；非成员即使知道 projectId 也查询不到成员数据。
+  //查询某个项目的全部成员，同时统计每个成员的任务总数和已完成任务数，并且保证当前登录用户必须属于这个项目。
+  const [rows] = await db.query<ProjectMemberListRow[]>(
+    `SELECT users.id AS user_id,
+            users.username,
+            users.nickname,
+            CASE
+              WHEN projects.owner_user_id = users.id THEN 'owner'
+              ELSE 'member'
+            END AS role,
+            project_members.joined_at,
+            COUNT(tasks.id) AS total_task_count,
+            SUM(CASE WHEN tasks.status = 'done' THEN 1 ELSE 0 END) AS completed_task_count
+     FROM project_members
+     INNER JOIN projects ON projects.id = project_members.project_id
+     INNER JOIN users ON users.id = project_members.user_id
+     LEFT JOIN tasks
+       ON tasks.project_id = project_members.project_id
+      AND tasks.assignee_user_id = project_members.user_id
+     WHERE project_members.project_id = ?
+       AND EXISTS (
+         SELECT 1
+         FROM project_members AS current_membership
+         WHERE current_membership.project_id = project_members.project_id
+           AND current_membership.user_id = ?
+       )
+     GROUP BY users.id, users.username, users.nickname,
+              projects.owner_user_id, project_members.joined_at
+     ORDER BY CASE WHEN projects.owner_user_id = users.id THEN 0 ELSE 1 END,
+              project_members.joined_at ASC,
+              users.id ASC`,
+    [input.projectId, input.currentUserId]
+  );
+
+  return rows.map(toProjectMemberListItem);
 };

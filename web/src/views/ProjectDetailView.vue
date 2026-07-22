@@ -6,6 +6,7 @@ import { useRoute, useRouter } from "vue-router";
 import BrandLogo from "@/components/auth/BrandLogo.vue";
 import CreateProjectDialog from "@/components/projects/CreateProjectDialog.vue";
 import ProjectInviteDialog from "@/components/projects/ProjectInviteDialog.vue";
+import ProjectMemberList from "@/components/projects/ProjectMemberList.vue";
 import { getProject, updateProject } from "@/api/projects";
 import { useAuthStore } from "@/stores/auth";
 import type { CreateProjectRequest, ProjectDetail, ProjectStatus } from "@/types/projects";
@@ -20,6 +21,10 @@ const errorMessage = ref("");
 const editDialogVisible = ref(false);
 const editLoading = ref(false);
 const inviteDialogVisible = ref(false);
+
+const formatDate = (date: string) => {
+  return new Date(date).toLocaleString("zh-CN");
+};
 
 const projectStatusText: Record<ProjectStatus, string> = {
   active: "进行中",
@@ -40,6 +45,7 @@ const loadProject = async () => {
 
   try {
     const result = await getProject(projectId);
+    console.log("项目详情", result);
     project.value = result.project;
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : "项目详情加载失败";
@@ -157,10 +163,13 @@ onMounted(loadProject);
           </div>
           <div>
             <span>创建时间</span>
-            <strong>{{ project.createdAt }}</strong>
+            <strong>{{ formatDate(project.createdAt ) }}</strong>
           </div>
         </div>
       </section>
+
+      <!-- 成员组件自己负责请求和错误重试，详情页只提供当前项目 ID。 -->
+      <ProjectMemberList v-if="project" :project-id="project.id" />
 
       <CreateProjectDialog
         v-if="project"

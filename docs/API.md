@@ -256,7 +256,87 @@
 | GET | `/api/projects/:projectId/members` | ProjectMember | 获取成员列表及任务完成概况 |
 | DELETE | `/api/projects/:projectId/members/:userId` | ProjectOwner | 移除项目成员 |
 
-成员列表和项目详情中的角色字段只返回 `owner` 或 `member`。不能移除 `projects.owner_user_id` 指向的项目负责人；成员存在未完成任务时第一版拒绝移除，并返回 `409xx` 冲突错误。
+#### 4.4.1 获取项目成员列表
+
+`GET /api/projects/:projectId/members` 不分页，也不提供搜索和自定义排序。Owner 和 Member 都可以查看所在项目的成员列表；`active`、`finished`、`archived` 项目均允许查看，以便保留历史成员信息。
+
+路径参数 `projectId` 必须是正整数。成员列表先返回 Owner，其他 Member 按 `joinedAt` 升序排列。即使项目当前没有普通 Member，`members` 也必须返回包含 Owner 的数组，不能返回 `null`。
+
+成功响应：
+
+```json
+{
+  "code": 0,
+  "message": "获取项目成员成功",
+  "data": {
+    "members": [
+      {
+        "userId": 1,
+        "username": "alice",
+        "nickname": "小林",
+        "role": "owner",
+        "joinedAt": "2026-07-22T10:00:00.000Z",
+        "totalTaskCount": 5,
+        "completedTaskCount": 3
+      }
+    ]
+  }
+}
+```
+
+字段规则：
+
+- `userId`：成员对应的用户 ID，也是移除成员接口使用的目标用户 ID。
+- `username`：用户的唯一账号；`nickname`：页面主要展示的昵称。两个字段同时返回，用于区分昵称相同的成员。
+- `role`：只返回 `owner` 或 `member`。
+- `joinedAt`：成员加入项目的时间，使用 ISO 8601 字符串。
+- `totalTaskCount`：该成员在当前项目中负责的全部任务数。
+- `completedTaskCount`：该成员在当前项目中状态为 `done` 的任务数。
+- 成员没有任务时，`totalTaskCount` 和 `completedTaskCount` 都返回 `0`。
+
+失败规则：`projectId` 不是正整数时返回 `40001`；项目不存在或当前用户不是项目成员时统一返回 `40401`，不向非成员暴露项目是否存在。认证失败继续使用公共约定中的 `40102`、`40103`。
+
+#### 4.4.2 移除项目成员
+
+`DELETE /api/projects/:projectId/members/:userId` 只允许项目 Owner 调用。`projectId` 表示目标项目，`userId` 表示被移除用户；当前操作者必须从 JWT 获取，不能由客户端提交。
+
+成功响应：
+
+```json
+{
+  "code": 0,
+  "message": "移除项目成员成功",
+  "data": {
+    "removedUserId": 2
+  }
+}
+```
+
+服务端必须按以下顺序校验：
+
+1. `projectId` 和 `userId` 都是正整数。
+2. 当前登录用户属于目标项目。
+3. 当前登录用户 ID 等于 `projects.owner_user_id`。
+4. 目标用户属于目标项目。
+5. 目标用户不是 `projects.owner_user_id` 指向的项目负责人。
+6. 目标成员在当前项目中不存在未完成任务。
+7. 删除对应的 `project_members` 关系。
+
+只有 `active` 项目允许移除成员；`finished` 和 `archived` 项目保留成员关系和历史数据。任务状态为 `todo`、`doing`、`submitted`、`overdue` 时均视为未完成，只有 `done` 视为已完成。
+
+失败规则：
+
+| 场景 | HTTP 状态码 | 业务错误码 | 错误信息 |
+| --- | ---: | ---: | --- |
+| `projectId` 或 `userId` 不是正整数 | 400 | `40001` | 项目 ID 和用户 ID 必须是正整数 |
+| 项目不存在或当前用户不是项目成员 | 404 | `40401` | 项目不存在或你不是项目成员 |
+| 当前用户不是项目 Owner | 403 | `40301` | 仅项目负责人可以移除成员 |
+| 目标用户不是当前项目成员 | 404 | `40403` | 目标项目成员不存在 |
+| 项目不是 `active` 状态 | 409 | `40904` | 项目当前状态不允许移除成员 |
+| 尝试移除项目 Owner | 409 | `40905` | 不能移除项目负责人 |
+| 目标成员存在未完成任务 | 409 | `40906` | 该成员存在未完成任务，暂时不能移除 |
+
+认证失败继续使用公共约定中的 `40102`、`40103`。
 
 ### 4.5 任务 tasks
 

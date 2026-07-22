@@ -101,6 +101,12 @@
 ### 模块 4：项目成员管理
 
 - [ ] 模块完成
+- [x] 第一步：固定成员列表、移除成员的接口字段、响应结构、权限规则和错误码
+- [x] 第二步：实现后端成员列表接口、成员访问校验和任务完成概况统计
+- [x] 第三步：在项目详情页展示成员列表、角色、加入时间和任务完成概况
+- [ ] 第四步：实现 Owner 移除 Member 的后端接口及未完成任务校验
+- [ ] 第五步：在成员列表接入移除确认、成功刷新和权限按钮显示
+- [ ] 第六步：完成双用户权限验收、文档同步并标记模块完成
 - 开发目标：项目成员查看成员列表，Owner 管理 Member，并统一项目内 Owner/Member 权限判断。
 - 涉及后端目录：`server/src/modules/members`、`server/src/modules/projects`、`server/src/middlewares`。
 - 涉及前端目录：`web/src/views/ProjectDetailView.vue`、`web/src/api`、`web/src/components`、`web/src/types`。

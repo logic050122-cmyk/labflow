@@ -4,6 +4,22 @@
 
 ## 2026-07-22
 
+### 模块 4 第三步：项目详情页展示成员列表
+
+- 新增前端成员类型和 API 封装，调用真实的 `GET /api/projects/:projectId/members`，页面不直接使用 axios。
+- 新增独立的 `ProjectMemberList.vue`，负责成员请求、加载状态、错误重试以及成员表格展示。
+- 成员表格展示昵称、用户名、项目角色、已完成/总任务数和加入时间；本步不显示移除按钮，也不实现删除成员。
+- 项目详情页只向成员组件传递项目 ID，文件保持 250 行，未把成员请求逻辑继续堆入页面。
+- 前端 `typecheck` 和 `git diff --check` 通过；Vite 构建及本地浏览器联调因当前环境禁止启动 esbuild 子进程而未执行成功，未发现代码类型错误。
+
+### 模块 4 第二步：实现后端成员列表接口
+
+- 完成 `GET /api/projects/:projectId/members`，Owner 和 Member 均可查看所在项目成员，非成员和项目不存在统一返回 `40401`。
+- 成员列表返回 `userId`、`username`、`nickname`、`role`、`joinedAt`、任务总数和已完成任务数；Owner 固定排在第一位，其他成员按加入时间排序。
+- repository 使用 `LEFT JOIN tasks` 统计任务，确保没有任务的成员仍返回两个 `0`；Owner 角色以 `projects.owner_user_id` 为准。
+- 同步在 `docs/TODO.md` 写入模块 4 的六个分步并勾选前两步，在 `docs/API.md` 固定成员列表和移除成员契约。
+- 后端 `typecheck`、`build` 和 `git diff --check` 均通过；使用现有项目数据完成真实接口联调，成员列表、Owner 排序、任务统计字段和非法项目 ID 的 `40001` 均符合契约，临时后端进程已关闭。
+
 ### 修正 VS Code 后端调试启动方式
 
 - 后端调试配置改为执行 `server/package.json` 中的 `npm.cmd run dev`，确保使用 `tsx watch src/server.ts`，不再误运行旧的 `dist/server.js`。
