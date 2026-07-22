@@ -84,7 +84,13 @@
 
 ### 模块 3：邀请码加入项目
 
-- [ ] 模块完成
+- [x] 模块完成
+- [x] 第一步：固定邀请码接口字段、响应结构和错误码
+- [x] 第二步：实现 Owner 生成或刷新邀请码后端接口
+- [x] 第三步：实现项目详情页邀请码生成、展示和复制
+- [x] 第四步：实现用户通过邀请码加入项目后端接口
+- [x] 第五步：实现前端“通过邀请码加入”弹窗和项目列表刷新
+- [x] 第六步：完成双用户业务验收、文档同步并标记模块完成
 - 开发目标：Owner 生成或刷新邀请码，登录用户通过有效邀请码以 Member 身份加入项目。
 - 涉及后端目录：`server/src/modules/projects`、`server/src/modules/members`。
 - 涉及前端目录：`web/src/views/ProjectsView.vue`、`web/src/views/ProjectDetailView.vue`、`web/src/api`、`web/src/components`、`web/src/types`。

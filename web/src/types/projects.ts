@@ -10,6 +10,11 @@ export interface CreateProjectRequest {
   endDate: string;
 }
 
+// 加入项目时页面只发送邀请码，不允许自行指定用户、项目角色或项目 ID。
+export interface JoinProjectRequest {
+  inviteCode: string;
+}
+
 export interface UpdateProjectRequest extends CreateProjectRequest {}
 
 export type ProjectStatus = "active" | "finished" | "archived";
@@ -45,6 +50,16 @@ export interface ProjectListItem {
   endDate: string;
   createdAt: string;
   updatedAt: string;
+}
+
+// Owner 生成或刷新邀请码后的接口数据。
+export interface RefreshProjectInviteCodeResult {
+  inviteCode: string;
+}
+
+// 加入成功后返回不包含邀请码的安全项目数据。
+export interface JoinProjectResult {
+  project: ProjectListItem;
 }
 
 export interface GetProjectsParams {

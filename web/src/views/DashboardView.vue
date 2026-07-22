@@ -5,10 +5,12 @@ import { useRouter } from "vue-router";
 
 import BrandLogo from "@/components/auth/BrandLogo.vue";
 import CreateProjectDialog from "@/components/projects/CreateProjectDialog.vue";
-import { createProject, getProjects } from "@/api/projects";
+import JoinProjectDialog from "@/components/projects/JoinProjectDialog.vue";
+import { createProject, getProjects, joinProject } from "@/api/projects";
 import { useAuthStore } from "@/stores/auth";
 import type {
   CreateProjectRequest,
+  JoinProjectRequest,
   ProjectListItem,
   ProjectStatus
 } from "@/types/projects";
@@ -17,6 +19,9 @@ const authStore = useAuthStore();
 const router = useRouter();
 // 控制创建项目弹窗的显示状态，初始为 false，页面打开时默认不显示。
 const createProjectDialogVisible = ref(false);
+// 控制“通过邀请码加入项目”弹窗，加入成功后由当前页面重新加载真实项目列表。
+const joinProjectDialogVisible = ref(false);
+const joinProjectSubmitting = ref(false);
 // 列表数据和页面状态放在当前页面，因为暂时没有其他页面共享这些数据。
 const projects = ref<ProjectListItem[]>([]); // 存储项目列表数据
 const projectTotal = ref(0); // 存储项目总数
@@ -62,6 +67,27 @@ const handleCreateProject = async (project: CreateProjectRequest) => {
   } catch (error) {
     // request() 已经把后端 message 转成 Error，这里直接展示给用户。
     ElMessage.error(error instanceof Error ? error.message : "项目创建失败");
+  }
+};
+
+const handleJoinProject = async (payload: JoinProjectRequest) => {
+  // 页面层负责串联“调用接口、关闭弹窗、刷新列表”，loading 防止重复提交。
+  if (joinProjectSubmitting.value) {
+    return;
+  }
+
+  joinProjectSubmitting.value = true; //用来控制“通过邀请码加入项目”弹窗的提交状态，防止重复提交。
+
+  try {
+    await joinProject(payload);
+    joinProjectDialogVisible.value = false;
+    ElMessage.success("加入项目成功");
+    await loadProjects();
+  } catch (error) {
+    // request() 会优先使用后端返回的 message，例如“邀请码无效”或“已经加入项目”。
+    ElMessage.error(error instanceof Error ? error.message : "加入项目失败");
+  } finally {
+    joinProjectSubmitting.value = false;
   }
 };
 
@@ -111,7 +137,7 @@ onMounted(loadProjects);
           <el-button type="primary" @click="createProjectDialogVisible = true">
             创建项目
           </el-button>
-          <el-button disabled>通过邀请码加入</el-button>
+          <el-button @click="joinProjectDialogVisible = true">通过邀请码加入</el-button>
         </div>
       </div>
 
@@ -186,6 +212,12 @@ onMounted(loadProjects);
     <CreateProjectDialog
       v-model="createProjectDialogVisible"
       @submit="handleCreateProject"
+    />
+
+    <JoinProjectDialog
+      v-model="joinProjectDialogVisible"
+      :loading="joinProjectSubmitting"
+      @submit="handleJoinProject"
     />
   </main>
 </template>

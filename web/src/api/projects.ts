@@ -3,8 +3,11 @@ import type {
   CreateProjectRequest,
   CreateProjectResult,
   GetProjectsParams,
+  JoinProjectRequest,
+  JoinProjectResult,
   ProjectDetailResult,
   ProjectListResult,
+  RefreshProjectInviteCodeResult,
   UpdateProjectRequest,
   UpdateProjectResult
 } from "@/types/projects";
@@ -28,6 +31,15 @@ export async function getProjects(params: GetProjectsParams = {}) {
   });
 }
 
+export async function joinProject(payload: JoinProjectRequest) {
+  // 当前用户由 Token 确定，页面只提交经过规范化的邀请码。
+  return await request<JoinProjectResult>({
+    method: "POST",
+    url: "/projects/join",
+    data: payload
+  });
+}
+
 export async function getProject(projectId: number) {
   return await request<ProjectDetailResult>({
     method: "GET",
@@ -43,5 +55,13 @@ export async function updateProject(
     method: "PUT",
     url: `/projects/${projectId}`,
     data: payload
+  });
+}
+
+export async function refreshProjectInviteCode(projectId: number) {
+  // 该接口没有请求体，http.ts 仍会自动携带当前登录用户的 Token。
+  return await request<RefreshProjectInviteCodeResult>({
+    method: "POST",
+    url: `/projects/${projectId}/invite-code`
   });
 }

@@ -5,6 +5,7 @@ import { useRoute, useRouter } from "vue-router";
 
 import BrandLogo from "@/components/auth/BrandLogo.vue";
 import CreateProjectDialog from "@/components/projects/CreateProjectDialog.vue";
+import ProjectInviteDialog from "@/components/projects/ProjectInviteDialog.vue";
 import { getProject, updateProject } from "@/api/projects";
 import { useAuthStore } from "@/stores/auth";
 import type { CreateProjectRequest, ProjectDetail, ProjectStatus } from "@/types/projects";
@@ -18,6 +19,7 @@ const loading = ref(false);
 const errorMessage = ref("");
 const editDialogVisible = ref(false);
 const editLoading = ref(false);
+const inviteDialogVisible = ref(false);
 
 const projectStatusText: Record<ProjectStatus, string> = {
   active: "进行中",
@@ -134,6 +136,7 @@ onMounted(loadProject);
         </div>
 
         <div v-if="project.role === 'owner'" class="project-detail-card__actions">
+          <el-button @click="inviteDialogVisible = true">项目邀请码</el-button>
           <el-button type="primary" :loading="editLoading" @click="editDialogVisible = true">
             编辑项目
           </el-button>
@@ -170,6 +173,13 @@ onMounted(loadProject);
           endDate: project.endDate
         }"
         @submit="handleUpdateProject"
+      />
+
+      <ProjectInviteDialog
+        v-if="project && project.role === 'owner'"
+        v-model="inviteDialogVisible"
+        :project-id="project.id"
+        :project-name="project.name"
       />
     </section>
   </main>
