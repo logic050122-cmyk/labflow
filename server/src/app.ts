@@ -2,6 +2,7 @@ import express from "express";
 
 import { errorHandler, notFoundHandler } from "./common/http";
 import { authRoutes } from "./modules/auth/auth.routes";
+import { memberRoutes } from "./modules/members/members.routes";
 import { projectRoutes } from "./modules/projects/projects.routes";
 
 // app.ts 只负责“组装 Express 应用”，不负责监听端口。
@@ -17,6 +18,9 @@ export const createApp = () => {
   // authRoutes 内部的 /register 会和这里的 /api/auth 拼成完整地址
   // POST /api/auth/register。
   app.use("/api/auth", authRoutes);
+
+  // 静态 /join 必须先于项目动态路由挂载，完整路径为 POST /api/projects/join。
+  app.use("/api/projects", memberRoutes);
 
   // projectRoutes 内部的 / 会和这里拼成 POST /api/projects。
   app.use("/api/projects", projectRoutes);

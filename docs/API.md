@@ -189,7 +189,46 @@
 | POST | `/api/projects/:projectId/finish` | ProjectOwner | 完成项目，`active -> finished` |
 | POST | `/api/projects/:projectId/archive` | ProjectOwner | 归档项目，`finished -> archived` |
 
-创建/编辑字段：`name`、`description`、`startDate`、`endDate`。创建项目请求中，`name`、`startDate`、`endDate` 必填，`description` 选填；项目日期统一使用 `YYYY-MM-DD`（ISO 8601 date-only）格式，截止日期不能早于开始日期。创建时项目状态默认为 `active`，不能通过编辑接口直接修改状态；`ownerId`、`userId` 和 `status` 不由客户端提交。加入项目请求字段为 `inviteCode`。
+创建/编辑字段：`name`、`description`、`startDate`、`endDate`。创建项目请求中，`name`、`startDate`、`endDate` 必填，`description` 选填；项目日期统一使用 `YYYY-MM-DD`（ISO 8601 date-only）格式，截止日期不能早于开始日期。创建时项目状态默认为 `active`，不能通过编辑接口直接修改状态；`ownerId`、`userId` 和 `status` 不由客户端提交。
+
+加入项目请求只接收 `inviteCode`：必须是 1 至 32 位英文字母或数字；服务端去除首尾空格并统一转换为大写。客户端提交的 `projectId`、`userId` 或 `role` 不参与业务判断，加入后的角色由服务端固定为 `member`。
+
+刷新邀请码成功响应：
+
+```json
+{
+  "code": 0,
+  "message": "邀请码刷新成功",
+  "data": {
+    "inviteCode": "LABFLOWV1"
+  }
+}
+```
+
+加入项目成功响应：
+
+```json
+{
+  "code": 0,
+  "message": "加入项目成功",
+  "data": {
+    "project": {
+      "id": 1,
+      "name": "实验室官网重构",
+      "description": "完成实验室官网升级",
+      "ownerUserId": 2,
+      "status": "active",
+      "role": "member",
+      "startDate": "2026-07-21",
+      "endDate": "2026-08-31",
+      "createdAt": "2026-07-21T08:00:00.000Z",
+      "updatedAt": "2026-07-21T08:00:00.000Z"
+    }
+  }
+}
+```
+
+邀请码为空、超过 32 位或包含字母和数字以外的字符返回 `40001`；非 Owner 刷新邀请码返回 `40301`；刷新接口中的项目不存在或当前用户不是项目成员返回 `40401`；邀请码无效或旧邀请码已经失效返回 `40402`；邀请码生成发生唯一键冲突返回 `40902`；用户已经加入目标项目返回 `40903`。只有 `active` 项目允许刷新邀请码和加入成员，`finished` 或 `archived` 项目执行上述操作返回 `40904`。
 
 编辑项目请求示例：
 

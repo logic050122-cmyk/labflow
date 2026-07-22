@@ -8,7 +8,8 @@ import {
   findProjectsByUser,
   insertProject,
   insertProjectOwner,
-  updateProject as updateProjectRecord
+  updateProject as updateProjectRecord,
+  updateProjectInviteCode
 } from "./projects.repository";
 import type {
   CreateProjectInput,
@@ -16,6 +17,7 @@ import type {
   GetProjectResult,
   ListProjectsInput,
   ListProjectsResult,
+  RefreshProjectInviteCodeResult,
   UpdateProjectInput,
   UpdateProjectResult
 } from "./projects.types";
@@ -138,4 +140,44 @@ export const updateProject = async (
   }
 
   return { project: updatedProject };
+};
+
+export const refreshProjectInviteCode = async (
+  projectId: number,
+  currentUserId: number
+): Promise<RefreshProjectInviteCodeResult> => {
+  // 先使用成员隔离查询，避免向非成员泄露项目是否存在。
+  const project = await findProjectByIdForUser({ projectId, userId: currentUserId });
+
+  if (!project) {
+    throw new AppError("项目不存在或你不是项目成员", 404, 40401);
+  }
+
+  // Owner 必须以 projects.owner_user_id 为准，不能只相信成员表中的 role。
+  if (project.ownerUserId !== currentUserId) {
+    throw new AppError("仅项目负责人可以刷新邀请码", 403, 40301);
+  }
+
+  // 已完成或已归档项目不再开放新成员加入，因此也不允许继续刷新邀请码。
+  if (project.status !== "active") {
+    throw new AppError("项目当前状态不允许刷新邀请码", 409, 40904);
+  }
+
+  const inviteCode = createInviteCode();
+
+  try {
+    // 更新成功后，数据库中的旧邀请码会立即被新邀请码替换。
+    const inviteCodeUpdated = await updateProjectInviteCode({ projectId, inviteCode });
+    if (!inviteCodeUpdated) {
+      throw new AppError("项目当前状态不允许刷新邀请码", 409, 40904);
+    }
+  } catch (error) {
+    if (isDuplicateEntryError(error)) {
+      throw new AppError("项目邀请码生成失败，请重试", 409, 40902);
+    }
+
+    throw error;
+  }
+
+  return { inviteCode };
 };

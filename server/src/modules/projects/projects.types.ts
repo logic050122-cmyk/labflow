@@ -59,6 +59,11 @@ export interface ProjectListItem {
   updatedAt: string;
 }
 
+// Owner 刷新邀请码后只返回新邀请码，不把项目内部字段一起暴露给页面。
+export interface RefreshProjectInviteCodeResult {
+  inviteCode: string;
+}
+
 export interface ListProjectsResult {
   list: ProjectListItem[];
   total: number;

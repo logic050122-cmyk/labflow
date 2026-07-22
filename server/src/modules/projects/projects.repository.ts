@@ -231,3 +231,18 @@ export const updateProject = async (input: {
     ]
   );
 };
+
+export const updateProjectInviteCode = async (input: {
+  projectId: number;
+  inviteCode: string;
+}): Promise<boolean> => {
+  // 更新时再次限制 active，防止状态检查后项目被并发完成或归档。
+  const [result] = await db.execute<ResultSetHeader>(
+    `UPDATE projects
+     SET invite_code = ?
+     WHERE id = ? AND status = 'active'`,
+    [input.inviteCode, input.projectId]
+  );
+
+  return result.affectedRows === 1;
+};

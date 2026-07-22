@@ -2,7 +2,13 @@ import type { RequestHandler } from "express";
 
 import { AppError, sendSuccess } from "../../common/http";
 
-import { createProject, getProject, listProjects, updateProject } from "./projects.service";
+import {
+  createProject,
+  getProject,
+  listProjects,
+  refreshProjectInviteCode,
+  updateProject
+} from "./projects.service";
 import {
   validateCreateProjectRequest,
   validateListProjectsRequest,
@@ -72,6 +78,21 @@ export const update: RequestHandler = async (request, response, next) => {
     const input = validateUpdateProjectRequest(request.body);
     const result = await updateProject(projectId, request.userId, input);
     sendSuccess(response, result, "项目更新成功");
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const refreshInviteCode: RequestHandler = async (request, response, next) => {
+  try {
+    if (!request.userId) {
+      throw new AppError("请先登录", 401, 40102);
+    }
+
+    // controller 只整理路径参数和当前用户，Owner 权限在 service 中校验。
+    const projectId = validateProjectIdParam(request.params.projectId);
+    const result = await refreshProjectInviteCode(projectId, request.userId);
+    sendSuccess(response, result, "邀请码刷新成功");
   } catch (error) {
     next(error);
   }
