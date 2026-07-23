@@ -116,7 +116,13 @@
 
 ### 模块 5：任务创建与分配
 
-- [ ] 模块完成
+- [x] 模块完成
+- [x] 第一步：固定任务创建、编辑、列表和详情接口字段、筛选规则与错误码
+- [x] 第二步：实现 Owner 创建任务、项目成员负责人校验和 `todo` 初始状态
+- [x] 第三步：实现项目任务列表、我的任务列表、分页和状态/负责人/优先级/标签/关键词筛选
+- [x] 第四步：实现 Owner 编辑与重新分配 `todo` 任务，并限制非 active 项目写入
+- [x] 第五步：在项目详情页接入任务管理、创建/编辑表单和任务详情
+- [x] 第六步：新增“我的任务”页面，并完成文档、类型检查和业务验收
 - 开发目标：Owner 创建、编辑、分配和筛选任务，Member 查看分配给自己的任务。
 - 涉及后端目录：`server/src/modules/tasks`、`server/src/modules/projects`、`server/src/modules/members`。
 - 涉及前端目录：`web/src/views/MyTasksView.vue`、`web/src/views/ProjectDetailView.vue`、`web/src/api`、`web/src/components`、`web/src/types`。

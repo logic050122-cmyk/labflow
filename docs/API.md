@@ -342,17 +342,85 @@
 
 | 方法 | 路径 | 权限 | 用途 |
 | --- | --- | --- | --- |
-| GET | `/api/tasks` | User | 获取“我的任务”，支持分页与筛选 |
-| GET | `/api/projects/:projectId/tasks` | ProjectMember | 获取项目任务列表 |
-| POST | `/api/projects/:projectId/tasks` | ProjectOwner | 创建并分配任务 |
-| GET | `/api/tasks/:taskId` | ProjectMember | 获取任务详情 |
-| PUT | `/api/tasks/:taskId` | ProjectOwner | 编辑任务信息或重新分配 |
-| POST | `/api/tasks/:taskId/start` | Assignee | `todo/overdue -> doing` |
-| POST | `/api/tasks/:taskId/submit` | Assignee | `doing -> submitted` |
-| POST | `/api/tasks/:taskId/approve` | ProjectOwner | `submitted -> done` |
-| POST | `/api/tasks/:taskId/reject` | ProjectOwner | `submitted -> doing` |
+| GET | `/api/tasks` | User | 获取“我的任务”，支持分页与筛选（模块 5） |
+| GET | `/api/projects/:projectId/tasks` | ProjectMember | 获取项目任务列表（模块 5） |
+| POST | `/api/projects/:projectId/tasks` | ProjectOwner | 创建并分配任务（模块 5） |
+| GET | `/api/tasks/:taskId` | ProjectMember | 获取任务详情（模块 5） |
+| PUT | `/api/tasks/:taskId` | ProjectOwner | 编辑或重新分配 `todo` 任务（模块 5） |
+| POST | `/api/tasks/:taskId/start` | Assignee | `todo/overdue -> doing`（模块 6） |
+| POST | `/api/tasks/:taskId/submit` | Assignee | `doing -> submitted`（模块 7） |
+| POST | `/api/tasks/:taskId/approve` | ProjectOwner | `submitted -> done`（模块 7） |
+| POST | `/api/tasks/:taskId/reject` | ProjectOwner | `submitted -> doing`（模块 7） |
 
-创建/编辑字段：`title`、`description`、`assigneeUserId`、`priority`、`tag`、`dueAt`。
+#### 4.5.1 创建和编辑任务
+
+`POST /api/projects/:projectId/tasks` 和 `PUT /api/tasks/:taskId` 的请求体都完整提交以下字段：
+
+```json
+{
+  "title": "完成登录接口参数校验",
+  "description": "补齐空值和非法格式的校验提示。",
+  "assigneeUserId": 12,
+  "priority": "high",
+  "tag": "功能",
+  "dueAt": "2026-07-30T10:00:00.000Z"
+}
+```
+
+- `title` 必填，去除首尾空格后为 1 至 150 个字符。
+- `description` 选填，最多 2000 个字符。
+- `assigneeUserId` 必填，必须是当前项目成员；Owner 可以把任务分配给自己。
+- `priority` 必填，只允许 `low`、`medium`、`high`、`urgent`。
+- `tag` 选填，只允许单个 `功能`、`Bug`、`优化`、`文档`、`测试` 或 `UI`。
+- `dueAt` 选填，使用 ISO 8601 时间字符串；填写时必须晚于当前时间。
+- 客户端提交的 `projectId`、`creatorUserId`、`status` 不参与业务判断。创建人由 JWT 当前用户确定，新任务状态固定为 `todo`。
+
+创建和编辑都只允许项目状态为 `active` 的 Owner 执行。模块五只允许编辑或重新分配状态为 `todo` 的任务；`doing`、`submitted`、`done`、`overdue` 的编辑规则将在模块六、七确定。
+
+成功后返回 `data.task`，字段包括：`id`、`projectId`、`projectName`、`projectStatus`、`title`、`description`、负责人和创建人的 ID/用户名/昵称、`priority`、`status`、`tag`、`dueAt`、`createdAt`、`updatedAt`。未设置截止时间或标签时返回 `null`。
+
+#### 4.5.2 任务列表和详情
+
+`GET /api/projects/:projectId/tasks` 对 Owner 和 Member 开放：两者都可以查看当前项目全部任务，只有 Owner 会在页面获得创建、编辑和改派入口。该列表支持以下查询参数：
+
+- `page`：页码，默认 `1`；`pageSize`：每页数量，默认 `10`，最大 `100`。
+- `status`：`todo`、`doing`、`submitted`、`done`、`overdue`。
+- `assigneeUserId`：当前项目成员的用户 ID。
+- `priority`：`low`、`medium`、`high`、`urgent`。
+- `tag`：单个任务标签。
+- `keyword`：搜索任务标题或描述，最多 100 个字符。
+
+筛选条件按“同时满足”组合，默认按创建时间倒序。列表统一返回：
+
+```json
+{
+  "code": 0,
+  "message": "项目任务获取成功",
+  "data": {
+    "list": [],
+    "total": 0,
+    "page": 1,
+    "pageSize": 10
+  }
+}
+```
+
+`GET /api/tasks` 只返回当前 JWT 用户作为负责人的任务，并且只显示该用户当前仍是成员的项目；服务端不采用客户端传来的 `assigneeUserId`，防止借此查询其他成员任务。它支持其余分页和筛选参数。
+
+`GET /api/tasks/:taskId` 先反查任务所属项目，再校验当前用户是否是该项目成员；项目不存在、任务不存在或当前用户不是成员时统一返回 `40401`。
+
+#### 4.5.3 模块五错误规则
+
+| 场景 | HTTP 状态码 | 业务错误码 | 错误信息 |
+| --- | ---: | ---: | --- |
+| 路径 ID、分页或请求字段格式不正确 | 400 | `40001` | 对应的明确参数错误信息 |
+| 当前用户不是项目 Owner | 403 | `40301` | 仅项目负责人可以创建、编辑或分配任务 |
+| 项目/任务不存在，或当前用户不是项目成员 | 404 | `40401` | 项目不存在或你不是项目成员；或任务不存在或你不是所属项目成员 |
+| 指定负责人不是当前项目成员 | 404 | `40403` | 任务负责人必须是当前项目成员 |
+| 项目不是 `active` | 409 | `40904` | 项目当前状态不允许创建或编辑任务 |
+| 尝试编辑非 `todo` 任务 | 409 | `40907` | 当前任务状态不允许编辑或重新分配 |
+
+认证失败继续使用公共约定中的 `40102`、`40103`。
 
 提交任务请求字段：`submitContent`，可选，对应数据库 `tasks.submit_content`；提交成功时服务端同时更新 `status=submitted` 和 `submitted_at`。
 
@@ -364,7 +432,7 @@
 
 审核人由当前登录用户确定，客户端不提交 `reviewerUserId`。审核通过或驳回时，服务端写入 `reviewer_user_id` 和 `reviewed_at`。驳回请求必须包含 `reason`。
 
-列表筛选参数：`status`、`assigneeUserId`、`priority`、`tag`、`keyword`、`page`、`pageSize`。`GET /api/tasks` 只能返回当前用户被分配的任务。
+模块六、七的提交、审核接口及其状态流转规则尚未实现，当前仅保留其第一版接口契约。
 
 ### 4.6 评论 comments
 
@@ -420,9 +488,11 @@
 
 ## 5. 状态与副作用
 
+下表描述第一版最终业务闭环。模块五已实现任务状态固定为 `todo`；通知和操作日志会分别在模块 10、模块 12 接入，当前创建或编辑任务不会提前写入这两类数据。
+
 | 动作 | 状态变化 | 通知 | 操作日志 |
 | --- | --- | --- | --- |
-| 创建任务 | 初始为 `todo` | 通知 Assignee | 记录 |
+| 创建任务 | 初始为 `todo` | 模块 10 接入 | 模块 12 接入 |
 | 开始任务 | `todo/overdue -> doing` | 无 | 记录 |
 | 提交任务 | `doing -> submitted` | 通知项目负责人 | 记录 |
 | 审核通过 | `submitted -> done` | 通知 Assignee | 记录 |

@@ -4,6 +4,7 @@ import { errorHandler, notFoundHandler } from "./common/http";
 import { authRoutes } from "./modules/auth/auth.routes";
 import { memberRoutes } from "./modules/members/members.routes";
 import { projectRoutes } from "./modules/projects/projects.routes";
+import { taskRoutes } from "./modules/tasks/tasks.routes";
 
 // app.ts 只负责“组装 Express 应用”，不负责监听端口。
 // 这样测试时可以直接创建 app，不必真的启动一个服务器进程。
@@ -21,6 +22,9 @@ export const createApp = () => {
 
   // 静态 /join 必须先于项目动态路由挂载，完整路径为 POST /api/projects/join。
   app.use("/api/projects", memberRoutes);
+
+  // taskRoutes 内部同时定义 /tasks 和 /projects/:projectId/tasks 两类路径。
+  app.use("/api", taskRoutes);
 
   // projectRoutes 内部的 / 会和这里拼成 POST /api/projects。
   app.use("/api/projects", projectRoutes);

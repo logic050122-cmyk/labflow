@@ -57,6 +57,10 @@ const handleLogout = async () => {
   await router.replace("/login");
 };
 
+const goMyTasks = () => {
+  void router.push({ name: "my-tasks" });
+};
+
 const handleCreateProject = async (project: CreateProjectRequest) => {
   try {
     // 子组件校验通过后，调用项目 API 把表单数据发送给后端。
@@ -134,6 +138,7 @@ onMounted(loadProjects);
         </div>
 
         <div class="projects-actions" aria-label="项目操作">
+          <el-button @click="goMyTasks">我的任务</el-button>
           <el-button type="primary" @click="createProjectDialogVisible = true">
             创建项目
           </el-button>

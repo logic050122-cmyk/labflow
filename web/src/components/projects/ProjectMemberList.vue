@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 
 import { getProjectMembers, removeProjectMember } from "@/api/members";
@@ -10,6 +10,7 @@ const props = defineProps<{
   projectId: number;
   projectRole: ProjectRole;
   projectStatus: ProjectStatus;
+  refreshKey: number;
 }>();
 
 const members = ref<ProjectMemberListItem[]>([]);
@@ -91,6 +92,14 @@ const handleRemoveMember = async (member: ProjectMemberListItem) => {
 };
 
 onMounted(loadMembers);
+
+// 任务创建或改派后，父页面通过 refreshKey 通知这里更新完成/总任务数。
+watch(
+  () => props.refreshKey,
+  () => {
+    void loadMembers();
+  }
+);
 </script>
 
 <template>

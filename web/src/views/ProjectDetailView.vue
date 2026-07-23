@@ -7,6 +7,7 @@ import BrandLogo from "@/components/auth/BrandLogo.vue";
 import CreateProjectDialog from "@/components/projects/CreateProjectDialog.vue";
 import ProjectInviteDialog from "@/components/projects/ProjectInviteDialog.vue";
 import ProjectMemberList from "@/components/projects/ProjectMemberList.vue";
+import ProjectTaskList from "@/components/tasks/ProjectTaskList.vue";
 import { getProject, updateProject } from "@/api/projects";
 import { useAuthStore } from "@/stores/auth";
 import type { CreateProjectRequest, ProjectDetail, ProjectStatus } from "@/types/projects";
@@ -21,6 +22,8 @@ const errorMessage = ref("");
 const editDialogVisible = ref(false);
 const editLoading = ref(false);
 const inviteDialogVisible = ref(false);
+// 子组件创建或改派任务后递增，用于让成员列表重新读取任务数量统计。
+const memberListRefreshKey = ref(0);
 
 const formatDate = (date: string) => {
   return new Date(date).toLocaleString("zh-CN");
@@ -79,6 +82,10 @@ const handleUpdateProject = async (payload: CreateProjectRequest) => {
   } finally {
     editLoading.value = false;
   }
+};
+
+const handleTasksChanged = () => {
+  memberListRefreshKey.value += 1;
 };
 
 onMounted(loadProject);
@@ -168,12 +175,21 @@ onMounted(loadProject);
         </div>
       </section>
 
+      <ProjectTaskList
+        v-if="project"
+        :project-id="project.id"
+        :project-role="project.role"
+        :project-status="project.status"
+        @tasks-changed="handleTasksChanged"
+      />
+
       <!-- 成员组件自己负责请求和错误重试，详情页只提供当前项目 ID。 -->
       <ProjectMemberList
         v-if="project"
         :project-id="project.id"
         :project-role="project.role"
         :project-status="project.status"
+        :refresh-key="memberListRefreshKey"
       />
 
       <CreateProjectDialog

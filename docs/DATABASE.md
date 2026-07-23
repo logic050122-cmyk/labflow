@@ -109,7 +109,7 @@ erDiagram
 | `creator_user_id` | BIGINT UNSIGNED | 是 | 创建人，第一版必须是 Owner |
 | `priority` | VARCHAR(20) | 是 | `low`、`medium`、`high`、`urgent` |
 | `status` | VARCHAR(20) | 是 | 默认 `todo` |
-| `tag` | VARCHAR(30) | 否 | 单个可选标签 |
+| `tag` | VARCHAR(30) | 否 | 单个可选标签：`功能`、`Bug`、`优化`、`文档`、`测试`、`UI` |
 | `due_at` | DATETIME | 否 | 截止时间 |
 | `submit_content` | TEXT | 否 | Member 提交任务时填写的完成说明 |
 | `rejection_reason` | VARCHAR(500) | 否 | 最近一次驳回原因 |
@@ -120,7 +120,7 @@ erDiagram
 | `created_at` | DATETIME | 是 | 创建时间 |
 | `updated_at` | DATETIME | 是 | 更新时间 |
 
-约束：任务状态仅允许 `todo`、`doing`、`submitted`、`done`、`overdue`；任务负责人必须属于同一项目。
+约束：任务状态仅允许 `todo`、`doing`、`submitted`、`done`、`overdue`；任务负责人必须属于同一项目；第一版任务标签由应用层限制为上述六种单个值。
 
 ### 4.5 task_comments
 
@@ -247,6 +247,9 @@ erDiagram
 - 演示数据修复文件：`server/migrations/002_refresh_demo_projects.sql`。该脚本不修改表结构，
   只会更新旧分页演示数据中 ID 为 `6` 至 `29`、Owner 为演示账号且邀请码以
   `SEEDPAGE` 开头的项目；不满足保护条件时不会修改任何记录。
+- 演示数据刷新文件：`server/migrations/003_refresh_demo_data.sql`。该脚本不修改表结构，
+  只会更新已识别的测试用户、手工测试项目、分页演示任务、评论、附件、通知和操作日志，
+  将符号、乱码和 `Seed` 占位内容替换为真实感更强的中文虚拟数据；不删除任何记录。
 - 在 Navicat 中打开迁移文件并对有建库权限的 MySQL 连接执行，随后刷新连接，
   即可看到 `labflow` 及本文档定义的 8 张表。
 - 脚本使用 `CREATE DATABASE IF NOT EXISTS` 和 `CREATE TABLE IF NOT EXISTS`，
