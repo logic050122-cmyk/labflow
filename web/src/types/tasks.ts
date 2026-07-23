@@ -94,6 +94,10 @@ export interface UpdateTaskResult {
   task: Task;
 }
 
+export interface StartTaskResult {
+  task: Task;
+}
+
 export interface GetTaskResult {
   task: Task;
 }

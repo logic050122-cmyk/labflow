@@ -7,6 +7,7 @@ import {
   getTask,
   listMyTasks,
   listProjectTasks,
+  startTask,
   updateTaskByOwner
 } from "./tasks.service";
 import {
@@ -71,6 +72,36 @@ export const detail: RequestHandler = async (request, response, next) => {
     const taskId = validateTaskIdParam(request.params.taskId);
     const result = await getTask(taskId, request.userId);
     sendSuccess(response, result, "任务详情获取成功");
+  } catch (error) {
+    next(error);
+  }
+};
+
+// 当前任务负责人开始处理自己的任务。
+export const start: RequestHandler = async (
+  request,
+  response,
+  next
+) => {
+  try {
+    if (!request.userId) {
+      throw new AppError("请先登录", 401, 40102);
+    }
+
+    const taskId = validateTaskIdParam(
+      request.params.taskId
+    );
+
+    const result = await startTask(
+      taskId,
+      request.userId
+    );
+
+    sendSuccess(
+      response,
+      result,
+      "任务已开始"
+    );
   } catch (error) {
     next(error);
   }

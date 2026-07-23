@@ -12,7 +12,8 @@ import type {
   Task,
   TaskProjectWriteTarget,
   TaskStatus,
-  TaskWriteTarget
+  TaskWriteTarget,
+  TaskStartTarget
 } from "./tasks.types";
 
 interface TaskRow extends RowDataPacket {
@@ -56,6 +57,15 @@ interface TaskWriteTargetRow extends RowDataPacket {
 interface ProjectMemberRow extends RowDataPacket {
   id: number;
 }
+
+interface TaskStartTargetRow extends RowDataPacket {
+  id: number;
+  project_id: number;
+  assignee_user_id: number;
+  project_status: TaskStartTarget["projectStatus"];
+  task_status: TaskStartTarget["taskStatus"];
+}
+
 
 // 所有列表和详情查询复用同一组字段，避免不同接口返回字段不一致。
 const TASK_SELECT_FIELDS = `
@@ -119,7 +129,7 @@ const buildTaskConditions = (
   initialCondition: string,
   initialParameters: Array<string | number>
 ): { where: string; parameters: Array<string | number> } => {
-  const conditions = [initialCondition];
+  const conditions = [initialCondition]; //是一个数组，用于存储查询条件。初始条件是传入的 initialCondition 参数。
   const parameters = [...initialParameters];
 
   if (input.status) {
@@ -278,6 +288,74 @@ export const findTaskForTaskWriteForUpdate = async (
     status: task.project_status,
     taskStatus: task.task_status
   };
+};
+
+// 开始任务时锁定任务，并确认当前用户仍然属于任务所在项目。
+export const findTaskForStartForUpdate = async (
+  connection: PoolConnection,
+  input: {
+    taskId: number;
+    currentUserId: number;
+  }
+): Promise<TaskStartTarget | null> => {
+  const [rows] = await connection.execute<TaskStartTargetRow[]>(
+    `SELECT tasks.id,
+            tasks.project_id,
+            tasks.assignee_user_id,
+            tasks.status AS task_status,
+            projects.status AS project_status
+     FROM tasks
+     INNER JOIN projects
+       ON projects.id = tasks.project_id
+     INNER JOIN project_members AS current_membership
+       ON current_membership.project_id = tasks.project_id
+      AND current_membership.user_id = ?
+     WHERE tasks.id = ?
+     LIMIT 1
+     FOR UPDATE`,
+    [input.currentUserId, input.taskId]
+  );
+
+  const task = rows[0];
+
+  if (!task) {
+    return null;
+  }
+
+  return {
+    taskId: Number(task.id),
+    projectId: Number(task.project_id),
+    assigneeUserId: Number(task.assignee_user_id),
+    projectStatus: task.project_status,
+    taskStatus: task.task_status
+  };
+};
+
+// 把待开始或已逾期任务更新为进行中，并返回更新后的完整任务。
+export const updateTaskStatusToDoing = async (
+  connection: PoolConnection,
+  taskId: number
+): Promise<Task> => {
+  const [result] = await connection.execute<ResultSetHeader>(
+    `UPDATE tasks
+     SET status = 'doing'
+     WHERE id = ?
+       AND status IN ('todo', 'overdue')`,
+    [taskId]
+  );
+
+  // service 正常校验并锁定任务后，应该正好更新一条记录。
+  if (result.affectedRows !== 1) {
+    throw new Error("开始任务时任务状态更新失败");
+  }
+
+  const task = await findTaskById(connection, taskId);
+
+  if (!task) {
+    throw new Error("开始任务后未找到任务记录");
+  }
+
+  return task;
 };
 
 export const updateTask = async (

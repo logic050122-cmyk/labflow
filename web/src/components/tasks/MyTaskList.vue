@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 
-import { getMyTasks } from "@/api/tasks";
 import TaskDetailDialog from "@/components/tasks/TaskDetailDialog.vue";
+import { ElMessage } from "element-plus";
+import { onMounted, reactive, ref } from "vue";
+
+import { getMyTasks, startTask } from "@/api/tasks";
 import {
   TASK_PRIORITY_TAG_TYPE,
   TASK_PRIORITY_TEXT,
@@ -14,7 +16,7 @@ import {
   type Task,
   type TaskPriority,
   type TaskStatus,
-  type TaskTag
+  type TaskTag,
 } from "@/types/tasks";
 
 interface MyTaskFilters {
@@ -33,6 +35,8 @@ const loading = ref(false);
 const errorMessage = ref("");
 const detailVisible = ref(false);
 const detailTaskId = ref<number | null>(null);
+  // 当前正在执行“开始任务”的任务 ID。
+const startingTaskId = ref<number | null>(null);
 
 const filters = reactive<MyTaskFilters>({
   status: "",
@@ -88,6 +92,31 @@ const handlePageChange = async (page: number) => {
 const openTaskDetail = (taskId: number) => {
   detailTaskId.value = taskId;
   detailVisible.value = true;
+};
+
+const handleStartTask = async (task: Task) => {
+  if (startingTaskId.value !== null) {
+    return;
+  }
+
+  startingTaskId.value = task.id;
+
+  try {
+    await startTask(task.id);
+
+    ElMessage.success("任务已开始");
+
+    // 重新加载任务，让状态显示为“进行中”。
+    await loadTasks();
+  } catch (error) {
+    ElMessage.error(
+      error instanceof Error
+        ? error.message
+        : "开始任务失败"
+    );
+  } finally {
+    startingTaskId.value = null;
+  }
 };
 
 const goProject = (task: Task) => {
@@ -199,12 +228,49 @@ onMounted(() => {
           </template>
         </el-table-column>
 
-        <el-table-column label="操作" width="160" fixed="right">
+        <!-- <el-table-column label="操作" width="160" fixed="right">
           <template #default="scope: { row: Task }">
             <el-button link type="primary" @click="openTaskDetail(scope.row.id)">详情</el-button>
             <el-button link type="primary" @click="goProject(scope.row)">进入项目</el-button>
           </template>
-        </el-table-column>
+        </el-table-column> -->
+
+        <el-table-column label="操作" width="240" fixed="right">
+  <template #default="scope: { row: Task }">
+    <el-button
+      v-if="
+        scope.row.projectStatus === 'active' &&
+        (
+          scope.row.status === 'todo' ||
+          scope.row.status === 'overdue'
+        )
+      "
+      link
+      type="success"
+      :loading="startingTaskId === scope.row.id"
+      :disabled="startingTaskId !== null"
+      @click="handleStartTask(scope.row)"
+    >
+      开始任务
+    </el-button>
+
+    <el-button
+      link
+      type="primary"
+      @click="openTaskDetail(scope.row.id)"
+    >
+      详情
+    </el-button>
+
+    <el-button
+      link
+      type="primary"
+      @click="goProject(scope.row)"
+    >
+      进入项目
+    </el-button>
+  </template>
+</el-table-column>
       </el-table>
 
       <div class="my-tasks-pagination">

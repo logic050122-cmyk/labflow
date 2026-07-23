@@ -66,6 +66,11 @@ export interface GetTaskResult {
   task: Task;
 }
 
+// 开始任务成功后，接口返回状态已经更新的完整任务。
+export interface StartTaskResult {
+  task: Task;
+}
+
 export interface ListTasksResult {
   list: Task[];
   total: number;
@@ -90,5 +95,14 @@ export interface TaskProjectWriteTarget {
 export interface TaskWriteTarget extends TaskProjectWriteTarget {
   taskId: number;
   projectId: number;
+  taskStatus: TaskStatus;
+}
+
+// 开始任务时，service 做权限和状态判断所需要的数据。
+export interface TaskStartTarget {
+  taskId: number;
+  projectId: number;
+  assigneeUserId: number;
+  projectStatus: ProjectStatus;
   taskStatus: TaskStatus;
 }

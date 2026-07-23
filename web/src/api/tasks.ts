@@ -6,7 +6,8 @@ import type {
   GetTasksParams,
   TaskListResult,
   UpdateTaskRequest,
-  UpdateTaskResult
+  UpdateTaskResult,
+  StartTaskResult,
 } from "@/types/tasks";
 
 // 页面不直接使用 axios，任务相关请求统一经过 api/http.ts 的 Token 和错误处理逻辑。
@@ -46,5 +47,13 @@ export async function updateTask(taskId: number, payload: UpdateTaskRequest) {
     method: "PUT",
     url: `/tasks/${taskId}`,
     data: payload
+  });
+}
+
+// 当前登录用户开始处理分配给自己的任务。
+export async function startTask(taskId: number) {
+  return await request<StartTaskResult>({
+    method: "POST",
+    url: `/tasks/${taskId}/start`
   });
 }

@@ -5,12 +5,14 @@ import { findProjectByIdForUser } from "../projects/projects.repository";
 import {
   findProjectForTaskWriteForUpdate,
   findTaskDetailForUser,
+  findTaskForStartForUpdate,
   findTaskForTaskWriteForUpdate,
   findTasksByProject,
   findTasksForAssignee,
   hasProjectMemberForUpdate,
   insertTask,
-  updateTask
+  updateTask,
+  updateTaskStatusToDoing
 } from "./tasks.repository";
 import type {
   CreateTaskInput,
@@ -18,6 +20,7 @@ import type {
   GetTaskResult,
   ListTasksInput,
   ListTasksResult,
+  StartTaskResult,
   TaskProjectWriteTarget,
   UpdateTaskInput,
   UpdateTaskResult
@@ -177,6 +180,77 @@ export const updateTaskByOwner = async (
     });
 
     await connection.commit();
+    return { task };
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+};
+
+
+// 只有任务负责人可以把 todo/overdue 任务开始为 doing。
+export const startTask = async (
+  taskId: number,
+  currentUserId: number
+): Promise<StartTaskResult> => {
+  const connection = await db.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    // 查询任务并加锁，同时确认当前用户仍是任务所属项目的成员。
+    const taskTarget = await findTaskForStartForUpdate(connection, {
+      taskId,
+      currentUserId
+    });
+
+    if (!taskTarget) {
+      throw new AppError(
+        "任务不存在或你不是所属项目成员",
+        404,
+        40401
+      );
+    }
+
+    // 当前登录用户必须就是这个任务的负责人。
+    if (taskTarget.assigneeUserId !== currentUserId) {
+      throw new AppError(
+        "仅任务负责人可以开始任务",
+        403,
+        40302
+      );
+    }
+
+    // 已完成或已归档项目不能继续处理任务。
+    if (taskTarget.projectStatus !== "active") {
+      throw new AppError(
+        "项目当前状态不允许开始任务",
+        409,
+        40904
+      );
+    }
+
+    // 只允许 todo/overdue -> doing。
+    if (
+      taskTarget.taskStatus !== "todo" &&
+      taskTarget.taskStatus !== "overdue"
+    ) {
+      throw new AppError(
+        "当前任务状态不允许开始",
+        409,
+        40908
+      );
+    }
+
+    const task = await updateTaskStatusToDoing(
+      connection,
+      taskTarget.taskId
+    );
+
+    await connection.commit();
+
     return { task };
   } catch (error) {
     await connection.rollback();
