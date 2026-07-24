@@ -3,13 +3,17 @@ import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
 
 import {
+  approve,
   create,
   detail,
   listByProject,
   listMine,
+  reject,
   start,
+  submit,
   update
 } from "./tasks.controller";
+
 export const taskRoutes = Router();
 
 // 我的任务按当前登录用户查询，负责人不从客户端传入。
@@ -25,3 +29,8 @@ taskRoutes.put("/tasks/:taskId", authenticate, update);
 
 // 只有任务负责人可以把 todo/overdue 任务开始为 doing。
 taskRoutes.post("/tasks/:taskId/start", authenticate, start);
+
+// 模块七：任务负责人提交，项目 Owner 审核通过或填写原因驳回。
+taskRoutes.post("/tasks/:taskId/submit", authenticate, submit);
+taskRoutes.post("/tasks/:taskId/approve", authenticate, approve);
+taskRoutes.post("/tasks/:taskId/reject", authenticate, reject);

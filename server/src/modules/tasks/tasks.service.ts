@@ -1,3 +1,5 @@
+import type { PoolConnection } from "mysql2/promise";
+
 import { AppError } from "../../common/http";
 import { db } from "../../config/db";
 import { findProjectByIdForUser } from "../projects/projects.repository";
@@ -5,6 +7,7 @@ import { findProjectByIdForUser } from "../projects/projects.repository";
 import {
   findProjectForTaskWriteForUpdate,
   findTaskDetailForUser,
+  findTaskForReviewForUpdate,
   findTaskForStartForUpdate,
   findTaskForTaskWriteForUpdate,
   findTasksByProject,
@@ -12,16 +15,25 @@ import {
   hasProjectMemberForUpdate,
   insertTask,
   updateTask,
-  updateTaskStatusToDoing
+  updateTaskStatusToDoing,
+  updateTaskStatusToDoingAfterRejection,
+  updateTaskStatusToDone,
+  updateTaskStatusToSubmitted
 } from "./tasks.repository";
 import type {
+  ApproveTaskResult,
   CreateTaskInput,
   CreateTaskResult,
   GetTaskResult,
   ListTasksInput,
   ListTasksResult,
+  RejectTaskInput,
+  RejectTaskResult,
   StartTaskResult,
+  SubmitTaskInput,
+  SubmitTaskResult,
   TaskProjectWriteTarget,
+  TaskReviewTarget,
   UpdateTaskInput,
   UpdateTaskResult
 } from "./tasks.types";
@@ -41,7 +53,7 @@ const assertOwnerCanManageTasks = (
 };
 
 const assertAssigneeIsProjectMember = async (
-  connection: Awaited<ReturnType<typeof db.getConnection>>,
+  connection: PoolConnection,
   projectId: number,
   assigneeUserId: number
 ): Promise<void> => {
@@ -53,6 +65,33 @@ const assertAssigneeIsProjectMember = async (
   if (!isProjectMember) {
     throw new AppError("任务负责人必须是当前项目成员", 404, 40403);
   }
+};
+
+const assertProjectAllowsTaskReview = (target: TaskReviewTarget): void => {
+  // 已完成或已归档项目只保留历史数据，不能继续产生新的任务状态流转。
+  if (target.projectStatus !== "active") {
+    throw new AppError("项目当前状态不允许提交或审核任务", 409, 40904);
+  }
+};
+
+const getLockedTaskReviewTarget = async (
+  connection: PoolConnection,
+  taskId: number,
+  currentUserId: number
+): Promise<TaskReviewTarget> => {
+  // 查询和后续更新必须使用同一个事务连接。
+  // repository 会用 FOR UPDATE 锁住任务，避免两个请求同时基于旧状态执行提交、通过或驳回。
+  const target = await findTaskForReviewForUpdate(connection, {
+    taskId,
+    currentUserId
+  });
+
+  // 把“不存在”和“不是项目成员”合并返回，避免向无权限用户泄露任务是否真实存在。
+  if (!target) {
+    throw new AppError("任务不存在或你不是所属项目成员", 404, 40401);
+  }
+
+  return target;
 };
 
 export const listProjectTasks = async (
@@ -189,7 +228,6 @@ export const updateTaskByOwner = async (
   }
 };
 
-
 // 只有任务负责人可以把 todo/overdue 任务开始为 doing。
 export const startTask = async (
   taskId: number,
@@ -251,6 +289,136 @@ export const startTask = async (
 
     await connection.commit();
 
+    return { task };
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+};
+
+export const submitTask = async (
+  taskId: number,
+  input: SubmitTaskInput,
+  currentUserId: number
+): Promise<SubmitTaskResult> => {
+  const connection = await db.getConnection();
+
+  try {
+    // 状态校验和状态更新必须是一个原子操作，否则并发请求可能都通过旧状态校验。
+    await connection.beginTransaction();
+
+    const target = await getLockedTaskReviewTarget(
+      connection,
+      taskId,
+      currentUserId
+    );
+
+    // 提交权限以任务表中的 assignee_user_id 为准，不能相信客户端传入的用户或角色。
+    if (target.assigneeUserId !== currentUserId) {
+      throw new AppError("仅任务负责人可以提交任务", 403, 40302);
+    }
+
+    assertProjectAllowsTaskReview(target);
+
+    // 锁定任务后再判断状态，保证只能执行 doing -> submitted。
+    if (target.taskStatus !== "doing") {
+      throw new AppError("当前任务状态不允许提交", 409, 40909);
+    }
+
+    const task = await updateTaskStatusToSubmitted(connection, {
+      taskId: target.taskId,
+      submitContent: input.submitContent
+    });
+
+    await connection.commit();
+    return { task };
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+};
+
+export const approveTask = async (
+  taskId: number,
+  currentUserId: number
+): Promise<ApproveTaskResult> => {
+  const connection = await db.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    const target = await getLockedTaskReviewTarget(
+      connection,
+      taskId,
+      currentUserId
+    );
+
+    // Owner 的唯一判断依据是 projects.owner_user_id，不能只相信 project_members.role。
+    if (target.ownerUserId !== currentUserId) {
+      throw new AppError("仅项目负责人可以审核任务", 403, 40301);
+    }
+
+    assertProjectAllowsTaskReview(target);
+
+    // Member 不能直接完成任务，只有 submitted 状态才能由 Owner 审核为 done。
+    if (target.taskStatus !== "submitted") {
+      throw new AppError("当前任务状态不允许审核", 409, 40910);
+    }
+
+    const task = await updateTaskStatusToDone(connection, {
+      taskId: target.taskId,
+      reviewerUserId: currentUserId
+    });
+
+    await connection.commit();
+    return { task };
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+};
+
+export const rejectTask = async (
+  taskId: number,
+  input: RejectTaskInput,
+  currentUserId: number
+): Promise<RejectTaskResult> => {
+  const connection = await db.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    const target = await getLockedTaskReviewTarget(
+      connection,
+      taskId,
+      currentUserId
+    );
+
+    // 驳回也属于审核行为，同样只能由 projects.owner_user_id 指向的负责人执行。
+    if (target.ownerUserId !== currentUserId) {
+      throw new AppError("仅项目负责人可以审核任务", 403, 40301);
+    }
+
+    assertProjectAllowsTaskReview(target);
+
+    // 只允许 submitted -> doing，避免重复驳回或覆盖已经通过的任务。
+    if (target.taskStatus !== "submitted") {
+      throw new AppError("当前任务状态不允许审核", 409, 40910);
+    }
+
+    const task = await updateTaskStatusToDoingAfterRejection(connection, {
+      taskId: target.taskId,
+      reviewerUserId: currentUserId,
+      reason: input.reason
+    });
+
+    await connection.commit();
     return { task };
   } catch (error) {
     await connection.rollback();
