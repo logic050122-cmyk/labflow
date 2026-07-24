@@ -2,6 +2,25 @@
 
 本文档按日期记录已经发生的变更，不记录尚未实施的计划。
 
+## 2026-07-24
+
+### 模块 6：开始任务闭环与文档补充
+
+- 已实现 `POST /api/tasks/:taskId/start`，当前用户必须仍是任务所属项目成员，并且必须等于 `tasks.assignee_user_id`。
+- service 只允许 `active` 项目中的 `todo/overdue -> doing`；查询与更新使用同一事务连接、`FOR UPDATE` 和带旧状态条件的 `UPDATE`。
+- 前端任务 API、任务类型和“我的任务”列表已经接入开始按钮、加载状态、成功提示及列表刷新。
+- node-cron 定时逾期处理尚未实现，因此模块 6 保持未完成状态。
+
+### 模块 7：任务提交审核后端完成
+
+- 新增 `POST /api/tasks/:taskId/submit`、`/approve` 和 `/reject`，分别实现 `doing -> submitted`、`submitted -> done` 和 `submitted -> doing`。
+- 提交权限以 `tasks.assignee_user_id` 为准，审核权限以 `projects.owner_user_id` 为准；三个接口都要求项目状态为 `active`。
+- 状态查询、权限校验和更新在同一事务中完成，使用 `FOR UPDATE` 和带旧状态条件的 `UPDATE` 防止并发覆盖。
+- 任务返回字段补齐提交说明、驳回原因、提交时间、审核人、审核时间和完成时间；完成说明最多 10000 个字符，驳回原因必填且最多 500 个字符。
+- 审核代码已合并回原有 `tasks.routes/controller/service/repository/validator/types` 分层，没有保留重复的 `tasks.review.*` 文件。
+- 后端严格 TypeScript 类型检查和构建通过；模块 7 前端提交、审核通过和驳回交互尚未接入，因此模块整体保持未完成状态。
+- 同步更新 `docs/API.md` 和 `docs/TODO.md`；数据库字段已存在且与 `docs/DATABASE.md` 一致，本次未修改数据库结构。
+
 ## 2026-07-22
 
 ### 模块 5：任务创建与分配完成
@@ -112,10 +131,10 @@
 
 ### 模块 2 第四步：查看项目详情
 
-- 新增 `GET /api/projects/:projectId`，通过 `project_members` 限制只有项目成员可以查看详情；非成员和不存在的项目统一返回 `40401`。
-- 项目详情沿用列表的安全字段，返回当前用户的 `owner/member` 角色，不返回邀请码。
-- 项目列表行可点击进入 `/projects/:projectId`，详情页展示项目名称、描述、状态、角色、日期和创建时间，并提供返回列表、加载失败重试和退出登录。
-- 本次未实现项目编辑、邀请码加入和成员管理，模块 2 暂未完成。
+- 新增 `GET /api/projects/:projectId`，只有当前项目成员可以查看项目详情；项目不存在或非成员统一返回 `40401`。
+- repository 通过 `project_members` 按当前用户隔离项目，Owner 角色仍以 `projects.owner_user_id` 为准；详情不返回邀请码。
+- 前端新增项目详情 API 和页面真实加载，展示项目名称、描述、状态、当前角色、项目周期和 Owner 信息，并提供加载失败重试。
+- 项目列表点击后进入真实详情页；本次未实现项目编辑、邀请码加入和成员管理，模块 2 暂未完成。
 
 ### 模块 2 第三步：显示当前用户的项目列表
 

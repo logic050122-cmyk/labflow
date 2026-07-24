@@ -21,6 +21,16 @@ export interface CreateTaskInput {
 
 export interface UpdateTaskInput extends CreateTaskInput {}
 
+// 提交任务时客户端只传可选完成说明，任务和用户身份由路径与 JWT 确定。
+export interface SubmitTaskInput {
+  submitContent?: string;
+}
+
+// 驳回原因是审核操作必须填写的业务数据。
+export interface RejectTaskInput {
+  reason: string;
+}
+
 // 两个任务列表共用分页和筛选条件；“我的任务”会由 service 固定负责人为当前用户。
 export interface ListTasksInput {
   page: number;
@@ -50,6 +60,12 @@ export interface Task {
   status: TaskStatus;
   tag: TaskTag | null;
   dueAt: string | null;
+  submitContent: string | null;
+  rejectionReason: string | null;
+  submittedAt: string | null;
+  reviewerUserId: number | null;
+  reviewedAt: string | null;
+  completedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -68,6 +84,19 @@ export interface GetTaskResult {
 
 // 开始任务成功后，接口返回状态已经更新的完整任务。
 export interface StartTaskResult {
+  task: Task;
+}
+
+// 提交、通过和驳回成功后都返回状态已经更新的完整任务。
+export interface SubmitTaskResult {
+  task: Task;
+}
+
+export interface ApproveTaskResult {
+  task: Task;
+}
+
+export interface RejectTaskResult {
   task: Task;
 }
 
@@ -103,6 +132,16 @@ export interface TaskStartTarget {
   taskId: number;
   projectId: number;
   assigneeUserId: number;
+  projectStatus: ProjectStatus;
+  taskStatus: TaskStatus;
+}
+
+// 提交与审核时需要同时判断成员关系、Assignee、Owner、项目状态和任务状态。
+export interface TaskReviewTarget {
+  taskId: number;
+  projectId: number;
+  assigneeUserId: number;
+  ownerUserId: number;
   projectStatus: ProjectStatus;
   taskStatus: TaskStatus;
 }

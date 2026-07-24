@@ -163,7 +163,7 @@
 }
 ```
 
-`GET /api/auth/me` 不返回密码或密码哈希。token 对应的用户不存在时返回 `40401`。
+`GET /api/auth/me` 不返回密码或密码哈希。token 对应用户不存在时返回 `40401`。
 
 ### 4.2 用户 users
 
@@ -258,7 +258,7 @@
 
 #### 4.4.1 获取项目成员列表
 
-`GET /api/projects/:projectId/members` 不分页，也不提供搜索和自定义排序。Owner 和 Member 都可以查看所在项目的成员列表；`active`、`finished`、`archived` 项目均允许查看，以便保留历史成员信息。
+`GET /api/projects/:projectId/members` 不分页，也不提供搜索和自定义排序。Owner 和 Member 都可以查看所在项目成员；`active`、`finished`、`archived` 项目均允许查看，以便保留历史成员信息。
 
 路径参数 `projectId` 必须是正整数。成员列表先返回 Owner，其他 Member 按 `joinedAt` 升序排列。即使项目当前没有普通 Member，`members` 也必须返回包含 Owner 的数组，不能返回 `null`。
 
@@ -375,9 +375,9 @@
 - `dueAt` 选填，使用 ISO 8601 时间字符串；填写时必须晚于当前时间。
 - 客户端提交的 `projectId`、`creatorUserId`、`status` 不参与业务判断。创建人由 JWT 当前用户确定，新任务状态固定为 `todo`。
 
-创建和编辑都只允许项目状态为 `active` 的 Owner 执行。模块五只允许编辑或重新分配状态为 `todo` 的任务；`doing`、`submitted`、`done`、`overdue` 的编辑规则将在模块六、七确定。
+创建和编辑都只允许项目状态为 `active` 的 Owner 执行。模块五只允许编辑或重新分配状态为 `todo` 的任务；`doing`、`submitted`、`done`、`overdue` 不允许通过编辑接口直接修改或改派。
 
-成功后返回 `data.task`，字段包括：`id`、`projectId`、`projectName`、`projectStatus`、`title`、`description`、负责人和创建人的 ID/用户名/昵称、`priority`、`status`、`tag`、`dueAt`、`createdAt`、`updatedAt`。未设置截止时间或标签时返回 `null`。
+成功后返回 `data.task`。字段包括：`id`、`projectId`、`projectName`、`projectStatus`、`title`、`description`、负责人和创建人的 ID/用户名/昵称、`priority`、`status`、`tag`、`dueAt`、`submitContent`、`rejectionReason`、`submittedAt`、`reviewerUserId`、`reviewedAt`、`completedAt`、`createdAt`、`updatedAt`。未设置的可选字段返回 `null`。
 
 #### 4.5.2 任务列表和详情
 
@@ -422,7 +422,27 @@
 
 认证失败继续使用公共约定中的 `40102`、`40103`。
 
-提交任务请求字段：`submitContent`，可选，对应数据库 `tasks.submit_content`；提交成功时服务端同时更新 `status=submitted` 和 `submitted_at`。
+#### 4.5.4 模块六：开始任务
+
+`POST /api/tasks/:taskId/start` 不接收请求体。当前登录用户必须仍是任务所属项目成员，并且其用户 ID 必须等于 `tasks.assignee_user_id`。
+
+只有 `active` 项目允许开始任务；只允许 `todo` 或 `overdue` 状态流转为 `doing`。成功后返回更新后的 `data.task`。
+
+失败规则：
+
+| 场景 | HTTP 状态码 | 业务错误码 | 错误信息 |
+| --- | ---: | ---: | --- |
+| `taskId` 不是正整数 | 400 | `40001` | 任务 ID 必须是正整数 |
+| 任务不存在或当前用户不是所属项目成员 | 404 | `40401` | 任务不存在或你不是所属项目成员 |
+| 当前用户不是任务负责人 | 403 | `40302` | 仅任务负责人可以开始任务 |
+| 项目不是 `active` | 409 | `40904` | 项目当前状态不允许开始任务 |
+| 任务不是 `todo/overdue` | 409 | `40908` | 当前任务状态不允许开始 |
+
+模块六当前已经完成“开始任务”的前后端闭环；node-cron 定时逾期处理尚未实现，因此模块六整体仍未完成。
+
+#### 4.5.5 模块七：提交与审核
+
+提交任务请求字段为可选的 `submitContent`，去除首尾空格后最多 10000 个字符。提交成功时服务端同时写入 `status=submitted` 和 `submitted_at`，并清空上一轮驳回和审核结果。
 
 ```json
 {
@@ -430,9 +450,37 @@
 }
 ```
 
-审核人由当前登录用户确定，客户端不提交 `reviewerUserId`。审核通过或驳回时，服务端写入 `reviewer_user_id` 和 `reviewed_at`。驳回请求必须包含 `reason`。
+驳回请求必须提交 `reason`，去除首尾空格后不能为空，最多 500 个字符。
 
-模块六、七的提交、审核接口及其状态流转规则尚未实现，当前仅保留其第一版接口契约。
+```json
+{
+  "reason": "参数边界测试尚未补齐，请完善后重新提交。"
+}
+```
+
+审核人由当前登录用户确定，客户端不提交 `reviewerUserId`。审核通过或驳回时，服务端写入 `reviewer_user_id` 和 `reviewed_at`；审核通过时同时写入 `completed_at`。
+
+权限和状态规则：
+
+- `POST /api/tasks/:taskId/submit`：只允许 Assignee 执行 `doing -> submitted`。
+- `POST /api/tasks/:taskId/approve`：只允许项目 Owner 执行 `submitted -> done`。
+- `POST /api/tasks/:taskId/reject`：只允许项目 Owner 执行 `submitted -> doing`。
+- 三个接口只允许在 `active` 项目中执行。
+- 状态校验和更新在同一事务中完成，并使用 `FOR UPDATE` 与带旧状态条件的 `UPDATE` 防止并发覆盖。
+
+失败规则：
+
+| 场景 | HTTP 状态码 | 业务错误码 | 错误信息 |
+| --- | ---: | ---: | --- |
+| 路径 ID、提交说明或驳回原因格式不正确 | 400 | `40001` | 对应的明确参数错误信息 |
+| 任务不存在或当前用户不是所属项目成员 | 404 | `40401` | 任务不存在或你不是所属项目成员 |
+| 非 Assignee 提交任务 | 403 | `40302` | 仅任务负责人可以提交任务 |
+| 非 Owner 审核任务 | 403 | `40301` | 仅项目负责人可以审核任务 |
+| 项目不是 `active` | 409 | `40904` | 项目当前状态不允许提交或审核任务 |
+| 提交非 `doing` 任务 | 409 | `40909` | 当前任务状态不允许提交 |
+| 审核非 `submitted` 任务 | 409 | `40910` | 当前任务状态不允许审核 |
+
+模块七后端接口已经实现；前端提交、通过和驳回交互尚未接入，因此模块七整体仍未完成。
 
 ### 4.6 评论 comments
 
@@ -488,18 +536,18 @@
 
 ## 5. 状态与副作用
 
-下表描述第一版最终业务闭环。模块五已实现任务状态固定为 `todo`；通知和操作日志会分别在模块 10、模块 12 接入，当前创建或编辑任务不会提前写入这两类数据。
+下表描述第一版最终业务闭环。模块五已经实现任务创建；模块六已实现开始任务但定时逾期尚未实现；模块七后端提交审核接口已实现。通知和操作日志会分别在模块 10、模块 12 接入。
 
 | 动作 | 状态变化 | 通知 | 操作日志 |
 | --- | --- | --- | --- |
 | 创建任务 | 初始为 `todo` | 模块 10 接入 | 模块 12 接入 |
-| 开始任务 | `todo/overdue -> doing` | 无 | 记录 |
-| 提交任务 | `doing -> submitted` | 通知项目负责人 | 记录 |
-| 审核通过 | `submitted -> done` | 通知 Assignee | 记录 |
-| 审核驳回 | `submitted -> doing` | 通知 Assignee | 记录原因 |
-| 定时逾期 | `todo/doing -> overdue` | 通知 Assignee 和项目负责人 | 记录 |
-| 完成项目 | `active -> finished` | 无 | 记录 |
-| 归档项目 | `finished -> archived` | 通知项目成员 | 记录 |
+| 开始任务 | `todo/overdue -> doing` | 无 | 模块 12 接入 |
+| 提交任务 | `doing -> submitted` | 模块 10 接入 | 模块 12 接入 |
+| 审核通过 | `submitted -> done` | 模块 10 接入 | 模块 12 接入 |
+| 审核驳回 | `submitted -> doing` | 模块 10 接入 | 模块 12 接入 |
+| 定时逾期 | `todo/doing -> overdue` | 模块 10 接入 | 模块 12 接入 |
+| 完成项目 | `active -> finished` | 无 | 模块 12 接入 |
+| 归档项目 | `finished -> archived` | 模块 10 接入 | 模块 12 接入 |
 
 状态变化、通知和日志必须由 service 协调；controller 不直接修改数据库。
 
