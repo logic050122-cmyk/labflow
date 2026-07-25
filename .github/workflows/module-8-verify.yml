@@ -11,6 +11,30 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    env:
+      NODE_ENV: test
+      PORT: 3000
+      JWT_SECRET: module-8-test-secret
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: labflow
+      DB_CONNECTION_LIMIT: 10
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: labflow
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -proot"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -47,3 +71,248 @@ jobs:
       - name: Build web
         working-directory: web
         run: npm run build
+
+      - name: Initialize test database
+        working-directory: server
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from "node:fs/promises";
+          import mysql from "mysql2/promise";
+
+          const sql = await fs.readFile("migrations/001_initial_schema.sql", "utf8");
+          const connection = await mysql.createConnection({
+            host: process.env.DB_HOST,
+            port: Number(process.env.DB_PORT),
+            user: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
+            multipleStatements: true
+          });
+
+          await connection.query(sql);
+          await connection.end();
+          NODE
+
+      - name: Start server
+        working-directory: server
+        run: |
+          nohup node dist/server.js > /tmp/labflow-server.log 2>&1 &
+          echo $! > /tmp/labflow-server.pid
+
+          for attempt in $(seq 1 30); do
+            status=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3000/api/auth/me || true)
+            if [ "$status" = "401" ]; then
+              exit 0
+            fi
+            sleep 1
+          done
+
+          cat /tmp/labflow-server.log
+          exit 1
+
+      - name: Run module 8 API acceptance
+        working-directory: server
+        run: |
+          node --input-type=module <<'NODE'
+          import mysql from "mysql2/promise";
+
+          const baseUrl = "http://127.0.0.1:3000/api";
+
+          const assert = (condition, message) => {
+            if (!condition) {
+              throw new Error(message);
+            }
+          };
+
+          const request = async (path, options = {}) => {
+            const {
+              method = "GET",
+              body,
+              token,
+              expectedStatus = 200,
+              expectedCode = expectedStatus === 200 ? 0 : undefined
+            } = options;
+
+            const response = await fetch(`${baseUrl}${path}`, {
+              method,
+              headers: {
+                ...(body ? { "Content-Type": "application/json" } : {}),
+                ...(token ? { Authorization: `Bearer ${token}` } : {})
+              },
+              body: body ? JSON.stringify(body) : undefined
+            });
+
+            const payload = await response.json();
+            assert(
+              response.status === expectedStatus,
+              `${method} ${path} expected HTTP ${expectedStatus}, got ${response.status}: ${JSON.stringify(payload)}`
+            );
+
+            if (expectedCode !== undefined) {
+              assert(
+                payload.code === expectedCode,
+                `${method} ${path} expected code ${expectedCode}, got ${payload.code}`
+              );
+            }
+
+            return payload;
+          };
+
+          const users = [
+            { username: "module8_owner", nickname: "评论项目负责人" },
+            { username: "module8_member", nickname: "评论项目成员" },
+            { username: "module8_outsider", nickname: "项目外用户" }
+          ];
+
+          for (const user of users) {
+            await request("/auth/register", {
+              method: "POST",
+              body: { ...user, password: "Module8Pass!" }
+            });
+          }
+
+          const login = async (username) => {
+            const payload = await request("/auth/login", {
+              method: "POST",
+              body: { username, password: "Module8Pass!" }
+            });
+            return payload.data.token;
+          };
+
+          const ownerToken = await login("module8_owner");
+          const memberToken = await login("module8_member");
+          const outsiderToken = await login("module8_outsider");
+
+          const ownerMe = await request("/auth/me", { token: ownerToken });
+          const memberMe = await request("/auth/me", { token: memberToken });
+
+          const connection = await mysql.createConnection({
+            host: process.env.DB_HOST,
+            port: Number(process.env.DB_PORT),
+            user: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_NAME
+          });
+
+          const [projectResult] = await connection.execute(
+            `INSERT INTO projects
+              (name, description, owner_user_id, status, start_date, end_date, invite_code)
+             VALUES (?, ?, ?, 'active', '2026-07-01', '2026-08-31', ?)`,
+            ["模块八评论验收项目", "用于评论接口真实业务验收", ownerMe.data.user.id, "MODULE8VERIFY"]
+          );
+          const projectId = Number(projectResult.insertId);
+
+          await connection.execute(
+            `INSERT INTO project_members (project_id, user_id, role) VALUES (?, ?, 'owner')`,
+            [projectId, ownerMe.data.user.id]
+          );
+          await connection.execute(
+            `INSERT INTO project_members (project_id, user_id, role) VALUES (?, ?, 'member')`,
+            [projectId, memberMe.data.user.id]
+          );
+
+          const [taskResult] = await connection.execute(
+            `INSERT INTO tasks
+              (project_id, title, description, assignee_user_id, creator_user_id, priority, status)
+             VALUES (?, ?, ?, ?, ?, 'medium', 'doing')`,
+            [
+              projectId,
+              "模块八评论验收任务",
+              "用于验证评论查看、新增、删除和权限",
+              memberMe.data.user.id,
+              ownerMe.data.user.id
+            ]
+          );
+          const taskId = Number(taskResult.insertId);
+
+          const emptyList = await request(`/tasks/${taskId}/comments`, { token: memberToken });
+          assert(Array.isArray(emptyList.data.comments), "评论列表必须返回 comments 数组");
+          assert(emptyList.data.comments.length === 0, "新任务评论列表应为空");
+
+          await request(`/tasks/${taskId}/comments`, {
+            method: "GET",
+            token: outsiderToken,
+            expectedStatus: 404,
+            expectedCode: 40401
+          });
+
+          await request(`/tasks/${taskId}/comments`, {
+            method: "POST",
+            token: memberToken,
+            body: { content: "   " },
+            expectedStatus: 400,
+            expectedCode: 40001
+          });
+
+          const created = await request(`/tasks/${taskId}/comments`, {
+            method: "POST",
+            token: memberToken,
+            body: { content: "  已完成评论接口联调。  " }
+          });
+          const firstComment = created.data.comment;
+          assert(firstComment.content === "已完成评论接口联调。", "评论内容应去除首尾空格");
+          assert(firstComment.userId === memberMe.data.user.id, "评论人必须来自 JWT 当前用户");
+          assert(firstComment.username === "module8_member", "评论应返回 JOIN 查询的 username");
+          assert(firstComment.nickname === "评论项目成员", "评论应返回 JOIN 查询的 nickname");
+
+          const ownerList = await request(`/tasks/${taskId}/comments`, { token: ownerToken });
+          assert(ownerList.data.comments.length === 1, "Owner 应能查看项目任务评论");
+
+          await request(`/comments/${firstComment.id}`, {
+            method: "DELETE",
+            token: outsiderToken,
+            expectedStatus: 403,
+            expectedCode: 40301
+          });
+
+          await request(`/comments/${firstComment.id}`, {
+            method: "DELETE",
+            token: ownerToken
+          });
+
+          const afterOwnerDelete = await request(`/tasks/${taskId}/comments`, { token: memberToken });
+          assert(afterOwnerDelete.data.comments.length === 0, "Owner 删除后评论列表应为空");
+
+          const archivedCommentResult = await request(`/tasks/${taskId}/comments`, {
+            method: "POST",
+            token: memberToken,
+            body: { content: "归档前保留的历史评论" }
+          });
+          const archivedComment = archivedCommentResult.data.comment;
+
+          await connection.execute(
+            `UPDATE projects SET status = 'archived', archived_at = NOW() WHERE id = ?`,
+            [projectId]
+          );
+
+          await request(`/tasks/${taskId}/comments`, {
+            method: "POST",
+            token: memberToken,
+            body: { content: "归档后不能新增" },
+            expectedStatus: 409,
+            expectedCode: 40904
+          });
+
+          const archivedList = await request(`/tasks/${taskId}/comments`, { token: memberToken });
+          assert(archivedList.data.comments.length === 1, "归档项目仍应允许查看历史评论");
+
+          await request(`/comments/${archivedComment.id}`, {
+            method: "DELETE",
+            token: memberToken
+          });
+
+          const finalList = await request(`/tasks/${taskId}/comments`, { token: ownerToken });
+          assert(finalList.data.comments.length === 0, "评论作者应能删除自己的历史评论");
+
+          await connection.end();
+          console.log("Module 8 API acceptance passed.");
+          NODE
+
+      - name: Stop server
+        if: always()
+        run: |
+          if [ -f /tmp/labflow-server.pid ]; then
+            kill "$(cat /tmp/labflow-server.pid)" || true
+          fi
+          if [ -f /tmp/labflow-server.log ]; then
+            cat /tmp/labflow-server.log
+          fi
