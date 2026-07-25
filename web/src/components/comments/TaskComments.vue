@@ -277,4 +277,12 @@ watch(
     gap: 6px;
   }
 }
+
+
+:deep(.el-dialog__body) {
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
+}
+
+
 </style>
