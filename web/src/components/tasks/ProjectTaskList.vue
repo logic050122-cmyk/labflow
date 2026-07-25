@@ -6,6 +6,7 @@ import { createTask, getProjectTasks, updateTask } from "@/api/tasks";
 import { getProjectMembers } from "@/api/members";
 import TaskDetailDialog from "@/components/tasks/TaskDetailDialog.vue";
 import TaskFormDialog from "@/components/tasks/TaskFormDialog.vue";
+import TaskReviewActions from "@/components/tasks/TaskReviewActions.vue";
 import type { ProjectMemberListItem } from "@/types/members";
 import type { ProjectRole, ProjectStatus } from "@/types/projects";
 import {
@@ -172,6 +173,12 @@ const handleFormSubmit = async (payload: CreateTaskRequest) => {
   }
 };
 
+const handleTaskReviewChanged = async () => {
+  await Promise.all([loadTasks(), loadMembers()]);
+  // 审核通过会改变完成任务数量，因此同步刷新父页面的成员统计。
+  emit("tasks-changed");
+};
+
 const openDetailDialog = (taskId: number) => {
   detailTaskId.value = taskId;
   detailVisible.value = true;
@@ -254,7 +261,12 @@ onMounted(() => {
       </el-form-item>
 
       <el-form-item label="关键词">
-        <el-input v-model="filters.keyword" placeholder="搜索标题或描述" clearable @keyup.enter="handleSearch" />
+        <el-input
+          v-model="filters.keyword"
+          placeholder="搜索标题或描述"
+          clearable
+          @keyup.enter="handleSearch"
+        />
       </el-form-item>
 
       <el-form-item>
@@ -272,7 +284,11 @@ onMounted(() => {
       </template>
     </el-alert>
 
-    <el-empty v-else-if="tasks.length === 0" :image-size="80" description="当前筛选条件下没有任务" />
+    <el-empty
+      v-else-if="tasks.length === 0"
+      :image-size="80"
+      description="当前筛选条件下没有任务"
+    />
 
     <template v-else>
       <el-table :data="tasks" class="project-task-table">
@@ -311,7 +327,7 @@ onMounted(() => {
           </template>
         </el-table-column>
 
-        <el-table-column label="操作" width="130" fixed="right">
+        <el-table-column label="操作" width="220" fixed="right">
           <template #default="scope: { row: Task }">
             <el-button link type="primary" @click="openDetailDialog(scope.row.id)">详情</el-button>
             <el-button
@@ -322,6 +338,12 @@ onMounted(() => {
             >
               编辑
             </el-button>
+            <TaskReviewActions
+              :task="scope.row"
+              mode="owner"
+              :project-role="props.projectRole"
+              @changed="handleTaskReviewChanged"
+            />
           </template>
         </el-table-column>
       </el-table>
@@ -434,7 +456,7 @@ onMounted(() => {
   }
 
   .project-task-table {
-    min-width: 780px;
+    min-width: 860px;
   }
 
   .project-task-card :deep(.el-table) {
