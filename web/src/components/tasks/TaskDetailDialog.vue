@@ -2,6 +2,7 @@
 import { ref, watch } from "vue";
 
 import { getTask } from "@/api/tasks";
+import TaskComments from "@/components/comments/TaskComments.vue";
 import {
   TASK_PRIORITY_TAG_TYPE,
   TASK_PRIORITY_TEXT,
@@ -66,7 +67,7 @@ watch(
   <el-dialog
     :model-value="props.modelValue"
     title="任务详情"
-    width="680px"
+    width="760px"
     @update:model-value="emit('update:modelValue', $event)"
   >
     <div v-if="loading" v-loading="true" class="task-detail-dialog__loading" />
@@ -154,6 +155,13 @@ watch(
           </el-descriptions-item>
         </el-descriptions>
       </template>
+
+      <el-divider content-position="left">任务评论</el-divider>
+      <TaskComments
+        :task-id="task.id"
+        :project-id="task.projectId"
+        :project-status="task.projectStatus"
+      />
     </template>
   </el-dialog>
 </template>
@@ -202,5 +210,11 @@ watch(
 
 .task-detail-dialog__review-text--danger {
   color: #d92d20;
+}
+
+@media (max-width: 820px) {
+  .task-detail-dialog__heading {
+    flex-direction: column;
+  }
 }
 </style>
