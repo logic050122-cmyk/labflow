@@ -164,7 +164,13 @@
 
 ### 模块 8：评论
 
-- [ ] 模块完成
+- [x] 模块完成
+- [x] 实现 `GET /api/tasks/:taskId/comments`，仅项目成员可查看任务评论
+- [x] 实现 `POST /api/tasks/:taskId/comments`，评论内容必填并限制为 2000 个字符
+- [x] 实现 `DELETE /api/comments/:commentId`，评论作者和项目 Owner 可删除
+- [x] 任务详情已接入评论列表、发布、删除确认和归档项目只读状态
+- [x] 前后端类型检查和生产构建通过
+- [x] MySQL 真实接口验收覆盖成员隔离、输入校验、作者/Owner 删除权限和归档限制
 - 开发目标：项目成员在任务下查看和添加评论，支持评论人删除自己的评论，并保留 Owner 管理权限。
 - 涉及后端目录：`server/src/modules/comments`、`server/src/modules/tasks`、`server/src/modules/members`。
 - 涉及前端目录：`web/src/views/ProjectDetailView.vue`、`web/src/api`、`web/src/components`、`web/src/types`。

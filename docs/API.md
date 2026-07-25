@@ -490,7 +490,13 @@
 | POST | `/api/tasks/:taskId/comments` | ProjectMember | 添加任务评论 |
 | DELETE | `/api/comments/:commentId` | User | 删除自己的评论；项目负责人可删除项目内评论 |
 
-新增评论请求字段：`content`。评论不支持回复树和聊天室功能。
+新增评论请求只接收 `content`，`taskId` 从路径获取，评论人从 JWT 当前用户获取。`content` 去除首尾空格后必须非空，最多 2000 个字符；客户端提交的 `userId`、`projectId` 不参与业务判断。
+
+`GET /api/tasks/:taskId/comments` 和 `POST /api/tasks/:taskId/comments` 都会先通过任务反查所属项目，并校验当前用户仍是项目成员。评论按 `createdAt`、`id` 升序返回，响应中的每条评论包含 `id`、`taskId`、`userId`、`username`、`nickname`、`content`、`createdAt`、`updatedAt`。
+
+`DELETE /api/comments/:commentId` 会通过评论反查任务和项目；只有评论作者本人或 `projects.owner_user_id` 对应的项目 Owner 可以删除。归档项目允许查看和按权限删除历史评论，但不允许新增评论。第一版不实现评论回复树、编辑、点赞或聊天室。
+
+失败规则：路径 ID 或评论内容格式错误返回 `40001`；任务不存在或当前用户不是所属项目成员返回 `40401`；评论不存在返回 `40401`；当前用户既不是评论作者也不是项目 Owner 返回 `40301`；归档项目新增评论返回 `40904`。
 
 ### 4.7 文件 files
 
