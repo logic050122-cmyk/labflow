@@ -60,6 +60,12 @@ export interface Task {
   status: TaskStatus;
   tag: TaskTag | null;
   dueAt: string | null;
+  submitContent: string | null;
+  rejectionReason: string | null;
+  submittedAt: string | null;
+  reviewerUserId: number | null;
+  reviewedAt: string | null;
+  completedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -75,6 +81,15 @@ export interface CreateTaskRequest {
 }
 
 export interface UpdateTaskRequest extends CreateTaskRequest {}
+
+// 提交说明可不填；驳回原因必须填写，长度限制由页面和后端共同校验。
+export interface SubmitTaskRequest {
+  submitContent?: string;
+}
+
+export interface RejectTaskRequest {
+  reason: string;
+}
 
 export interface GetTasksParams {
   page?: number;
@@ -95,6 +110,18 @@ export interface UpdateTaskResult {
 }
 
 export interface StartTaskResult {
+  task: Task;
+}
+
+export interface SubmitTaskResult {
+  task: Task;
+}
+
+export interface ApproveTaskResult {
+  task: Task;
+}
+
+export interface RejectTaskResult {
   task: Task;
 }
 
