@@ -66,7 +66,7 @@ watch(
   <el-dialog
     :model-value="props.modelValue"
     title="任务详情"
-    width="620px"
+    width="680px"
     @update:model-value="emit('update:modelValue', $event)"
   >
     <div v-if="loading" v-loading="true" class="task-detail-dialog__loading" />
@@ -118,6 +118,42 @@ watch(
           {{ formatDateTime(task.updatedAt) }}
         </el-descriptions-item>
       </el-descriptions>
+
+      <template
+        v-if="
+          task.submitContent ||
+          task.rejectionReason ||
+          task.submittedAt ||
+          task.reviewedAt ||
+          task.completedAt
+        "
+      >
+        <el-divider content-position="left">提交与审核</el-divider>
+        <el-descriptions :column="2" border>
+          <el-descriptions-item label="完成说明" :span="2">
+            <span class="task-detail-dialog__review-text">
+              {{ task.submitContent || "未填写完成说明" }}
+            </span>
+          </el-descriptions-item>
+          <el-descriptions-item label="提交时间">
+            {{ formatDateTime(task.submittedAt) }}
+          </el-descriptions-item>
+          <el-descriptions-item label="审核人">
+            {{ task.reviewerUserId ? `用户 #${task.reviewerUserId}` : "未审核" }}
+          </el-descriptions-item>
+          <el-descriptions-item label="审核时间">
+            {{ formatDateTime(task.reviewedAt) }}
+          </el-descriptions-item>
+          <el-descriptions-item label="完成时间">
+            {{ formatDateTime(task.completedAt) }}
+          </el-descriptions-item>
+          <el-descriptions-item v-if="task.rejectionReason" label="驳回原因" :span="2">
+            <span class="task-detail-dialog__review-text task-detail-dialog__review-text--danger">
+              {{ task.rejectionReason }}
+            </span>
+          </el-descriptions-item>
+        </el-descriptions>
+      </template>
     </template>
   </el-dialog>
 </template>
@@ -158,5 +194,13 @@ watch(
   color: #667085;
   line-height: 1.75;
   white-space: pre-wrap;
+}
+
+.task-detail-dialog__review-text {
+  white-space: pre-wrap;
+}
+
+.task-detail-dialog__review-text--danger {
+  color: #d92d20;
 }
 </style>
