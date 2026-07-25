@@ -51,13 +51,11 @@ export interface CommentCreateTarget {
   projectStatus: ProjectStatus;
 }
 
-// 删除评论前，service 需要拿到评论人、项目 Owner 和项目状态做权限判断。
-// 类似 tasks 模块的 TaskReviewTarget。
+// 删除评论前，只返回 service 做作者或 Owner 权限判断需要的数据。
 export interface CommentDeleteTarget {
   commentId: number;
   taskId: number;
   projectId: number;
-  userId: number;       // 评论人 ID，判断是不是本人
-  ownerUserId: number;  // 项目 Owner ID，判断是不是负责人
-  projectStatus: ProjectStatus;
+  authorUserId: number;
+  ownerUserId: number;
 }
