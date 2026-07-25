@@ -91,15 +91,15 @@ export const deleteComment = async (
   try {
     await connection.beginTransaction();
 
-    // 查评论的同时拿到评论人、项目 Owner 和项目状态，全部权限判断需要的数据一次查齐。
+    // 查评论的同时拿到评论作者和项目 Owner，一次查齐权限判断需要的数据。
     const target = await findCommentForDelete(connection, commentId);
     if (!target) {
       throw new AppError("评论不存在", 404, 40401);
     }
 
-    // 权限规则：评论人本人可以删自己的评论，项目 Owner 可以删项目内任何评论。
+    // 权限规则：评论作者本人可以删自己的评论，项目 Owner 可以删项目内任何评论。
     // 两个条件满足一个即可，都不是就拒绝。
-    const isCommentAuthor = target.userId === currentUserId;
+    const isCommentAuthor = target.authorUserId === currentUserId;
     const isProjectOwner = target.ownerUserId === currentUserId;
     if (!isCommentAuthor && !isProjectOwner) {
       throw new AppError("只能删除自己的评论，或由项目负责人删除", 403, 40301);
