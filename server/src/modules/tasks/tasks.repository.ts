@@ -11,9 +11,10 @@ import type {
   ListTasksInput,
   Task,
   TaskProjectWriteTarget,
+  TaskReviewTarget,
+  TaskStartTarget,
   TaskStatus,
-  TaskWriteTarget,
-  TaskStartTarget
+  TaskWriteTarget
 } from "./tasks.types";
 
 interface TaskRow extends RowDataPacket {
@@ -33,6 +34,12 @@ interface TaskRow extends RowDataPacket {
   status: TaskStatus;
   tag: Task["tag"];
   due_at: Date | string | null;
+  submit_content: string | null;
+  rejection_reason: string | null;
+  submitted_at: Date | string | null;
+  reviewer_user_id: number | null;
+  reviewed_at: Date | string | null;
+  completed_at: Date | string | null;
   created_at: Date | string;
   updated_at: Date | string;
 }
@@ -66,6 +73,14 @@ interface TaskStartTargetRow extends RowDataPacket {
   task_status: TaskStartTarget["taskStatus"];
 }
 
+interface TaskReviewTargetRow extends RowDataPacket {
+  id: number;
+  project_id: number;
+  assignee_user_id: number;
+  owner_user_id: number;
+  project_status: TaskReviewTarget["projectStatus"];
+  task_status: TaskReviewTarget["taskStatus"];
+}
 
 // 所有列表和详情查询复用同一组字段，避免不同接口返回字段不一致。
 const TASK_SELECT_FIELDS = `
@@ -85,6 +100,12 @@ const TASK_SELECT_FIELDS = `
   tasks.status,
   tasks.tag,
   tasks.due_at,
+  tasks.submit_content,
+  tasks.rejection_reason,
+  tasks.submitted_at,
+  tasks.reviewer_user_id,
+  tasks.reviewed_at,
+  tasks.completed_at,
   tasks.created_at,
   tasks.updated_at`;
 
@@ -114,6 +135,13 @@ const toTask = (row: TaskRow): Task => ({
   status: row.status,
   tag: row.tag,
   dueAt: formatDateTime(row.due_at),
+  submitContent: row.submit_content,
+  rejectionReason: row.rejection_reason,
+  submittedAt: formatDateTime(row.submitted_at),
+  reviewerUserId:
+    row.reviewer_user_id === null ? null : Number(row.reviewer_user_id),
+  reviewedAt: formatDateTime(row.reviewed_at),
+  completedAt: formatDateTime(row.completed_at),
   createdAt: formatDateTime(row.created_at) ?? "",
   updatedAt: formatDateTime(row.updated_at) ?? ""
 });
@@ -331,6 +359,44 @@ export const findTaskForStartForUpdate = async (
   };
 };
 
+// 提交和审核共用锁定查询，成员关系、权限字段和状态在同一事务快照中读取。
+export const findTaskForReviewForUpdate = async (
+  connection: PoolConnection,
+  input: { taskId: number; currentUserId: number }
+): Promise<TaskReviewTarget | null> => {
+  const [rows] = await connection.execute<TaskReviewTargetRow[]>(
+    `SELECT tasks.id,
+            tasks.project_id,
+            tasks.assignee_user_id,
+            tasks.status AS task_status,
+            projects.owner_user_id,
+            projects.status AS project_status
+     FROM tasks
+     INNER JOIN projects ON projects.id = tasks.project_id
+     INNER JOIN project_members AS current_membership
+       ON current_membership.project_id = tasks.project_id
+      AND current_membership.user_id = ?
+     WHERE tasks.id = ?
+     LIMIT 1
+     FOR UPDATE`,
+    [input.currentUserId, input.taskId]
+  );
+
+  const task = rows[0];
+  if (!task) {
+    return null;
+  }
+
+  return {
+    taskId: Number(task.id),
+    projectId: Number(task.project_id),
+    assigneeUserId: Number(task.assignee_user_id),
+    ownerUserId: Number(task.owner_user_id),
+    projectStatus: task.project_status,
+    taskStatus: task.task_status
+  };
+};
+
 // 把待开始或已逾期任务更新为进行中，并返回更新后的完整任务。
 export const updateTaskStatusToDoing = async (
   connection: PoolConnection,
@@ -353,6 +419,95 @@ export const updateTaskStatusToDoing = async (
 
   if (!task) {
     throw new Error("开始任务后未找到任务记录");
+  }
+
+  return task;
+};
+
+export const updateTaskStatusToSubmitted = async (
+  connection: PoolConnection,
+  input: { taskId: number; submitContent?: string }
+): Promise<Task> => {
+  // service 已经校验过状态，这里的 status 条件仍要保留，作为并发和误调用的最后一道保护。
+  const [result] = await connection.execute<ResultSetHeader>(
+    `UPDATE tasks
+     SET status = 'submitted',
+         submit_content = ?,
+         submitted_at = NOW(),
+         rejection_reason = NULL,
+         reviewer_user_id = NULL,
+         reviewed_at = NULL,
+         completed_at = NULL
+     WHERE id = ?
+       AND status = 'doing'`,
+    [input.submitContent ?? null, input.taskId]
+  );
+
+  if (result.affectedRows !== 1) {
+    throw new Error("提交任务时任务状态更新失败");
+  }
+
+  const task = await findTaskById(connection, input.taskId);
+  if (!task) {
+    throw new Error("提交任务后未找到任务记录");
+  }
+
+  return task;
+};
+
+export const updateTaskStatusToDone = async (
+  connection: PoolConnection,
+  input: { taskId: number; reviewerUserId: number }
+): Promise<Task> => {
+  // 只允许 submitted -> done；即使 repository 被误调用，也不能跳过审核流程直接完成任务。
+  const [result] = await connection.execute<ResultSetHeader>(
+    `UPDATE tasks
+     SET status = 'done',
+         rejection_reason = NULL,
+         reviewer_user_id = ?,
+         reviewed_at = NOW(),
+         completed_at = NOW()
+     WHERE id = ?
+       AND status = 'submitted'`,
+    [input.reviewerUserId, input.taskId]
+  );
+
+  if (result.affectedRows !== 1) {
+    throw new Error("审核通过任务时状态更新失败");
+  }
+
+  const task = await findTaskById(connection, input.taskId);
+  if (!task) {
+    throw new Error("审核通过任务后未找到任务记录");
+  }
+
+  return task;
+};
+
+export const updateTaskStatusToDoingAfterRejection = async (
+  connection: PoolConnection,
+  input: { taskId: number; reviewerUserId: number; reason: string }
+): Promise<Task> => {
+  // 驳回只能把待审核任务退回 doing，并保留最近一次审核人、时间和驳回原因。
+  const [result] = await connection.execute<ResultSetHeader>(
+    `UPDATE tasks
+     SET status = 'doing',
+         rejection_reason = ?,
+         reviewer_user_id = ?,
+         reviewed_at = NOW(),
+         completed_at = NULL
+     WHERE id = ?
+       AND status = 'submitted'`,
+    [input.reason, input.reviewerUserId, input.taskId]
+  );
+
+  if (result.affectedRows !== 1) {
+    throw new Error("驳回任务时状态更新失败");
+  }
+
+  const task = await findTaskById(connection, input.taskId);
+  if (!task) {
+    throw new Error("驳回任务后未找到任务记录");
   }
 
   return task;

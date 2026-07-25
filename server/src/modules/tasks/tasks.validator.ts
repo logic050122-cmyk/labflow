@@ -3,6 +3,8 @@ import { AppError } from "../../common/http";
 import type {
   CreateTaskInput,
   ListTasksInput,
+  RejectTaskInput,
+  SubmitTaskInput,
   TaskPriority,
   TaskStatus,
   TaskTag,
@@ -15,6 +17,8 @@ const TASK_TITLE_MAX_LENGTH = 150;
 const TASK_DESCRIPTION_MAX_LENGTH = 2000;
 const TASK_TAG_MAX_LENGTH = 30;
 const TASK_KEYWORD_MAX_LENGTH = 100;
+const SUBMIT_CONTENT_MAX_LENGTH = 10000;
+const REJECTION_REASON_MAX_LENGTH = 500;
 const TASK_PRIORITIES: TaskPriority[] = ["low", "medium", "high", "urgent"];
 const TASK_STATUSES: TaskStatus[] = ["todo", "doing", "submitted", "done", "overdue"];
 const TASK_TAGS: TaskTag[] = ["功能", "Bug", "优化", "文档", "测试", "UI"];
@@ -155,6 +159,32 @@ export const validateCreateTaskRequest = (body: unknown): CreateTaskInput => {
 
 export const validateUpdateTaskRequest = (body: unknown): UpdateTaskInput => {
   return validateTaskRequest(body);
+};
+
+// 完成说明是可选文本；空字符串按未填写处理，长度限制避免超大文本落到数据库层报错。
+export const validateSubmitTaskRequest = (body: unknown): SubmitTaskInput => {
+  if (body === undefined) {
+    return {};
+  }
+
+  const requestBody = ensureRequestObject(body);
+  const submitContent = readOptionalText(requestBody.submitContent, "完成说明");
+  if (submitContent && submitContent.length > SUBMIT_CONTENT_MAX_LENGTH) {
+    throw new AppError("完成说明不能超过 10000 个字符", 400, 40001);
+  }
+
+  return submitContent ? { submitContent } : {};
+};
+
+// 驳回原因必须填写，并与数据库 VARCHAR(500) 长度保持一致。
+export const validateRejectTaskRequest = (body: unknown): RejectTaskInput => {
+  const requestBody = ensureRequestObject(body);
+  const reason = readRequiredText(requestBody.reason, "驳回原因");
+  if (reason.length > REJECTION_REASON_MAX_LENGTH) {
+    throw new AppError("驳回原因不能超过 500 个字符", 400, 40001);
+  }
+
+  return { reason };
 };
 
 const readOptionalTaskStatus = (value: unknown): TaskStatus | undefined => {

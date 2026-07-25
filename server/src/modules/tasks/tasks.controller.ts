@@ -3,17 +3,22 @@ import type { RequestHandler } from "express";
 import { AppError, sendSuccess } from "../../common/http";
 
 import {
+  approveTask,
   createTask,
   getTask,
   listMyTasks,
   listProjectTasks,
+  rejectTask,
   startTask,
+  submitTask,
   updateTaskByOwner
 } from "./tasks.service";
 import {
   validateCreateTaskRequest,
   validateListTasksRequest,
   validateProjectIdParam,
+  validateRejectTaskRequest,
+  validateSubmitTaskRequest,
   validateTaskIdParam,
   validateUpdateTaskRequest
 } from "./tasks.validator";
@@ -78,30 +83,66 @@ export const detail: RequestHandler = async (request, response, next) => {
 };
 
 // 当前任务负责人开始处理自己的任务。
-export const start: RequestHandler = async (
-  request,
-  response,
-  next
-) => {
+export const start: RequestHandler = async (request, response, next) => {
   try {
     if (!request.userId) {
       throw new AppError("请先登录", 401, 40102);
     }
 
-    const taskId = validateTaskIdParam(
-      request.params.taskId
-    );
+    const taskId = validateTaskIdParam(request.params.taskId);
+    const result = await startTask(taskId, request.userId);
 
-    const result = await startTask(
-      taskId,
-      request.userId
-    );
+    sendSuccess(response, result, "任务已开始");
+  } catch (error) {
+    next(error);
+  }
+};
 
-    sendSuccess(
-      response,
-      result,
-      "任务已开始"
-    );
+// 当前任务负责人提交进行中的任务，完成说明为可选文本。
+export const submit: RequestHandler = async (request, response, next) => {
+  try {
+    if (!request.userId) {
+      throw new AppError("请先登录", 401, 40102);
+    }
+
+    const taskId = validateTaskIdParam(request.params.taskId);
+    const input = validateSubmitTaskRequest(request.body);
+    const result = await submitTask(taskId, input, request.userId);
+
+    sendSuccess(response, result, "任务已提交审核");
+  } catch (error) {
+    next(error);
+  }
+};
+
+// 项目负责人审核通过待审核任务。
+export const approve: RequestHandler = async (request, response, next) => {
+  try {
+    if (!request.userId) {
+      throw new AppError("请先登录", 401, 40102);
+    }
+
+    const taskId = validateTaskIdParam(request.params.taskId);
+    const result = await approveTask(taskId, request.userId);
+
+    sendSuccess(response, result, "任务审核通过");
+  } catch (error) {
+    next(error);
+  }
+};
+
+// 项目负责人填写原因后驳回待审核任务。
+export const reject: RequestHandler = async (request, response, next) => {
+  try {
+    if (!request.userId) {
+      throw new AppError("请先登录", 401, 40102);
+    }
+
+    const taskId = validateTaskIdParam(request.params.taskId);
+    const input = validateRejectTaskRequest(request.body);
+    const result = await rejectTask(taskId, input, request.userId);
+
+    sendSuccess(response, result, "任务已驳回");
   } catch (error) {
     next(error);
   }
