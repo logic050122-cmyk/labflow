@@ -147,14 +147,14 @@
 
 ### 模块 7：任务提交审核
 
-- [ ] 模块完成
+- [x] 模块完成
 - [x] 已实现后端 `POST /api/tasks/:taskId/submit`，只允许 Assignee 执行 `doing -> submitted`
 - [x] 已实现后端 `POST /api/tasks/:taskId/approve` 和 `/reject`，只允许 Owner 审核 `submitted` 任务
 - [x] 已实现提交说明、驳回原因、审核人、提交/审核/完成时间字段返回及输入校验
 - [x] 已使用事务、`FOR UPDATE` 和带旧状态条件的 `UPDATE` 保护并发状态流转
 - [x] 前端已接入提交任务、审核通过和填写原因驳回的按钮与弹窗
 - [x] 任务详情已展示完成说明、驳回原因和提交/审核/完成时间
-- [ ] 完成双用户真实业务验收后，再标记模块完成
+- [x] 完成双用户真实业务验收后，再标记模块完成
 - 开发目标：Member 提交任务，Owner 审核通过或填写原因驳回，形成任务主闭环。
 - 涉及后端目录：`server/src/modules/tasks`、`server/src/modules/members`。
 - 涉及前端目录：`web/src/views/MyTasksView.vue`、`web/src/views/ProjectDetailView.vue`、`web/src/api`、`web/src/components`、`web/src/types`。
@@ -164,7 +164,13 @@
 
 ### 模块 8：评论
 
-- [ ] 模块完成
+- [x] 模块完成
+- [x] 实现 `GET /api/tasks/:taskId/comments`，仅项目成员可查看任务评论
+- [x] 实现 `POST /api/tasks/:taskId/comments`，评论内容必填并限制为 2000 个字符
+- [x] 实现 `DELETE /api/comments/:commentId`，评论作者和项目 Owner 可删除
+- [x] 任务详情已接入评论列表、发布、删除确认和归档项目只读状态
+- [x] 前后端类型检查和生产构建通过
+- [x] MySQL 真实接口验收覆盖成员隔离、输入校验、作者/Owner 删除权限和归档限制
 - 开发目标：项目成员在任务下查看和添加评论，支持评论人删除自己的评论，并保留 Owner 管理权限。
 - 涉及后端目录：`server/src/modules/comments`、`server/src/modules/tasks`、`server/src/modules/members`。
 - 涉及前端目录：`web/src/views/ProjectDetailView.vue`、`web/src/api`、`web/src/components`、`web/src/types`。
