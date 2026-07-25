@@ -9,8 +9,7 @@ import { db } from "../../config/db";
 import type {
   Comment,
   CommentCreateTarget,
-  CommentDeleteTarget,
-  CreateCommentInput
+  CommentDeleteTarget
 } from "./comments.types";
 
 // ============================================================
@@ -35,14 +34,13 @@ interface CommentCreateTargetRow extends RowDataPacket {
   project_status: CommentCreateTarget["projectStatus"];
 }
 
-// 删除评论前，查评论人、项目 Owner 和项目状态。
+// 删除评论前，查评论人和项目 Owner。
 interface CommentDeleteTargetRow extends RowDataPacket {
   id: number;
   task_id: number;
   user_id: number;
   project_id: number;
   owner_user_id: number;
-  project_status: CommentDeleteTarget["projectStatus"];
 }
 
 // ============================================================
@@ -153,7 +151,6 @@ export const findTaskForCommentWrite = async (
   };
 };
 
-
 // 列表查询前校验当前用户是否为项目成员。
 // 和 findTaskForCommentWrite 的区别：不带 FOR UPDATE，用 db.query，适合只读场景。
 export const findTaskForCommentRead = async (
@@ -206,9 +203,8 @@ export const insertComment = async (
   return comment;
 };
 
-// 删除评论前，查评论人、项目 Owner 和项目状态。
-// 通过 task_comments -> tasks -> projects 三表 JOIN 拿到所有权限判断需要的数据。
-// 加锁（FOR UPDATE）防止并发删除。
+// 删除评论前，通过 task_comments -> tasks -> projects 一次查齐权限判断需要的数据。
+// 加锁（FOR UPDATE）防止并发删除同一条评论。
 export const findCommentForDelete = async (
   connection: PoolConnection,
   commentId: number
@@ -218,8 +214,7 @@ export const findCommentForDelete = async (
             task_comments.task_id,
             task_comments.user_id,
             tasks.project_id,
-            projects.owner_user_id,
-            projects.status AS project_status
+            projects.owner_user_id
      FROM task_comments
      INNER JOIN tasks ON tasks.id = task_comments.task_id
      INNER JOIN projects ON projects.id = tasks.project_id
@@ -238,9 +233,8 @@ export const findCommentForDelete = async (
     commentId: Number(comment.id),
     taskId: Number(comment.task_id),
     projectId: Number(comment.project_id),
-    userId: Number(comment.user_id),
-    ownerUserId: Number(comment.owner_user_id),
-    projectStatus: comment.project_status
+    authorUserId: Number(comment.user_id),
+    ownerUserId: Number(comment.owner_user_id)
   };
 };
 
