@@ -26,7 +26,7 @@ assert.equal(typeof packageJson.dependencies?.multer, "string");
 assert.equal(typeof packageJson.devDependencies?.["@types/multer"], "string");
 
 const databaseSource = await readFile(path.resolve("../docs/DATABASE.md"), "utf8");
-assert.match(databaseSource, /### 4\.6 文件表 `files`/);
+assert.match(databaseSource, /### 4\.6 files/);
 
 const migrationSource = await readFile(
   path.resolve("migrations/001_initial_schema.sql"),
