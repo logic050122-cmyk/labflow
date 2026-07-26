@@ -3,6 +3,7 @@ import { ref, watch } from "vue";
 
 import { getTask } from "@/api/tasks";
 import TaskComments from "@/components/comments/TaskComments.vue";
+import FileListPanel from "@/components/files/FileListPanel.vue";
 import {
   TASK_PRIORITY_TAG_TYPE,
   TASK_PRIORITY_TEXT,
@@ -161,6 +162,13 @@ watch(
             </el-descriptions-item>
           </el-descriptions>
         </template>
+
+        <el-divider content-position="left">任务附件</el-divider>
+        <FileListPanel
+          :project-id="task.projectId"
+          :task-id="task.id"
+          :project-status="task.projectStatus"
+        />
 
         <el-divider content-position="left">任务评论</el-divider>
         <TaskComments

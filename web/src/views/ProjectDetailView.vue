@@ -4,6 +4,7 @@ import { ElMessage } from "element-plus";
 import { useRoute, useRouter } from "vue-router";
 
 import BrandLogo from "@/components/auth/BrandLogo.vue";
+import FileListPanel from "@/components/files/FileListPanel.vue";
 import CreateProjectDialog from "@/components/projects/CreateProjectDialog.vue";
 import ProjectInviteDialog from "@/components/projects/ProjectInviteDialog.vue";
 import ProjectMemberList from "@/components/projects/ProjectMemberList.vue";
@@ -174,6 +175,14 @@ onMounted(loadProject);
           </div>
         </div>
       </section>
+
+      <FileListPanel
+        v-if="project"
+        :project-id="project.id"
+        :project-role="project.role"
+        :project-status="project.status"
+        card
+      />
 
       <ProjectTaskList
         v-if="project"
