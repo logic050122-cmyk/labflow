@@ -31,6 +31,8 @@ import type {
   UploadFileResult
 } from "./files.types";
 
+// 把包含服务器存储信息的内部记录转换成前端可见对象。
+// 删除按钮是否显示由后端根据“上传人或 Owner + 项目未归档”统一计算。
 const toFileListItem = (
   file: StoredFileRecord,
   context: {
@@ -57,12 +59,17 @@ const toFileListItem = (
       context.ownerUserId === context.currentUserId)
 });
 
+// archived 项目保持只读，文件上传和删除都在 service 统一拦截。
 const ensureProjectWritable = (target: FileWriteTarget): void => {
   if (target.projectStatus === "archived") {
     throw new AppError("项目已归档，不允许上传或删除文件", 409, 40904);
   }
 };
 
+// ============================================================
+// 1. 获取文件列表（只读，不需要事务）
+// ============================================================
+// repository 在同一条查询里完成项目成员隔离和文件读取。
 export const listProjectFiles = async (
   projectId: number,
   currentUserId: number
@@ -83,6 +90,7 @@ export const listProjectFiles = async (
   };
 };
 
+// 任务附件通过 taskId 反查所属项目，非项目成员统一按资源不存在处理。
 export const listTaskFiles = async (
   taskId: number,
   currentUserId: number
@@ -103,6 +111,10 @@ export const listTaskFiles = async (
   };
 };
 
+// ============================================================
+// 2. 上传文件（磁盘文件和数据库元数据需要共同收口）
+// ============================================================
+// 项目文件和任务附件共用上传流程，差异通过 findTarget 和 requireOwner 传入。
 const uploadFileWithLock = async (input: {
   file: UploadFileInput;
   currentUserId: number;
@@ -174,6 +186,7 @@ const uploadFileWithLock = async (input: {
   }
 };
 
+// 项目公共文件必须由项目 Owner 上传。
 export const uploadProjectFile = async (
   projectId: number,
   file: UploadFileInput,
@@ -192,6 +205,7 @@ export const uploadProjectFile = async (
   });
 };
 
+// 任务附件允许任务所属项目的任意当前成员上传。
 export const uploadTaskFile = async (
   taskId: number,
   file: UploadFileInput,
@@ -210,6 +224,9 @@ export const uploadTaskFile = async (
   });
 };
 
+// ============================================================
+// 3. 下载文件（先校验成员，再读取磁盘）
+// ============================================================
 export const getFileDownload = async (
   fileId: number,
   currentUserId: number
@@ -234,6 +251,10 @@ export const getFileDownload = async (
   };
 };
 
+// ============================================================
+// 4. 删除文件（先删元数据，提交后再清理磁盘）
+// ============================================================
+// 删除权限必须是上传人本人或项目 Owner，并且项目没有归档。
 export const deleteFile = async (
   fileId: number,
   currentUserId: number

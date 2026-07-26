@@ -15,6 +15,10 @@ import type {
   StoredFileRecord
 } from "./files.types";
 
+// ============================================================
+// 1. Row 类型：描述 MySQL 查询返回的 snake_case 字段
+// ============================================================
+// 文件查询会 JOIN users，直接带回上传人的用户名和昵称。
 interface FileRow extends RowDataPacket {
   id: number;
   project_id: number;
@@ -32,6 +36,7 @@ interface FileRow extends RowDataPacket {
   updated_at: Date | string;
 }
 
+// LEFT JOIN 用于“有权限但还没有文件”的列表，因此文件字段允许为 null。
 interface FileListRow extends RowDataPacket {
   membership_project_id: number;
   owner_user_id: number;
@@ -64,6 +69,10 @@ interface FileAccessRow extends FileRow {
   project_status: FileAccessTarget["projectStatus"];
 }
 
+// ============================================================
+// 2. 数据格式转换
+// ============================================================
+// repository 负责把数据库 snake_case 转成 service 使用的 camelCase。
 const formatDateTime = (value: Date | string): string => {
   return value instanceof Date ? value.toISOString() : value;
 };
@@ -85,6 +94,8 @@ const toStoredFile = (row: FileRow): StoredFileRecord => ({
   updatedAt: formatDateTime(row.updated_at)
 });
 
+// 列表查询可能返回只有项目/任务信息、没有文件信息的空行。
+// id 为 null 表示成员有查看权限，但当前列表确实为空。
 const toStoredFileFromListRow = (
   row: FileListRow
 ): StoredFileRecord | null => {
@@ -127,6 +138,7 @@ const toStoredFileFromListRow = (
   };
 };
 
+// 多个文件查询复用同一组字段，避免列表、下载、删除返回的内部数据不一致。
 const FILE_SELECT_FIELDS = `
   files.id,
   files.project_id,
@@ -143,6 +155,10 @@ const FILE_SELECT_FIELDS = `
   files.created_at,
   files.updated_at`;
 
+// ============================================================
+// 3. 文件列表查询
+// ============================================================
+// 从项目和当前成员关系开始查询，因此无文件时仍能区分“空列表”和“无权限”。
 export const findProjectFilesForMember = async (
   projectId: number,
   currentUserId: number
@@ -183,6 +199,7 @@ export const findProjectFilesForMember = async (
   };
 };
 
+// 从任务反查项目成员关系，只返回当前任务的 task 类附件。
 export const findTaskFilesForMember = async (
   taskId: number,
   currentUserId: number
@@ -224,6 +241,10 @@ export const findTaskFilesForMember = async (
   };
 };
 
+// ============================================================
+// 4. 上传目标查询
+// ============================================================
+// 上传前锁定项目和成员关系，service 随后在同一事务中写入文件元数据。
 export const findProjectForFileUpload = async (
   connection: PoolConnection,
   input: { projectId: number; currentUserId: number }
@@ -254,6 +275,7 @@ export const findProjectForFileUpload = async (
     : null;
 };
 
+// 任务附件上传同时查出 taskId、projectId、Owner 和项目状态。
 export const findTaskForFileUpload = async (
   connection: PoolConnection,
   input: { taskId: number; currentUserId: number }
@@ -285,6 +307,10 @@ export const findTaskForFileUpload = async (
     : null;
 };
 
+// ============================================================
+// 5. 文件元数据写入
+// ============================================================
+// 插入后在同一事务连接中查回完整记录，补齐上传人展示信息。
 const findFileById = async (
   connection: PoolConnection,
   fileId: number
@@ -350,6 +376,10 @@ export const insertFile = async (
   return file;
 };
 
+// ============================================================
+// 6. 下载和删除目标查询
+// ============================================================
+// 下载要求当前用户仍是文件所属项目的成员。
 export const findFileForMember = async (
   fileId: number,
   currentUserId: number
@@ -379,6 +409,7 @@ export const findFileForMember = async (
     : null;
 };
 
+// 删除查询使用 FOR UPDATE 锁住文件记录，避免两个请求同时删除同一文件。
 export const findFileForDelete = async (
   connection: PoolConnection,
   fileId: number,
@@ -410,6 +441,7 @@ export const findFileForDelete = async (
     : null;
 };
 
+// service 完成权限判断后才调用这里；repository 只负责执行删除 SQL。
 export const deleteFileById = async (
   connection: PoolConnection,
   fileId: number

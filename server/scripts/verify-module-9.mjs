@@ -118,6 +118,9 @@ const requestDownload = async (fileId, options = {}) => {
   return payload;
 };
 
+// 该验收脚本只适合 CI 或没有业务文件的独立测试环境。
+// cleanup 位于 finally 中，所以脚本成功或中途失败都会执行；当前会删除整个
+// server/uploads，不能在保存了真实上传文件的本地环境直接运行。
 const cleanup = async () => {
   if (database) {
     try {

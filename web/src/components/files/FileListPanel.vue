@@ -24,6 +24,8 @@ const props = withDefaults(
     card: false
   }
 );
+
+// 组件自己维护文件列表和各种请求状态，父页面只提供项目、任务和角色信息。
 const files = ref<FileListItem[]>([]);
 const loading = ref(false);
 const uploading = ref(false);
@@ -31,7 +33,11 @@ const deletingFileId = ref<number | null>(null);
 const downloadingFileId = ref<number | null>(null);
 const errorMessage = ref("");
 const fileInput = ref<HTMLInputElement | null>(null);
+
+// 传入 taskId 表示任务附件，否则表示项目公共文件。
 const isTaskAttachment = computed(() => props.taskId !== undefined);
+
+// 归档项目一律只读；项目文件只有 Owner 上传，任务附件允许项目成员上传。
 const canUpload = computed(() => {
   if (props.projectStatus === "archived") {
     return false;
@@ -41,6 +47,8 @@ const canUpload = computed(() => {
 const title = computed(() =>
   isTaskAttachment.value ? "任务附件" : "项目文件"
 );
+
+// 根据当前模式调用不同列表接口，错误保留在组件内并提供重新加载按钮。
 const loadFiles = async () => {
   loading.value = true;
   errorMessage.value = "";
@@ -56,11 +64,15 @@ const loadFiles = async () => {
     loading.value = false;
   }
 };
+
+// 隐藏原生 input，由 Element Plus 按钮触发文件选择。
 const openFilePicker = () => {
   if (canUpload.value && !uploading.value) {
     fileInput.value?.click();
   }
 };
+
+// 前端先做空文件和 10 MB 限制提示，后端仍会再次校验，不能只依赖页面。
 const handleFileChange = async (event: Event) => {
   const input = event.target as HTMLInputElement;
   const selectedFile = input.files?.[0];
@@ -91,6 +103,8 @@ const handleFileChange = async (event: Event) => {
     uploading.value = false;
   }
 };
+
+// Blob 先转换成本地临时 URL，再用隐藏链接触发浏览器下载。
 const handleDownload = async (file: FileListItem) => {
   if (downloadingFileId.value !== null) {
     return;
@@ -112,6 +126,8 @@ const handleDownload = async (file: FileListItem) => {
     downloadingFileId.value = null;
   }
 };
+
+// 删除前必须二次确认；成功后只从当前列表移除对应记录。
 const handleDelete = async (file: FileListItem) => {
   if (!file.canDelete || deletingFileId.value !== null) {
     return;
@@ -140,6 +156,8 @@ const handleDelete = async (file: FileListItem) => {
     deletingFileId.value = null;
   }
 };
+
+// 项目或任务变化时重新读取文件；immediate 保证组件首次出现就加载。
 watch(
   () => [props.projectId, props.taskId],
   () => {

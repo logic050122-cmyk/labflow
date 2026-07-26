@@ -18,6 +18,7 @@ import {
   validateUploadedFile
 } from "./files.validator";
 
+// controller 只负责 HTTP 参数、调用 validator/service 和组织响应，不处理文件权限或 SQL。
 const requireCurrentUserId = (userId: number | undefined): number => {
   if (!userId) {
     throw new AppError("请先登录", 401, 40102);
@@ -92,6 +93,8 @@ export const uploadForTask: RequestHandler = async (
   }
 };
 
+// 下载成功返回二进制文件，不使用普通接口的 JSON 成功结构。
+// response.download 会设置附件响应头，让浏览器使用原始文件名下载。
 export const download: RequestHandler = async (request, response, next) => {
   try {
     const currentUserId = requireCurrentUserId(request.userId);
