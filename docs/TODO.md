@@ -183,6 +183,13 @@
 ### 模块 9：文件上传
 
 - [ ] 模块完成
+- [x] 固定项目文件、任务附件、下载和删除接口字段、权限、文件限制及错误码
+- [x] 新增 Multer 内存接收、安全存储名、磁盘存储和 `files` 元数据写入
+- [x] 实现项目文件与任务附件列表、上传、下载、删除的后端完整分层
+- [x] 项目详情页接入项目文件列表、Owner 上传、下载和按权限删除
+- [x] 任务详情接入任务附件列表、项目成员上传、下载和按权限删除
+- [x] 后端和前端类型检查、生产构建通过
+- [ ] 完成真实 HTTP + MySQL 文件上传、下载、权限和归档业务验收后，再标记模块完成
 - 开发目标：使用 Multer 上传、查询、下载和删除项目文件及任务附件，MySQL 只保存文件元数据。
 - 涉及后端目录：`server/src/modules/files`、`server/src/modules/projects`、`server/src/modules/tasks`、`server/src/modules/members`、`server/src/config`。
 - 涉及前端目录：`web/src/views/ProjectDetailView.vue`、`web/src/api`、`web/src/components`、`web/src/types`。

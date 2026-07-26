@@ -3,6 +3,7 @@ import express from "express";
 import { errorHandler, notFoundHandler } from "./common/http";
 import { authRoutes } from "./modules/auth/auth.routes";
 import { commentRoutes } from "./modules/comments/comments.routes";
+import { fileRoutes } from "./modules/files/files.routes";
 import { memberRoutes } from "./modules/members/members.routes";
 import { projectRoutes } from "./modules/projects/projects.routes";
 import { taskRoutes } from "./modules/tasks/tasks.routes";
@@ -29,6 +30,9 @@ export const createApp = () => {
 
   // 评论路由包含任务评论列表、新增评论和按评论 ID 删除三类路径。
   app.use("/api", commentRoutes);
+
+  // 文件路由包含项目文件、任务附件、下载和删除。
+  app.use("/api", fileRoutes);
 
   // projectRoutes 内部的 / 会和这里拼成 POST /api/projects。
   app.use("/api/projects", projectRoutes);

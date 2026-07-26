@@ -509,7 +509,53 @@
 | GET | `/api/files/:fileId/download` | ProjectMember | 下载文件 |
 | DELETE | `/api/files/:fileId` | User | 上传人可删除；项目负责人可删除项目内文件 |
 
-上传字段名统一为 `file`。第一版不做文件版本控制，同名文件由服务端生成不同的存储名。
+上传请求使用 `multipart/form-data`，字段名固定为 `file`，每次只能上传一个文件。单个文件最大为 10 MB，支持 JPEG、PNG、GIF、WebP、PDF、TXT、CSV、Word、Excel、PowerPoint 和 ZIP。项目文件只能由 Owner 上传；任务附件可以由任务所属项目的任意当前成员上传。`archived` 项目只允许查看和下载历史文件，不允许继续上传或删除。
+
+文件本体保存在服务端 `uploads` 目录，MySQL 的 `files` 表只保存元数据。服务端使用 UUID 生成存储名，同名文件不会互相覆盖；接口不返回 `storedName` 和 `storagePath`，避免暴露服务器目录。第一版不做文件版本控制。
+
+列表成功响应：
+
+```json
+{
+  "code": 0,
+  "message": "项目文件获取成功",
+  "data": {
+    "files": [
+      {
+        "id": 31,
+        "projectId": 8,
+        "taskId": null,
+        "uploaderUserId": 2,
+        "uploaderUsername": "alice",
+        "uploaderNickname": "小林",
+        "originalName": "需求说明.pdf",
+        "sizeBytes": 245760,
+        "mimeType": "application/pdf",
+        "category": "project",
+        "createdAt": "2026-07-26T08:00:00.000Z",
+        "updatedAt": "2026-07-26T08:00:00.000Z",
+        "canDelete": true
+      }
+    ]
+  }
+}
+```
+
+任务附件列表字段相同，但 `taskId` 为目标任务 ID、`category` 为 `task`。`canDelete` 由后端根据当前用户是否为上传人或项目 Owner、项目是否归档计算，前端不能自行决定删除权限。
+
+上传成功返回 `data.file`，字段与列表项一致。删除成功响应：
+
+```json
+{
+  "code": 0,
+  "message": "文件删除成功",
+  "data": {
+    "deletedFileId": 31
+  }
+}
+```
+
+下载接口成功时直接返回二进制文件，并通过 `Content-Disposition: attachment` 使用原始文件名下载，不使用统一 JSON 成功结构。非法 ID、未选择文件、字段名错误、空文件、文件过大或类型不支持返回 `40001`；非 Owner 上传项目文件或无删除权限返回 `40301`；资源不存在或当前用户不是所属项目成员返回 `40401`；元数据存在但磁盘文件缺失返回 `40402`；归档项目上传或删除返回 `40904`。
 
 ### 4.8 通知 notifications
 
