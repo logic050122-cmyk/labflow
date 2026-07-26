@@ -15,7 +15,8 @@ import {
   stopServer
 } from "./verify-modules-7-8.helpers.mjs";
 
-const verifyPort = Number(process.env.VERIFY_PORT ?? 3109);
+// 与公共 startServer 助手保持同一个默认端口；需要并行运行时可用环境变量覆盖。
+const verifyPort = Number(process.env.VERIFY_PORT ?? 3108);
 const baseUrl =
   process.env.VERIFY_BASE_URL ?? `http://127.0.0.1:${verifyPort}/api`;
 const suffix = `${Date.now()}_${Math.floor(Math.random() * 100000)}`;
@@ -126,6 +127,8 @@ const cleanup = async () => {
     try {
       await database.beginTransaction();
       if (projectId) {
+        // 模块十接入后，创建任务会产生通知，先清理通知再删除关联任务。
+        await database.execute("DELETE FROM notifications WHERE project_id = ?", [projectId]);
         await database.execute("DELETE FROM files WHERE project_id = ?", [projectId]);
         await database.execute("DELETE FROM tasks WHERE project_id = ?", [projectId]);
         await database.execute("DELETE FROM project_members WHERE project_id = ?", [projectId]);

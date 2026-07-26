@@ -4,6 +4,18 @@
 
 ## 2026-07-26
 
+### 模块 10：站内通知闭环完成
+
+- 新增 `server/src/modules/notifications` 的 routes、controller、service、repository、validator 和 types 分层，提供通知分页、已读筛选、未读数量、单条已读和全部已读接口。
+- 通知查询和修改固定使用 JWT 当前用户；访问其他用户通知统一按不存在处理，单条已读接口保持幂等并保留第一次阅读时间。
+- 加入项目、任务创建/改派、提交审核、审核通过/驳回均在原业务 service 的同一事务中写入通知，通知失败时业务变更一并回滚。
+- 补齐项目完成与归档接口和前端 Owner 操作入口；归档时写入 `archived_at`，并向全部项目成员发送站内通知。
+- 新增 node-cron 每日逾期检查，只把 active 项目内已到期的 `todo/doing` 任务更新为 `overdue`，同时通知 Assignee 和 Owner；两者相同时去重。模块 6 的缺失项因此一并完成。
+- 前端新增通知类型、API、Pinia 未读数量 store、通知中心页面和独立样式；工作台展示未读角标，通知页支持筛选、分页、单条/全部已读和跳转相关项目。
+- 新增 `node-cron` 依赖和可重复执行的模块 10 真实 HTTP + MySQL 验收脚本；验收覆盖接收人隔离、业务事件、逾期、归档、筛选和已读管理，临时数据按项目 ID 清理。
+- 后端和前端类型检查、生产构建、模块 10 验收、模块 7/8 回归及模块 9 文件回归全部通过；模块 9 原验收端口已与公共测试助手对齐。
+- 复用既有 `notifications`、`projects` 和 `tasks` 字段，本次未修改数据库表结构、迁移文件、认证逻辑、数据库连接配置或 WebSocket 能力。
+
 ### 模块 9：文件上传前后端实现
 
 - 新增 `server/src/modules/files` 的 routes、controller、service、repository、validator、types 和磁盘存储分层，提供项目文件、任务附件的列表、上传、下载和删除接口。

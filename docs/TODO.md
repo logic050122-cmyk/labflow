@@ -95,7 +95,7 @@
 - 涉及后端目录：`server/src/modules/projects`、`server/src/modules/members`。
 - 涉及前端目录：`web/src/views/ProjectsView.vue`、`web/src/views/ProjectDetailView.vue`、`web/src/api`、`web/src/components`、`web/src/types`。
 - 涉及数据库表：`projects`、`project_members`、`users`。
-- 完成标准：邀请码唯一且可刷新；无效邀请码返回明确错误；用户不能重复加入同一项目；加入后角色固定为 Member；加入通知和日志延后到模块 10、12 接入。
+- 完成标准：邀请码唯一且可刷新；无效邀请码返回明确错误；用户不能重复加入同一项目；加入后角色固定为 Member；加入通知已在模块 10 接入，操作日志留到模块 12。
 - 是否依赖前一个模块：是；必须先存在项目及其 Owner。
 
 ### 模块 4：项目成员管理
@@ -132,12 +132,12 @@
 
 ### 模块 6：任务状态流转
 
-- [ ] 模块完成
+- [x] 模块完成
 - [x] 已实现后端 `POST /api/tasks/:taskId/start`，只允许 Assignee 执行 `todo/overdue -> doing`
 - [x] 已在“我的任务”页面接入开始任务按钮、加载状态和成功后列表刷新
 - [x] 已补齐任务开始接口类型、参数校验、权限校验、项目状态校验和非法流转错误码
-- [ ] 实现 node-cron 定时逾期任务，只把到期未完成的 `todo/doing` 标记为 `overdue`
-- [ ] 完成定时逾期与开始任务的真实业务验收后，再标记模块完成
+- [x] 实现 node-cron 定时逾期任务，只把到期未完成的 `todo/doing` 标记为 `overdue`
+- [x] 完成定时逾期与开始任务的真实业务验收后，再标记模块完成
 - 开发目标：Member 开始处理自己的任务，并通过 node-cron 标记逾期任务；状态规则集中在 service 层。
 - 涉及后端目录：`server/src/modules/tasks`、`server/src/jobs`、`server/src/modules/members`。
 - 涉及前端目录：`web/src/views/MyTasksView.vue`、`web/src/views/ProjectDetailView.vue`、`web/src/api`、`web/src/components`、`web/src/types`。
@@ -199,7 +199,12 @@
 
 ### 模块 10：站内通知
 
-- [ ] 模块完成
+- [x] 模块完成
+- [x] 新增通知 routes、controller、service、repository、validator 和 types 后端分层
+- [x] 接入加入项目、任务分配/改派、提交审核、审核通过/驳回、逾期和项目归档通知
+- [x] 实现通知分页、已读筛选、未读数量、单条已读和全部已读接口
+- [x] 新增通知中心页面、工作台未读角标、通知 API、Pinia store 和前端类型
+- [x] 完成模块 10 真实 HTTP + MySQL 验收，并通过模块 7/8、模块 9 回归测试
 - 开发目标：补齐加入项目、任务分配、提交审核、审核结果、逾期和项目归档等站内通知，并提供未读数量和已读管理。
 - 涉及后端目录：`server/src/modules/notifications`，以及触发通知的 `projects`、`members`、`tasks` service。
 - 涉及前端目录：`web/src/views/NotificationsView.vue`、`web/src/api`、`web/src/stores`、`web/src/components`、`web/src/types`。

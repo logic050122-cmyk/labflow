@@ -5,6 +5,7 @@ import { authRoutes } from "./modules/auth/auth.routes";
 import { commentRoutes } from "./modules/comments/comments.routes";
 import { fileRoutes } from "./modules/files/files.routes";
 import { memberRoutes } from "./modules/members/members.routes";
+import { notificationRoutes } from "./modules/notifications/notifications.routes";
 import { projectRoutes } from "./modules/projects/projects.routes";
 import { taskRoutes } from "./modules/tasks/tasks.routes";
 
@@ -33,6 +34,9 @@ export const createApp = () => {
 
   // 文件路由包含项目文件、任务附件、下载和删除。
   app.use("/api", fileRoutes);
+
+  // 通知路由只操作当前 JWT 用户自己的通知。
+  app.use("/api/notifications", notificationRoutes);
 
   // projectRoutes 内部的 / 会和这里拼成 POST /api/projects。
   app.use("/api/projects", projectRoutes);

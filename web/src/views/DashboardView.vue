@@ -8,6 +8,7 @@ import CreateProjectDialog from "@/components/projects/CreateProjectDialog.vue";
 import JoinProjectDialog from "@/components/projects/JoinProjectDialog.vue";
 import { createProject, getProjects, joinProject } from "@/api/projects";
 import { useAuthStore } from "@/stores/auth";
+import { useNotificationStore } from "@/stores/notifications";
 import type {
   CreateProjectRequest,
   JoinProjectRequest,
@@ -16,6 +17,7 @@ import type {
 } from "@/types/projects";
 
 const authStore = useAuthStore();
+const notificationStore = useNotificationStore();
 const router = useRouter();
 // 控制创建项目弹窗的显示状态，初始为 false，页面打开时默认不显示。
 const createProjectDialogVisible = ref(false);
@@ -61,6 +63,10 @@ const goMyTasks = () => {
   void router.push({ name: "my-tasks" });
 };
 
+const goNotifications = () => {
+  void router.push({ name: "notifications" });
+};
+
 const handleCreateProject = async (project: CreateProjectRequest) => {
   try {
     // 子组件校验通过后，调用项目 API 把表单数据发送给后端。
@@ -102,7 +108,11 @@ const handleProjectClick = (project: ProjectListItem) => {
   });
 };
 
-onMounted(loadProjects);
+onMounted(() => {
+  void loadProjects();
+  // 未读数量加载失败不阻断项目列表，用户仍可进入通知中心重试。
+  void notificationStore.fetchUnreadCount().catch(() => undefined);
+});
 </script>
 
 <template>
@@ -138,6 +148,9 @@ onMounted(loadProjects);
         </div>
 
         <div class="projects-actions" aria-label="项目操作">
+          <el-badge :value="notificationStore.unreadCount" :hidden="notificationStore.unreadCount === 0">
+            <el-button @click="goNotifications">通知中心</el-button>
+          </el-badge>
           <el-button @click="goMyTasks">我的任务</el-button>
           <el-button type="primary" @click="createProjectDialogVisible = true">
             创建项目

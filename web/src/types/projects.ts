@@ -81,3 +81,7 @@ export interface ProjectDetailResult {
 export interface UpdateProjectResult {
   project: ProjectDetail;
 }
+
+export interface ChangeProjectStatusResult {
+  project: ProjectDetail;
+}

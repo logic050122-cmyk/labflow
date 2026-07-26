@@ -126,6 +126,7 @@ export interface TaskProjectWriteTarget {
 export interface TaskWriteTarget extends TaskProjectWriteTarget {
   taskId: number;
   projectId: number;
+  assigneeUserId: number;
   taskStatus: TaskStatus;
 }
 
@@ -146,4 +147,14 @@ export interface TaskReviewTarget {
   ownerUserId: number;
   projectStatus: ProjectStatus;
   taskStatus: TaskStatus;
+}
+
+// 定时逾期检查只读取状态更新和发送通知所需字段。
+export interface OverdueTaskTarget {
+  taskId: number;
+  projectId: number;
+  ownerUserId: number;
+  assigneeUserId: number;
+  title: string;
+  taskStatus: "todo" | "doing";
 }

@@ -2,18 +2,23 @@ import { randomBytes } from "crypto";
 
 import { AppError } from "../../common/http";
 import { db } from "../../config/db";
+import { notifyProjectArchived } from "../notifications/notifications.service";
 
 import {
+  findProjectForStatusUpdate,
+  findProjectMemberUserIds,
   findProjectByIdForUser,
   findProjectsByUser,
   insertProject,
   insertProjectOwner,
+  updateProjectStatus,
   updateProject as updateProjectRecord,
   updateProjectInviteCode
 } from "./projects.repository";
 import type {
   CreateProjectInput,
   CreateProjectResult,
+  ChangeProjectStatusResult,
   GetProjectResult,
   ListProjectsInput,
   ListProjectsResult,
@@ -180,4 +185,120 @@ export const refreshProjectInviteCode = async (
   }
 
   return { inviteCode };
+};
+
+const getProjectStatusTarget = async (
+  connection: import("mysql2/promise").PoolConnection,
+  projectId: number,
+  currentUserId: number
+) => {
+  const project = await findProjectForStatusUpdate(connection, {
+    projectId,
+    currentUserId
+  });
+
+  if (!project) {
+    throw new AppError("项目不存在或你不是项目成员", 404, 40401);
+  }
+
+  if (project.ownerUserId !== currentUserId) {
+    throw new AppError("仅项目负责人可以变更项目状态", 403, 40301);
+  }
+
+  return project;
+};
+
+export const finishProject = async (
+  projectId: number,
+  currentUserId: number
+): Promise<ChangeProjectStatusResult> => {
+  const connection = await db.getConnection();
+
+  try {
+    await connection.beginTransaction();
+    const project = await getProjectStatusTarget(
+      connection,
+      projectId,
+      currentUserId
+    );
+
+    if (project.status !== "active") {
+      throw new AppError("只有进行中的项目可以完成", 409, 40911);
+    }
+
+    await updateProjectStatus(connection, {
+      projectId,
+      previousStatus: "active",
+      nextStatus: "finished"
+    });
+    await connection.commit();
+
+    const updatedProject = await findProjectByIdForUser({
+      projectId,
+      userId: currentUserId
+    });
+    if (!updatedProject) {
+      throw new AppError("项目完成后无法读取最新数据", 500, 50001);
+    }
+
+    return { project: updatedProject };
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+};
+
+export const archiveProject = async (
+  projectId: number,
+  currentUserId: number
+): Promise<ChangeProjectStatusResult> => {
+  const connection = await db.getConnection();
+
+  try {
+    await connection.beginTransaction();
+    const project = await getProjectStatusTarget(
+      connection,
+      projectId,
+      currentUserId
+    );
+
+    if (project.status !== "finished") {
+      throw new AppError("只有已完成的项目可以归档", 409, 40912);
+    }
+
+    await updateProjectStatus(connection, {
+      projectId,
+      previousStatus: "finished",
+      nextStatus: "archived"
+    });
+
+    // 归档会影响所有成员，因此逐个写入通知；成员列表和项目状态共用同一事务。
+    const memberUserIds = await findProjectMemberUserIds(connection, projectId);
+    for (const receiverUserId of memberUserIds) {
+      await notifyProjectArchived(connection, {
+        receiverUserId,
+        projectId,
+        projectName: project.name
+      });
+    }
+
+    await connection.commit();
+
+    const updatedProject = await findProjectByIdForUser({
+      projectId,
+      userId: currentUserId
+    });
+    if (!updatedProject) {
+      throw new AppError("项目归档后无法读取最新数据", 500, 50001);
+    }
+
+    return { project: updatedProject };
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
 };

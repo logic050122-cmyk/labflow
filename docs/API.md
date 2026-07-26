@@ -249,6 +249,8 @@
 
 数据库和计划书均定义了 `active`、`finished`、`archived` 三种项目状态，因此第一版保留“完成项目”接口，不采用只有归档而无法进入 `finished` 的设计。只有 `finished` 项目可以归档；重复完成、完成已归档项目或归档非 `finished` 项目返回 `409xx` 状态冲突。
 
+完成和归档接口都返回最新的 `data.project`。只有 Owner 可以执行；非 Owner 返回 `40301`，项目不存在或当前用户不是成员返回 `40401`；完成非 `active` 项目返回 `40911`，归档非 `finished` 项目返回 `40912`。归档成功时写入 `archived_at`，并在同一事务中向项目全部成员发送归档通知。
+
 ### 4.4 项目成员 members
 
 | 方法 | 路径 | 权限 | 用途 |
@@ -438,7 +440,7 @@
 | 项目不是 `active` | 409 | `40904` | 项目当前状态不允许开始任务 |
 | 任务不是 `todo/overdue` | 409 | `40908` | 当前任务状态不允许开始 |
 
-模块六当前已经完成“开始任务”的前后端闭环；node-cron 定时逾期处理尚未实现，因此模块六整体仍未完成。
+模块六已经完成“开始任务”和 node-cron 定时逾期处理：每天检查 active 项目中已到期的 `todo/doing` 任务，并在同一事务中更新为 `overdue`、写入模块 10 站内通知。
 
 #### 4.5.5 模块七：提交与审核
 
@@ -568,6 +570,24 @@
 
 前端通过普通 HTTP 查询或按需轮询，不使用 WebSocket。
 
+列表查询支持 `page`、`pageSize` 和可选 `isRead`；`pageSize` 最大为 100，`isRead` 接受 `true/false` 或 `1/0`。列表返回 `id`、`receiverUserId`、`projectId`、`taskId`、`type`、`title`、`content`、`isRead`、`readAt`、`createdAt`、`updatedAt`，排序规则为创建时间和 ID 倒序。
+
+未读数量响应：
+
+```json
+{
+  "code": 0,
+  "message": "未读通知数量获取成功",
+  "data": {
+    "unreadCount": 3
+  }
+}
+```
+
+单条已读返回更新后的 `data.notification`，重复调用保持幂等，不覆盖第一次 `readAt`。全部已读返回 `data.updatedCount`。通知列表、未读数量和已读操作始终使用 JWT 当前用户，客户端不能指定 `receiverUserId`；访问别人的通知统一返回 `40401`。
+
+通知在触发业务的 service 事务中写入：加入项目和任务分配通知给成员，提交任务通知 Owner，审核结果通知 Assignee，逾期通知 Assignee 和 Owner（同一人时去重），项目归档通知全部项目成员。通知写入失败时，对应业务事务整体回滚。
+
 ### 4.9 统计 stats
 
 | 方法 | 路径 | 权限 | 用途 |
@@ -588,20 +608,22 @@
 
 ## 5. 状态与副作用
 
-下表描述第一版最终业务闭环。模块五已经实现任务创建；模块六已实现开始任务但定时逾期尚未实现；模块七已经完成提交审核前后端闭环。通知和操作日志会分别在模块 10、模块 12 接入。
+下表描述第一版最终业务闭环。任务创建、开始、定时逾期和提交审核已经形成闭环；站内通知已在模块 10 接入，操作日志留到模块 12。
 
 | 动作 | 状态变化 | 通知 | 操作日志 |
 | --- | --- | --- | --- |
-| 创建任务 | 初始为 `todo` | 模块 10 接入 | 模块 12 接入 |
+| 创建任务 | 初始为 `todo` | 通知 Assignee | 模块 12 接入 |
 | 开始任务 | `todo/overdue -> doing` | 无 | 模块 12 接入 |
-| 提交任务 | `doing -> submitted` | 模块 10 接入 | 模块 12 接入 |
-| 审核通过 | `submitted -> done` | 模块 10 接入 | 模块 12 接入 |
-| 审核驳回 | `submitted -> doing` | 模块 10 接入 | 模块 12 接入 |
-| 定时逾期 | `todo/doing -> overdue` | 模块 10 接入 | 模块 12 接入 |
+| 提交任务 | `doing -> submitted` | 通知 Owner | 模块 12 接入 |
+| 审核通过 | `submitted -> done` | 通知 Assignee | 模块 12 接入 |
+| 审核驳回 | `submitted -> doing` | 通知 Assignee | 模块 12 接入 |
+| 定时逾期 | `todo/doing -> overdue` | 通知 Assignee 和 Owner | 模块 12 接入 |
 | 完成项目 | `active -> finished` | 无 | 模块 12 接入 |
-| 归档项目 | `finished -> archived` | 模块 10 接入 | 模块 12 接入 |
+| 归档项目 | `finished -> archived` | 通知全部项目成员 | 模块 12 接入 |
 
 状态变化、通知和日志必须由 service 协调；controller 不直接修改数据库。
+
+逾期检查使用 node-cron，每天 `00:05` 按 `Asia/Shanghai` 时区执行，只处理 `active` 项目中截止时间早于检查时间且状态为 `todo` 或 `doing` 的任务。任务状态和通知在同一事务中更新，任务负责人和项目 Owner 为同一用户时只生成一条通知。
 
 ## 6. 第一版不提供
 

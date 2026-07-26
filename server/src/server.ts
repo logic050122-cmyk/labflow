@@ -1,8 +1,10 @@
 import type { Server } from "node:http";
+import type { ScheduledTask } from "node-cron";
 
 import { createApp } from "./app";
 import { closeDatabase, connectDatabase } from "./config/db";
 import { env } from "./config/env";
+import { startOverdueTaskJob } from "./jobs/overdue-tasks.job";
 
 // server.ts 是程序入口：先确认数据库可连接，再开始监听 HTTP 端口。
 const startServer = async () => {
@@ -12,16 +14,19 @@ const startServer = async () => {
   const server = app.listen(env.port, () => {
     console.log(`LabFlow server is running on port ${env.port}.`);
   });
+  const overdueTaskJob = startOverdueTaskJob();
 
-  registerShutdown(server);
+  registerShutdown(server, overdueTaskJob);
 };
 
 // Ctrl+C 或部署平台要求停止时，先停止接收新请求，再关闭数据库连接池。
 // 这种有顺序的退出方式称为“优雅退出”，可减少数据处理中断。
-const registerShutdown = (server: Server) => {
+const registerShutdown = (server: Server, overdueTaskJob: ScheduledTask) => {
   const shutdown = (signal: NodeJS.Signals) => {//定义一个 shutdown 函数，接收一个信号参数
     console.log(`${signal} received, shutting down.`);
 
+    // 先停止调度新的逾期检查，再关闭 HTTP 服务和数据库连接。
+    overdueTaskJob.stop();
     server.close(() => {
       void closeDatabase().finally(() => process.exit(0));  //不管数据库关闭成功还是失败，最后都退出进程。
     });

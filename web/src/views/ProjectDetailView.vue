@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 import { useRoute, useRouter } from "vue-router";
 
 import BrandLogo from "@/components/auth/BrandLogo.vue";
@@ -9,7 +9,12 @@ import CreateProjectDialog from "@/components/projects/CreateProjectDialog.vue";
 import ProjectInviteDialog from "@/components/projects/ProjectInviteDialog.vue";
 import ProjectMemberList from "@/components/projects/ProjectMemberList.vue";
 import ProjectTaskList from "@/components/tasks/ProjectTaskList.vue";
-import { getProject, updateProject } from "@/api/projects";
+import {
+  archiveProject,
+  finishProject,
+  getProject,
+  updateProject
+} from "@/api/projects";
 import { useAuthStore } from "@/stores/auth";
 import type { CreateProjectRequest, ProjectDetail, ProjectStatus } from "@/types/projects";
 
@@ -23,6 +28,7 @@ const errorMessage = ref("");
 const editDialogVisible = ref(false);
 const editLoading = ref(false);
 const inviteDialogVisible = ref(false);
+const statusChanging = ref(false);
 // 子组件创建或改派任务后递增，用于让成员列表重新读取任务数量统计。
 const memberListRefreshKey = ref(0);
 
@@ -89,6 +95,60 @@ const handleTasksChanged = () => {
   memberListRefreshKey.value += 1;
 };
 
+const handleFinishProject = async () => {
+  if (!project.value || statusChanging.value) {
+    return;
+  }
+
+  try {
+    await ElMessageBox.confirm(
+      "完成后成员不能继续处理任务，确认将项目标记为已完成吗？",
+      "完成项目",
+      { type: "warning", confirmButtonText: "确认完成", cancelButtonText: "取消" }
+    );
+  } catch {
+    return;
+  }
+
+  statusChanging.value = true;
+  try {
+    const result = await finishProject(project.value.id);
+    project.value = result.project;
+    ElMessage.success("项目已完成");
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : "完成项目失败");
+  } finally {
+    statusChanging.value = false;
+  }
+};
+
+const handleArchiveProject = async () => {
+  if (!project.value || statusChanging.value) {
+    return;
+  }
+
+  try {
+    await ElMessageBox.confirm(
+      "归档后项目只保留历史查看，确认归档吗？",
+      "归档项目",
+      { type: "warning", confirmButtonText: "确认归档", cancelButtonText: "取消" }
+    );
+  } catch {
+    return;
+  }
+
+  statusChanging.value = true;
+  try {
+    const result = await archiveProject(project.value.id);
+    project.value = result.project;
+    ElMessage.success("项目已归档，成员已收到通知");
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : "归档项目失败");
+  } finally {
+    statusChanging.value = false;
+  }
+};
+
 onMounted(loadProject);
 </script>
 
@@ -151,7 +211,27 @@ onMounted(loadProject);
 
         <div v-if="project.role === 'owner'" class="project-detail-card__actions">
           <el-button @click="inviteDialogVisible = true">项目邀请码</el-button>
-          <el-button type="primary" :loading="editLoading" @click="editDialogVisible = true">
+          <el-button
+            v-if="project.status === 'active'"
+            :loading="statusChanging"
+            @click="handleFinishProject"
+          >
+            完成项目
+          </el-button>
+          <el-button
+            v-if="project.status === 'finished'"
+            type="warning"
+            :loading="statusChanging"
+            @click="handleArchiveProject"
+          >
+            归档项目
+          </el-button>
+          <el-button
+            v-if="project.status === 'active'"
+            type="primary"
+            :loading="editLoading"
+            @click="editDialogVisible = true"
+          >
             编辑项目
           </el-button>
         </div>

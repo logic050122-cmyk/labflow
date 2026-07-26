@@ -36,6 +36,11 @@ export interface UpdateProjectResult {
   project: ProjectListItem;
 }
 
+// 完成和归档成功后都返回最新项目，页面可以立即刷新状态。
+export interface ChangeProjectStatusResult {
+  project: ProjectListItem;
+}
+
 export interface ListProjectsInput {
   page: number;
   pageSize: number;
@@ -74,6 +79,14 @@ export interface ListProjectsResult {
 // 项目详情沿用项目列表项的安全字段，不把邀请码暴露给项目成员。
 export interface GetProjectResult {
   project: ProjectListItem;
+}
+
+// 状态变更事务中只读取权限、状态和通知文案需要的字段。
+export interface ProjectStatusWriteTarget {
+  id: number;
+  name: string;
+  ownerUserId: number;
+  status: ProjectStatus;
 }
 
 // 项目状态是项目自身的数据，不放进 CreateProjectInput，避免客户端创建时改状态。

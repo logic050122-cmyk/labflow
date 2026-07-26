@@ -2,7 +2,15 @@ import { Router } from "express";
 
 import { authenticate } from "../../middlewares/auth.middleware";
 
-import { create, detail, list, refreshInviteCode, update } from "./projects.controller";
+import {
+  archive,
+  create,
+  detail,
+  finish,
+  list,
+  refreshInviteCode,
+  update
+} from "./projects.controller";
 
 export const projectRoutes = Router();
 
@@ -12,5 +20,7 @@ projectRoutes.get("/", authenticate, list);
 projectRoutes.post("/", authenticate, create);
 // 生成或刷新邀请码属于 Owner 操作，具体权限由 service 根据 owner_user_id 校验。
 projectRoutes.post("/:projectId/invite-code", authenticate, refreshInviteCode);
+projectRoutes.post("/:projectId/finish", authenticate, finish);
+projectRoutes.post("/:projectId/archive", authenticate, archive);
 projectRoutes.put("/:projectId", authenticate, update);
 projectRoutes.get("/:projectId", authenticate, detail);

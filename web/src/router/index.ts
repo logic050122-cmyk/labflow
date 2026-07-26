@@ -36,6 +36,12 @@ const router = createRouter({
       component: () => import("@/views/MyTasksView.vue"),
       meta: { title: "我的任务", requiresAuth: true }
     },
+    {
+      path: "/notifications",
+      name: "notifications",
+      component: () => import("@/views/NotificationsView.vue"),
+      meta: { title: "通知中心", requiresAuth: true }
+    },
     // 未知地址统一回到工作台，未登录时会再由守卫跳转到登录页。
     { path: "/:pathMatch(.*)*", redirect: "/dashboard" }
   ]

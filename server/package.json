@@ -7,21 +7,23 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
-    "verify:modules-7-8": "node scripts/verify-modules-7-8.mjs"
+    "verify:modules-7-8": "node scripts/verify-modules-7-8.mjs",
+    "verify:module-10": "npm run build && node scripts/verify-module-10.mjs"
   },
   "dependencies": {
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.3",
+    "multer": "^2.2.0",
     "mysql2": "^3.14.0",
-    "multer": "^2.2.0"
+    "node-cron": "^4.2.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.1",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.2.0",
     "@types/node": "^22.15.0",
     "tsx": "^4.19.3",
-    "typescript": "^5.8.3",
-    "@types/multer": "^2.2.0"
+    "typescript": "^5.8.3"
   }
 }

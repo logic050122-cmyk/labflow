@@ -1,5 +1,6 @@
 import { request } from "@/api/http";
 import type {
+  ChangeProjectStatusResult,
   CreateProjectRequest,
   CreateProjectResult,
   GetProjectsParams,
@@ -63,5 +64,19 @@ export async function refreshProjectInviteCode(projectId: number) {
   return await request<RefreshProjectInviteCodeResult>({
     method: "POST",
     url: `/projects/${projectId}/invite-code`
+  });
+}
+
+export async function finishProject(projectId: number) {
+  return await request<ChangeProjectStatusResult>({
+    method: "POST",
+    url: `/projects/${projectId}/finish`
+  });
+}
+
+export async function archiveProject(projectId: number) {
+  return await request<ChangeProjectStatusResult>({
+    method: "POST",
+    url: `/projects/${projectId}/archive`
   });
 }
