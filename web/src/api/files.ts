@@ -1,4 +1,3 @@
-
 import axios from "axios";
 
 import http, { request } from "@/api/http";
@@ -58,6 +57,15 @@ export async function deleteFile(fileId: number) {
   });
 }
 
+const readBlobErrorMessage = async (blob: Blob): Promise<string | null> => {
+  try {
+    const result = JSON.parse(await blob.text()) as ApiResponse<null>;
+    return result.message || null;
+  } catch {
+    return null;
+  }
+};
+
 export async function downloadFile(fileId: number): Promise<Blob> {
   try {
     const response = await http.get<Blob>(`/files/${fileId}/download`, {
@@ -66,16 +74,13 @@ export async function downloadFile(fileId: number): Promise<Blob> {
 
     return response.data;
   } catch (error: unknown) {
-    if (axios.isAxiosError<Blob>(error) && error.response?.data instanceof Blob) {
-      try {
-        const text = await error.response.data.text();
-        const result = JSON.parse(text) as ApiResponse<null>;
-        throw new Error(result.message || "文件下载失败");
-      } catch (parseError) {
-        if (parseError instanceof Error && parseError.message !== "文件下载失败") {
-          throw parseError;
-        }
-      }
+    if (axios.isAxiosError<Blob>(error)) {
+      const responseData = error.response?.data;
+      const message =
+        responseData instanceof Blob
+          ? await readBlobErrorMessage(responseData)
+          : null;
+      throw new Error(message || "文件下载失败");
     }
 
     throw error instanceof Error ? error : new Error("文件下载失败");
