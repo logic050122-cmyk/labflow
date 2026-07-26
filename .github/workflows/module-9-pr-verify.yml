@@ -30,6 +30,7 @@ jobs:
           npm ci
           npm run typecheck
           npm run build
+          node scripts/verify-module-9.mjs
       - name: Verify web
         working-directory: web
         run: |
