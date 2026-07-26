@@ -1,0 +1,29 @@
+name: Module 9 Finalize Docs
+
+on:
+  push:
+    branches:
+      - module-9-file-upload
+
+permissions:
+  contents: write
+
+jobs:
+  finalize-docs:
+    if: ${{ !contains(github.event.head_commit.message, '[module9-finalized]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: module-9-file-upload
+          fetch-depth: 0
+      - name: Finalize module 9 docs
+        run: python .github/module-9-finalize.py
+      - name: Commit docs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/TODO.md docs/DEV_LOG.md
+          git commit -m "完成模块九文档验收 [module9-finalized]"
+          git push origin module-9-file-upload
