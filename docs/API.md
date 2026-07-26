@@ -377,7 +377,7 @@
 
 创建和编辑都只允许项目状态为 `active` 的 Owner 执行。模块五只允许编辑或重新分配状态为 `todo` 的任务；`doing`、`submitted`、`done`、`overdue` 不允许通过编辑接口直接修改或改派。
 
-成功后返回 `data.task`。字段包括：`id`、`projectId`、`projectName`、`projectStatus`、`title`、`description`、负责人和创建人的 ID/用户名/昵称、`priority`、`status`、`tag`、`dueAt`、`submitContent`、`rejectionReason`、`submittedAt`、`reviewerUserId`、`reviewedAt`、`completedAt`、`createdAt`、`updatedAt`。未设置的可选字段返回 `null`。
+成功后返回 `data.task`。字段包括：`id`、`projectId`、`projectName`、`projectStatus`、`title`、`description`、负责人和创建人的 ID/用户名/昵称、`priority`、`status`、`tag`、`dueAt`、`submitContent`、`rejectionReason`、`submittedAt`、`reviewerUserId`、`reviewerUsername`、`reviewerNickname`、`reviewedAt`、`completedAt`、`createdAt`、`updatedAt`。未设置的可选字段返回 `null`。
 
 #### 4.5.2 任务列表和详情
 
@@ -458,7 +458,7 @@
 }
 ```
 
-审核人由当前登录用户确定，客户端不提交 `reviewerUserId`。审核通过或驳回时，服务端写入 `reviewer_user_id` 和 `reviewed_at`；审核通过时同时写入 `completed_at`。
+审核人由当前登录用户确定，客户端不提交 `reviewerUserId`。审核通过或驳回时，服务端写入 `reviewer_user_id` 和 `reviewed_at`；审核通过时同时写入 `completed_at`。任务响应通过 `LEFT JOIN users` 返回 `reviewerUsername` 和 `reviewerNickname`，未审核时三个审核人字段都为 `null`。
 
 权限和状态规则：
 
@@ -480,7 +480,7 @@
 | 提交非 `doing` 任务 | 409 | `40909` | 当前任务状态不允许提交 |
 | 审核非 `submitted` 任务 | 409 | `40910` | 当前任务状态不允许审核 |
 
-模块七后端接口已经实现；前端提交、通过和驳回交互尚未接入，因此模块七整体仍未完成。
+模块七前后端闭环已经完成：成员可提交任务，Owner 可通过或填写原因驳回，任务详情展示提交、审核和审核人信息。仓库保留模块七、模块八真实 HTTP + MySQL 验收脚本，并在 GitHub Actions 中持续验证。
 
 ### 4.6 评论 comments
 
@@ -492,7 +492,7 @@
 
 新增评论请求只接收 `content`，`taskId` 从路径获取，评论人从 JWT 当前用户获取。`content` 去除首尾空格后必须非空，最多 2000 个字符；客户端提交的 `userId`、`projectId` 不参与业务判断。
 
-`GET /api/tasks/:taskId/comments` 和 `POST /api/tasks/:taskId/comments` 都会先通过任务反查所属项目，并校验当前用户仍是项目成员。评论按 `createdAt`、`id` 升序返回，响应中的每条评论包含 `id`、`taskId`、`userId`、`username`、`nickname`、`content`、`createdAt`、`updatedAt`。
+`GET /api/tasks/:taskId/comments` 使用一条查询同时完成任务定位、项目成员隔离和评论读取，避免成员校验与数据读取之间出现权限变化。`POST /api/tasks/:taskId/comments` 会在事务中通过任务反查所属项目，并校验当前用户仍是项目成员。评论按 `createdAt`、`id` 升序返回，响应中的每条评论包含 `id`、`taskId`、`userId`、`username`、`nickname`、`content`、`createdAt`、`updatedAt`。
 
 `DELETE /api/comments/:commentId` 会通过评论反查任务和项目；只有评论作者本人或 `projects.owner_user_id` 对应的项目 Owner 可以删除。归档项目允许查看和按权限删除历史评论，但不允许新增评论。第一版不实现评论回复树、编辑、点赞或聊天室。
 
@@ -542,7 +542,7 @@
 
 ## 5. 状态与副作用
 
-下表描述第一版最终业务闭环。模块五已经实现任务创建；模块六已实现开始任务但定时逾期尚未实现；模块七后端提交审核接口已实现。通知和操作日志会分别在模块 10、模块 12 接入。
+下表描述第一版最终业务闭环。模块五已经实现任务创建；模块六已实现开始任务但定时逾期尚未实现；模块七已经完成提交审核前后端闭环。通知和操作日志会分别在模块 10、模块 12 接入。
 
 | 动作 | 状态变化 | 通知 | 操作日志 |
 | --- | --- | --- | --- |

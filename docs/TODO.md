@@ -155,6 +155,7 @@
 - [x] 前端已接入提交任务、审核通过和填写原因驳回的按钮与弹窗
 - [x] 任务详情已展示完成说明、驳回原因和提交/审核/完成时间
 - [x] 完成双用户真实业务验收后，再标记模块完成
+- [x] 已保留模块七、模块八真实 HTTP + MySQL 验收脚本和 GitHub Actions 回归验证
 - 开发目标：Member 提交任务，Owner 审核通过或填写原因驳回，形成任务主闭环。
 - 涉及后端目录：`server/src/modules/tasks`、`server/src/modules/members`。
 - 涉及前端目录：`web/src/views/MyTasksView.vue`、`web/src/views/ProjectDetailView.vue`、`web/src/api`、`web/src/components`、`web/src/types`。
@@ -171,6 +172,7 @@
 - [x] 任务详情已接入评论列表、发布、删除确认和归档项目只读状态
 - [x] 前后端类型检查和生产构建通过
 - [x] MySQL 真实接口验收覆盖成员隔离、输入校验、作者/Owner 删除权限和归档限制
+- [x] 评论列表成员隔离已合并为单条查询，长评论弹窗滚动已修复
 - 开发目标：项目成员在任务下查看和添加评论，支持评论人删除自己的评论，并保留 Owner 管理权限。
 - 涉及后端目录：`server/src/modules/comments`、`server/src/modules/tasks`、`server/src/modules/members`。
 - 涉及前端目录：`web/src/views/ProjectDetailView.vue`、`web/src/api`、`web/src/components`、`web/src/types`。

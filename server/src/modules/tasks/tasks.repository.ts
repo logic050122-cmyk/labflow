@@ -38,6 +38,8 @@ interface TaskRow extends RowDataPacket {
   rejection_reason: string | null;
   submitted_at: Date | string | null;
   reviewer_user_id: number | null;
+  reviewer_username: string | null;
+  reviewer_nickname: string | null;
   reviewed_at: Date | string | null;
   completed_at: Date | string | null;
   created_at: Date | string;
@@ -104,6 +106,8 @@ const TASK_SELECT_FIELDS = `
   tasks.rejection_reason,
   tasks.submitted_at,
   tasks.reviewer_user_id,
+  reviewer.username AS reviewer_username,
+  reviewer.nickname AS reviewer_nickname,
   tasks.reviewed_at,
   tasks.completed_at,
   tasks.created_at,
@@ -140,6 +144,8 @@ const toTask = (row: TaskRow): Task => ({
   submittedAt: formatDateTime(row.submitted_at),
   reviewerUserId:
     row.reviewer_user_id === null ? null : Number(row.reviewer_user_id),
+  reviewerUsername: row.reviewer_username,
+  reviewerNickname: row.reviewer_nickname,
   reviewedAt: formatDateTime(row.reviewed_at),
   completedAt: formatDateTime(row.completed_at),
   createdAt: formatDateTime(row.created_at) ?? "",
@@ -150,7 +156,8 @@ const TASK_FROM_AND_JOINS = `
   FROM tasks
   INNER JOIN projects ON projects.id = tasks.project_id
   INNER JOIN users AS assignee ON assignee.id = tasks.assignee_user_id
-  INNER JOIN users AS creator ON creator.id = tasks.creator_user_id`;
+  INNER JOIN users AS creator ON creator.id = tasks.creator_user_id
+  LEFT JOIN users AS reviewer ON reviewer.id = tasks.reviewer_user_id`;
 
 const buildTaskConditions = (
   input: ListTasksInput,

@@ -64,6 +64,8 @@ export interface Task {
   rejectionReason: string | null;
   submittedAt: string | null;
   reviewerUserId: number | null;
+  reviewerUsername: string | null;
+  reviewerNickname: string | null;
   reviewedAt: string | null;
   completedAt: string | null;
   createdAt: string;

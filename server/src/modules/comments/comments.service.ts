@@ -4,8 +4,7 @@ import { db } from "../../config/db";
 import {
   deleteCommentById,
   findCommentForDelete,
-  findCommentsByTaskId,
-  findTaskForCommentRead,
+  findCommentsForTaskMember,
   findTaskForCommentWrite,
   insertComment
 } from "./comments.repository";
@@ -23,14 +22,12 @@ export const listComments = async (
   taskId: number,
   currentUserId: number
 ): Promise<ListCommentsResult> => {
-  // 先校验当前用户是任务所属项目的成员，非成员看不到评论。
-  const target = await findTaskForCommentRead(taskId, currentUserId);
-  if (!target) {
+  // repository 用一条 SQL 同时完成成员隔离和评论读取，避免两次查询之间权限发生变化。
+  const comments = await findCommentsForTaskMember(taskId, currentUserId);
+  if (comments === null) {
     throw new AppError("任务不存在或你不是所属项目成员", 404, 40401);
   }
 
-  // 成员校验通过后查询评论列表。
-  const comments = await findCommentsByTaskId(taskId);
   return { comments };
 };
 

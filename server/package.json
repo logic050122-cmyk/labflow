@@ -6,7 +6,8 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "verify:modules-7-8": "node scripts/verify-modules-7-8.mjs"
   },
   "dependencies": {
     "dotenv": "^16.4.7",

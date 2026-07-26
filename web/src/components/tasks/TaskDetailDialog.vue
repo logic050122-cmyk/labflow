@@ -70,103 +70,116 @@ watch(
     width="760px"
     @update:model-value="emit('update:modelValue', $event)"
   >
-    <div v-if="loading" v-loading="true" class="task-detail-dialog__loading" />
+    <!-- 弹窗内容使用自己的滚动容器，长评论不会把弹窗撑出浏览器视口。 -->
+    <div class="task-detail-dialog__body">
+      <div v-if="loading" v-loading="true" class="task-detail-dialog__loading" />
 
-    <el-alert v-else-if="errorMessage" type="error" :closable="false" show-icon>
-      <template #title>
-        {{ errorMessage }}
-        <el-button link type="primary" @click="loadTask">重新加载</el-button>
-      </template>
-    </el-alert>
+      <el-alert v-else-if="errorMessage" type="error" :closable="false" show-icon>
+        <template #title>
+          {{ errorMessage }}
+          <el-button link type="primary" @click="loadTask">重新加载</el-button>
+        </template>
+      </el-alert>
 
-    <template v-else-if="task">
-      <div class="task-detail-dialog__heading">
-        <div>
-          <p>{{ task.projectName }}</p>
-          <h2>{{ task.title }}</h2>
+      <template v-else-if="task">
+        <div class="task-detail-dialog__heading">
+          <div>
+            <p>{{ task.projectName }}</p>
+            <h2>{{ task.title }}</h2>
+          </div>
+          <div class="task-detail-dialog__tags">
+            <el-tag :type="TASK_STATUS_TAG_TYPE[task.status]">
+              {{ TASK_STATUS_TEXT[task.status] }}
+            </el-tag>
+            <el-tag :type="TASK_PRIORITY_TAG_TYPE[task.priority]" effect="plain">
+              {{ TASK_PRIORITY_TEXT[task.priority] }}优先级
+            </el-tag>
+          </div>
         </div>
-        <div class="task-detail-dialog__tags">
-          <el-tag :type="TASK_STATUS_TAG_TYPE[task.status]">
-            {{ TASK_STATUS_TEXT[task.status] }}
-          </el-tag>
-          <el-tag :type="TASK_PRIORITY_TAG_TYPE[task.priority]" effect="plain">
-            {{ TASK_PRIORITY_TEXT[task.priority] }}优先级
-          </el-tag>
-        </div>
-      </div>
 
-      <p class="task-detail-dialog__description">
-        {{ task.description || "该任务暂时没有描述。" }}
-      </p>
+        <p class="task-detail-dialog__description">
+          {{ task.description || "该任务暂时没有描述。" }}
+        </p>
 
-      <el-descriptions :column="2" border>
-        <el-descriptions-item label="负责人">
-          {{ task.assigneeNickname }}（@{{ task.assigneeUsername }}）
-        </el-descriptions-item>
-        <el-descriptions-item label="创建人">
-          {{ task.creatorNickname }}（@{{ task.creatorUsername }}）
-        </el-descriptions-item>
-        <el-descriptions-item label="任务标签">
-          {{ task.tag || "未设置" }}
-        </el-descriptions-item>
-        <el-descriptions-item label="截止时间">
-          {{ formatDateTime(task.dueAt) }}
-        </el-descriptions-item>
-        <el-descriptions-item label="创建时间">
-          {{ formatDateTime(task.createdAt) }}
-        </el-descriptions-item>
-        <el-descriptions-item label="最近更新">
-          {{ formatDateTime(task.updatedAt) }}
-        </el-descriptions-item>
-      </el-descriptions>
-
-      <template
-        v-if="
-          task.submitContent ||
-          task.rejectionReason ||
-          task.submittedAt ||
-          task.reviewedAt ||
-          task.completedAt
-        "
-      >
-        <el-divider content-position="left">提交与审核</el-divider>
         <el-descriptions :column="2" border>
-          <el-descriptions-item label="完成说明" :span="2">
-            <span class="task-detail-dialog__review-text">
-              {{ task.submitContent || "未填写完成说明" }}
-            </span>
+          <el-descriptions-item label="负责人">
+            {{ task.assigneeNickname }}（@{{ task.assigneeUsername }}）
           </el-descriptions-item>
-          <el-descriptions-item label="提交时间">
-            {{ formatDateTime(task.submittedAt) }}
+          <el-descriptions-item label="创建人">
+            {{ task.creatorNickname }}（@{{ task.creatorUsername }}）
           </el-descriptions-item>
-          <el-descriptions-item label="审核人">
-            {{ task.reviewerUserId ? `用户 #${task.reviewerUserId}` : "未审核" }}
+          <el-descriptions-item label="任务标签">
+            {{ task.tag || "未设置" }}
           </el-descriptions-item>
-          <el-descriptions-item label="审核时间">
-            {{ formatDateTime(task.reviewedAt) }}
+          <el-descriptions-item label="截止时间">
+            {{ formatDateTime(task.dueAt) }}
           </el-descriptions-item>
-          <el-descriptions-item label="完成时间">
-            {{ formatDateTime(task.completedAt) }}
+          <el-descriptions-item label="创建时间">
+            {{ formatDateTime(task.createdAt) }}
           </el-descriptions-item>
-          <el-descriptions-item v-if="task.rejectionReason" label="驳回原因" :span="2">
-            <span class="task-detail-dialog__review-text task-detail-dialog__review-text--danger">
-              {{ task.rejectionReason }}
-            </span>
+          <el-descriptions-item label="最近更新">
+            {{ formatDateTime(task.updatedAt) }}
           </el-descriptions-item>
         </el-descriptions>
-      </template>
 
-      <el-divider content-position="left">任务评论</el-divider>
-      <TaskComments
-        :task-id="task.id"
-        :project-id="task.projectId"
-        :project-status="task.projectStatus"
-      />
-    </template>
+        <template
+          v-if="
+            task.submitContent ||
+            task.rejectionReason ||
+            task.submittedAt ||
+            task.reviewedAt ||
+            task.completedAt
+          "
+        >
+          <el-divider content-position="left">提交与审核</el-divider>
+          <el-descriptions :column="2" border>
+            <el-descriptions-item label="完成说明" :span="2">
+              <span class="task-detail-dialog__review-text">
+                {{ task.submitContent || "未填写完成说明" }}
+              </span>
+            </el-descriptions-item>
+            <el-descriptions-item label="提交时间">
+              {{ formatDateTime(task.submittedAt) }}
+            </el-descriptions-item>
+            <el-descriptions-item label="审核人">
+              {{
+                task.reviewerNickname && task.reviewerUsername
+                  ? `${task.reviewerNickname}（@${task.reviewerUsername}）`
+                  : "未审核"
+              }}
+            </el-descriptions-item>
+            <el-descriptions-item label="审核时间">
+              {{ formatDateTime(task.reviewedAt) }}
+            </el-descriptions-item>
+            <el-descriptions-item label="完成时间">
+              {{ formatDateTime(task.completedAt) }}
+            </el-descriptions-item>
+            <el-descriptions-item v-if="task.rejectionReason" label="驳回原因" :span="2">
+              <span class="task-detail-dialog__review-text task-detail-dialog__review-text--danger">
+                {{ task.rejectionReason }}
+              </span>
+            </el-descriptions-item>
+          </el-descriptions>
+        </template>
+
+        <el-divider content-position="left">任务评论</el-divider>
+        <TaskComments
+          :task-id="task.id"
+          :project-id="task.projectId"
+          :project-status="task.projectStatus"
+        />
+      </template>
+    </div>
   </el-dialog>
 </template>
 
 <style scoped>
+.task-detail-dialog__body {
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
 .task-detail-dialog__loading {
   min-height: 260px;
 }
