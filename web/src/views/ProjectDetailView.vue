@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { useRoute, useRouter } from "vue-router";
-
-import BrandLogo from "@/components/auth/BrandLogo.vue";
 import FileListPanel from "@/components/files/FileListPanel.vue";
 import CreateProjectDialog from "@/components/projects/CreateProjectDialog.vue";
 import ProjectInviteDialog from "@/components/projects/ProjectInviteDialog.vue";
@@ -15,13 +13,9 @@ import {
   getProject,
   updateProject
 } from "@/api/projects";
-import { useAuthStore } from "@/stores/auth";
 import type { CreateProjectRequest, ProjectDetail, ProjectStatus } from "@/types/projects";
-
 const route = useRoute();
 const router = useRouter();
-const authStore = useAuthStore();
-
 const project = ref<ProjectDetail | null>(null);
 const loading = ref(false);
 const errorMessage = ref("");
@@ -29,9 +23,7 @@ const editDialogVisible = ref(false);
 const editLoading = ref(false);
 const inviteDialogVisible = ref(false);
 const statusChanging = ref(false);
-// 子组件创建或改派任务后递增，用于让成员列表重新读取任务数量统计。
 const memberListRefreshKey = ref(0);
-
 const formatDate = (date: string) => {
   return new Date(date).toLocaleString("zh-CN");
 };
@@ -41,15 +33,32 @@ const projectStatusText: Record<ProjectStatus, string> = {
   finished: "已完成",
   archived: "已归档"
 };
-
 const projectId = Number(route.params.projectId);
-
+type ProjectTab = "overview" | "tasks" | "members" | "files" | "settings";
+const projectTabs: ProjectTab[] = ["overview", "tasks", "members", "files", "settings"];
+// 查询参数让刷新和复制地址后仍能回到同一个项目区域。
+const activeTab = computed<ProjectTab>({
+  get() {
+    const requestedTab = String(route.query.tab || "overview") as ProjectTab;
+    if (!projectTabs.includes(requestedTab)) {
+      return "overview";
+    }
+    if (requestedTab === "settings" && project.value?.role !== "owner") {
+      return "overview";
+    }
+    return requestedTab;
+  },
+  set(tab) {
+    void router.replace({
+      query: { ...route.query, tab: tab === "overview" ? undefined : tab }
+    });
+  }
+});
 const loadProject = async () => {
   if (!Number.isSafeInteger(projectId) || projectId < 1) {
     errorMessage.value = "项目 ID 不正确";
     return;
   }
-
   loading.value = true;
   errorMessage.value = "";
 
@@ -63,21 +72,14 @@ const loadProject = async () => {
     loading.value = false;
   }
 };
-
 const goBackToProjects = () => {
-  void router.push({ name: "dashboard" });
-};
-
-const handleLogout = async () => {
-  authStore.logout();
-  await router.replace("/login");
+  void router.push({ name: "projects" });
 };
 
 const handleUpdateProject = async (payload: CreateProjectRequest) => {
   if (!project.value) {
     return;
   }
-
   editLoading.value = true;
   try {
     const result = await updateProject(project.value.id, payload);
@@ -94,7 +96,6 @@ const handleUpdateProject = async (payload: CreateProjectRequest) => {
 const handleTasksChanged = () => {
   memberListRefreshKey.value += 1;
 };
-
 const handleFinishProject = async () => {
   if (!project.value || statusChanging.value) {
     return;
@@ -153,26 +154,7 @@ onMounted(loadProject);
 </script>
 
 <template>
-  <main class="project-detail-page projects-page">
-    <header class="projects-header">
-      <div class="projects-header__brand">
-        <BrandLogo :width="102" />
-        <span class="project-detail-header__title">项目详情</span>
-      </div>
-
-      <div class="projects-user">
-        <el-avatar :size="34" class="projects-user__avatar">
-          {{ authStore.user?.nickname?.slice(0, 1) || "U" }}
-        </el-avatar>
-        <div class="projects-user__info">
-          <strong>{{ authStore.user?.nickname }}</strong>
-          <span>{{ authStore.user?.username }}</span>
-        </div>
-        <el-button text class="projects-user__logout" @click="handleLogout">退出</el-button>
-      </div>
-    </header>
-
-    <section class="project-detail-content projects-content">
+  <main class="project-detail-page project-detail-content projects-content">
       <el-button text class="project-detail-back" @click="goBackToProjects">
         ← 返回我的项目
       </el-button>
@@ -192,7 +174,19 @@ onMounted(loadProject);
         </template>
       </el-alert>
 
-      <section v-else-if="project" class="project-detail-card" aria-label="项目详情">
+      <el-tabs v-else-if="project" v-model="activeTab" class="project-detail-tabs">
+        <el-tab-pane label="项目概览" name="overview" />
+        <el-tab-pane label="项目任务" name="tasks" />
+        <el-tab-pane label="项目成员" name="members" />
+        <el-tab-pane label="项目文件" name="files" />
+        <el-tab-pane v-if="project.role === 'owner'" label="项目设置" name="settings" />
+      </el-tabs>
+
+      <section
+        v-if="project && activeTab === 'overview'"
+        class="project-detail-card"
+        aria-label="项目详情"
+      >
         <div class="project-detail-card__heading">
           <div>
             <p class="projects-heading__eyebrow">PROJECT DETAIL</p>
@@ -207,33 +201,6 @@ onMounted(loadProject);
               {{ project.role === "owner" ? "负责人" : "成员" }}
             </el-tag>
           </div>
-        </div>
-
-        <div v-if="project.role === 'owner'" class="project-detail-card__actions">
-          <el-button @click="inviteDialogVisible = true">项目邀请码</el-button>
-          <el-button
-            v-if="project.status === 'active'"
-            :loading="statusChanging"
-            @click="handleFinishProject"
-          >
-            完成项目
-          </el-button>
-          <el-button
-            v-if="project.status === 'finished'"
-            type="warning"
-            :loading="statusChanging"
-            @click="handleArchiveProject"
-          >
-            归档项目
-          </el-button>
-          <el-button
-            v-if="project.status === 'active'"
-            type="primary"
-            :loading="editLoading"
-            @click="editDialogVisible = true"
-          >
-            编辑项目
-          </el-button>
         </div>
 
         <div class="project-detail-card__grid">
@@ -257,7 +224,7 @@ onMounted(loadProject);
       </section>
 
       <FileListPanel
-        v-if="project"
+        v-if="project && activeTab === 'files'"
         :project-id="project.id"
         :project-role="project.role"
         :project-status="project.status"
@@ -265,7 +232,7 @@ onMounted(loadProject);
       />
 
       <ProjectTaskList
-        v-if="project"
+        v-if="project && activeTab === 'tasks'"
         :project-id="project.id"
         :project-role="project.role"
         :project-status="project.status"
@@ -274,12 +241,42 @@ onMounted(loadProject);
 
       <!-- 成员组件自己负责请求和错误重试，详情页只提供当前项目 ID。 -->
       <ProjectMemberList
-        v-if="project"
+        v-if="project && activeTab === 'members'"
         :project-id="project.id"
         :project-role="project.role"
         :project-status="project.status"
         :refresh-key="memberListRefreshKey"
       />
+
+      <section
+        v-if="project && activeTab === 'settings' && project.role === 'owner'"
+        class="project-detail-card project-settings"
+      >
+        <div>
+          <h2>项目设置</h2>
+          <p>管理邀请码、项目信息和项目状态。状态变更后会按业务规则限制写操作。</p>
+        </div>
+        <div class="project-detail-card__actions">
+          <el-button @click="inviteDialogVisible = true">项目邀请码</el-button>
+          <el-button
+            v-if="project.status === 'active'"
+            type="primary"
+            :loading="editLoading"
+            @click="editDialogVisible = true"
+          >编辑项目</el-button>
+          <el-button
+            v-if="project.status === 'active'"
+            :loading="statusChanging"
+            @click="handleFinishProject"
+          >完成项目</el-button>
+          <el-button
+            v-if="project.status === 'finished'"
+            type="warning"
+            :loading="statusChanging"
+            @click="handleArchiveProject"
+          >归档项目</el-button>
+        </div>
+      </section>
 
       <CreateProjectDialog
         v-if="project"
@@ -300,107 +297,5 @@ onMounted(loadProject);
         :project-id="project.id"
         :project-name="project.name"
       />
-    </section>
   </main>
 </template>
-
-<style scoped>
-.project-detail-header__title {
-  color: #697386;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.project-detail-back {
-  margin-bottom: 22px;
-  padding-left: 0;
-  color: #5c7fb5;
-}
-
-.project-detail-loading,
-.project-detail-error {
-  min-height: 260px;
-}
-
-.project-detail-error {
-  min-height: auto;
-}
-
-.project-detail-card {
-  padding: clamp(26px, 4vw, 46px);
-  background: #ffffff;
-  border: 1px solid #e6eaf0;
-  border-radius: 12px;
-  box-shadow: 0 10px 28px rgba(38, 53, 79, 0.04);
-}
-
-.project-detail-card__heading {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 28px;
-  padding-bottom: 30px;
-  border-bottom: 1px solid #edf0f4;
-}
-
-.project-detail-card h1 {
-  margin: 0;
-  color: #1d2939;
-  font-size: clamp(28px, 3vw, 36px);
-}
-
-.project-detail-card__heading p:last-child {
-  max-width: 680px;
-  margin: 12px 0 0;
-  color: #7b8494;
-  line-height: 1.7;
-}
-
-.project-detail-card__tags {
-  display: flex;
-  flex: 0 0 auto;
-  gap: 8px;
-}
-
-.project-detail-card__actions {
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 22px;
-}
-
-.project-detail-card__grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 18px;
-  padding-top: 30px;
-}
-
-.project-detail-card__grid div {
-  display: grid;
-  gap: 8px;
-}
-
-.project-detail-card__grid span {
-  color: #98a2b3;
-  font-size: 12px;
-}
-
-.project-detail-card__grid strong {
-  color: #344054;
-  font-size: 14px;
-}
-
-@media (max-width: 720px) {
-  .project-detail-card__heading {
-    display: block;
-  }
-
-  .project-detail-card__tags {
-    margin-top: 20px;
-  }
-
-  .project-detail-card__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-</style>

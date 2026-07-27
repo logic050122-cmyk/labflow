@@ -1,0 +1,318 @@
+/* 工作台的数据卡片、项目摘要和任务摘要只在工作台页面使用。 */
+.dashboard-heading {
+  margin-bottom: 24px;
+}
+
+.dashboard-heading h1 span {
+  display: inline-block;
+  font-size: 0.72em;
+  transform: translateY(-2px);
+}
+
+.dashboard-stats {
+  display: grid;
+  margin-bottom: 20px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.dashboard-stat-card {
+  display: flex;
+  min-height: 118px;
+  padding: 20px;
+  align-items: center;
+  gap: 15px;
+  background: #ffffff;
+  border: 1px solid #e6eaf1;
+  border-radius: 14px;
+  box-shadow: 0 8px 22px rgba(38, 53, 79, 0.04);
+}
+
+.dashboard-stat-card__icon {
+  display: inline-flex;
+  width: 54px;
+  height: 54px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid currentColor;
+  border-radius: 18px;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.dashboard-stat-card--blue .dashboard-stat-card__icon {
+  color: #2a73e8;
+  background: #eff5ff;
+}
+
+.dashboard-stat-card--orange .dashboard-stat-card__icon {
+  color: #f39435;
+  background: #fff6eb;
+}
+
+.dashboard-stat-card--purple .dashboard-stat-card__icon {
+  color: #7b68e8;
+  background: #f4f1ff;
+}
+
+.dashboard-stat-card--green .dashboard-stat-card__icon {
+  color: #14a987;
+  background: #edf9f6;
+}
+
+.dashboard-stat-card p {
+  margin: 0 0 3px;
+  color: #667085;
+  font-size: 12px;
+}
+
+.dashboard-stat-card strong {
+  display: block;
+  color: #1e293b;
+  font-size: 25px;
+  line-height: 1.2;
+}
+
+.dashboard-stat-card div > span {
+  display: block;
+  margin-top: 5px;
+  color: #98a2b3;
+  font-size: 10px;
+}
+
+.dashboard-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(300px, 0.72fr);
+  gap: 18px;
+}
+
+.dashboard-loading {
+  min-height: 220px;
+}
+
+.dashboard-workspace .el-empty {
+  min-height: 240px;
+  padding: 28px 20px;
+}
+
+.dashboard-project-grid {
+  display: grid;
+  padding: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.dashboard-project-card {
+  min-width: 0;
+  padding: 16px;
+  color: #27364c;
+  background: linear-gradient(145deg, #ffffff, #fbfcff);
+  border: 1px solid #e5eaf1;
+  border-radius: 11px;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.dashboard-project-card:hover {
+  border-color: #b9d0f2;
+  box-shadow: 0 8px 20px rgba(42, 115, 232, 0.08);
+  transform: translateY(-2px);
+}
+
+.dashboard-project-card__top {
+  display: flex;
+  margin-bottom: 14px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dashboard-project-card__top > span:last-child {
+  color: #8a94a6;
+  font-size: 11px;
+}
+
+.dashboard-project-card > strong {
+  display: block;
+  overflow: hidden;
+  margin-bottom: 7px;
+  color: #27364c;
+  font-size: 15px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-project-card > p {
+  display: -webkit-box;
+  min-height: 36px;
+  overflow: hidden;
+  margin: 0;
+  color: #7b8494;
+  font-size: 11px;
+  line-height: 1.65;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.dashboard-project-card__meta {
+  display: flex;
+  margin-top: 16px;
+  padding-top: 12px;
+  align-items: center;
+  gap: 7px;
+  color: #8a94a6;
+  border-top: 1px solid #edf0f4;
+  font-size: 10px;
+}
+
+.dashboard-side {
+  display: grid;
+  min-width: 0;
+  align-content: start;
+  gap: 14px;
+}
+
+.dashboard-task-item {
+  display: flex;
+  width: 100%;
+  min-height: 64px;
+  padding: 13px 15px;
+  align-items: center;
+  gap: 10px;
+  color: #27364c;
+  background: #ffffff;
+  border: 0;
+  border-bottom: 1px solid #edf0f4;
+  cursor: pointer;
+  text-align: left;
+}
+
+.dashboard-task-item:hover {
+  background: #f8faff;
+}
+
+.dashboard-task-item__dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  background: #98a2b3;
+  border-radius: 50%;
+}
+
+.dashboard-task-item__dot.is-doing {
+  background: #2a73e8;
+}
+
+.dashboard-task-item__dot.is-submitted {
+  background: #7b68e8;
+}
+
+.dashboard-task-item__dot.is-done {
+  background: #14a987;
+}
+
+.dashboard-task-item__dot.is-overdue {
+  background: #f45b69;
+}
+
+.dashboard-task-item__content {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  gap: 5px;
+}
+
+.dashboard-task-item__content strong,
+.dashboard-task-item__content small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-task-item__content strong {
+  font-size: 12px;
+}
+
+.dashboard-task-item__content small {
+  color: #8a94a6;
+  font-size: 10px;
+}
+
+.dashboard-task-item__status {
+  flex: 0 0 auto;
+  color: #5c7fb5;
+  font-size: 12px;
+}
+
+.dashboard-notice {
+  display: flex;
+  width: 100%;
+  padding: 18px 20px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  color: #27364c;
+  background: #ffffff;
+  border: 1px solid #e6eaf0;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.dashboard-notice:hover {
+  border-color: #b9d0f2;
+  box-shadow: 0 8px 20px rgba(42, 115, 232, 0.06);
+}
+
+.dashboard-notice p {
+  margin: 6px 0 0;
+  color: #8a94a6;
+  font-size: 12px;
+}
+
+.dashboard-notice__count {
+  flex: 0 0 auto;
+  color: #1765d1;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+@media (max-width: 1180px) {
+  .dashboard-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-workspace {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .dashboard-stats,
+  .dashboard-project-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-stat-card {
+    min-height: 104px;
+    padding: 16px;
+  }
+
+  .dashboard-workspace .el-empty {
+    min-height: 190px;
+    padding: 24px 16px;
+  }
+
+  .dashboard-workspace .el-empty__image {
+    width: 88px;
+  }
+
+  .dashboard-notice {
+    padding: 16px;
+  }
+}

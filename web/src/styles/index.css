@@ -1,5 +1,8 @@
 @import "./base.css";
 @import "./auth.css";
 @import "./register.css";
+@import "./app-layout.css";
 @import "./projects.css";
+@import "./dashboard.css";
+@import "./project-detail.css";
 @import "./notifications.css";

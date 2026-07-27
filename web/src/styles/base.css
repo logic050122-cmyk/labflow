@@ -11,6 +11,14 @@
   --auth-muted: #667085;
   --auth-border: #98a2b3;
   --auth-surface: #ffffff;
+  /* 品牌色同时覆盖 Element Plus 主色，让按钮、标签和分页保持同一套实验蓝。 */
+  --el-color-primary: #1765d1;
+  --el-color-primary-dark-2: #1251aa;
+  --el-color-primary-light-3: #5d91dc;
+  --el-color-primary-light-5: #8eb2e8;
+  --el-color-primary-light-7: #bed3f2;
+  --el-color-primary-light-8: #d5e2f7;
+  --el-color-primary-light-9: #eef4fc;
 }
 
 * {
@@ -27,6 +35,8 @@ body,
 
 body {
   min-height: 100vh;
+  color: #1f2937;
+  background: #f7f8fc;
 }
 
 button,

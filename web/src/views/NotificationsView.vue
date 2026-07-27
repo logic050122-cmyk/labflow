@@ -3,13 +3,11 @@ import { computed, onMounted, ref } from "vue";
 import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
 
-import BrandLogo from "@/components/auth/BrandLogo.vue";
 import {
   getNotifications,
   markAllNotificationsRead,
   markNotificationRead
 } from "@/api/notifications";
-import { useAuthStore } from "@/stores/auth";
 import { useNotificationStore } from "@/stores/notifications";
 import type {
   Notification,
@@ -17,7 +15,6 @@ import type {
 } from "@/types/notifications";
 
 const router = useRouter();
-const authStore = useAuthStore();
 const notificationStore = useNotificationStore();
 
 const notifications = ref<Notification[]>([]);
@@ -153,42 +150,13 @@ const openRelatedProject = async (notification: Notification) => {
   }
 };
 
-const handleLogout = async () => {
-  notificationStore.reset();
-  authStore.logout();
-  await router.replace("/login");
-};
-
 onMounted(async () => {
   await Promise.all([loadNotifications(), refreshUnreadCount()]);
 });
 </script>
 
 <template>
-  <main class="notifications-page projects-page">
-    <header class="projects-header">
-      <div class="projects-header__brand">
-        <BrandLogo :width="102" />
-        <span class="notifications-header__title">通知中心</span>
-      </div>
-
-      <div class="projects-user">
-        <el-avatar :size="34" class="projects-user__avatar">
-          {{ authStore.user?.nickname?.slice(0, 1) || "U" }}
-        </el-avatar>
-        <div class="projects-user__info">
-          <strong>{{ authStore.user?.nickname }}</strong>
-          <span>{{ authStore.user?.username }}</span>
-        </div>
-        <el-button text class="projects-user__logout" @click="handleLogout">退出</el-button>
-      </div>
-    </header>
-
-    <section class="notifications-content projects-content">
-      <el-button text class="notifications-back" @click="router.push('/dashboard')">
-        ← 返回工作台
-      </el-button>
-
+  <main class="notifications-page notifications-content projects-content">
       <section class="notifications-panel">
         <div class="notifications-heading">
           <div>
@@ -282,7 +250,5 @@ onMounted(async () => {
           @current-change="handlePageChange"
         />
       </section>
-    </section>
   </main>
 </template>
-

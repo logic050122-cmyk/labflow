@@ -95,7 +95,9 @@
 
 上述规则适用于 `GET /api/tasks/:taskId`、`PUT /api/tasks/:taskId`、任务状态接口、任务评论接口、`DELETE /api/comments/:commentId`、`GET /api/files/:fileId/download` 和 `DELETE /api/files/:fileId`。
 
-## 4. 接口清单
+## 4. 已实现接口
+
+本节只记录已经在 Express 应用中真实挂载、当前可以调用的接口，共 35 个。接口实现、本文档和 `openapi.yaml` 的方法与路径必须通过 `npm.cmd run verify:api-contract` 保持一致。
 
 ### 4.1 认证 auth
 
@@ -165,18 +167,7 @@
 
 `GET /api/auth/me` 不返回密码或密码哈希。token 对应用户不存在时返回 `40401`。
 
-### 4.2 用户 users
-
-| 方法 | 路径 | 权限 | 用途 |
-| --- | --- | --- | --- |
-| GET | `/api/users/me` | User | 获取个人资料 |
-| PUT | `/api/users/me` | User | 修改昵称、头像、邮箱、手机号、方向 |
-| PUT | `/api/users/me/password` | User | 修改密码 |
-| GET | `/api/users/me/task-stats` | User | 获取个人任务统计 |
-
-第一版不提供用户管理、第三方登录或手机验证码接口。
-
-### 4.3 项目 projects
+### 4.2 项目 projects
 
 | 方法 | 路径 | 权限 | 用途 |
 | --- | --- | --- | --- |
@@ -190,6 +181,8 @@
 | POST | `/api/projects/:projectId/archive` | ProjectOwner | 归档项目，`finished -> archived` |
 
 创建/编辑字段：`name`、`description`、`startDate`、`endDate`。创建项目请求中，`name`、`startDate`、`endDate` 必填，`description` 选填；项目日期统一使用 `YYYY-MM-DD`（ISO 8601 date-only）格式，截止日期不能早于开始日期。创建时项目状态默认为 `active`，不能通过编辑接口直接修改状态；`ownerId`、`userId` 和 `status` 不由客户端提交。
+
+创建成功返回 `data.project`，字段为 `id`、`name`、`description`、`ownerUserId`、`status`、`startDate`、`endDate`、`inviteCode`、`createdAt`、`updatedAt`。创建者是唯一可以直接取得初始 `inviteCode` 的用户；项目列表、项目详情、编辑和状态变更响应不返回邀请码，并额外返回当前用户的 `role`。
 
 加入项目请求只接收 `inviteCode`：必须是 1 至 32 位英文字母或数字；服务端去除首尾空格并统一转换为大写。客户端提交的 `projectId`、`userId` 或 `role` 不参与业务判断，加入后的角色由服务端固定为 `member`。
 
@@ -251,14 +244,14 @@
 
 完成和归档接口都返回最新的 `data.project`。只有 Owner 可以执行；非 Owner 返回 `40301`，项目不存在或当前用户不是成员返回 `40401`；完成非 `active` 项目返回 `40911`，归档非 `finished` 项目返回 `40912`。归档成功时写入 `archived_at`，并在同一事务中向项目全部成员发送归档通知。
 
-### 4.4 项目成员 members
+### 4.3 项目成员 members
 
 | 方法 | 路径 | 权限 | 用途 |
 | --- | --- | --- | --- |
 | GET | `/api/projects/:projectId/members` | ProjectMember | 获取成员列表及任务完成概况 |
 | DELETE | `/api/projects/:projectId/members/:userId` | ProjectOwner | 移除项目成员 |
 
-#### 4.4.1 获取项目成员列表
+#### 4.3.1 获取项目成员列表
 
 `GET /api/projects/:projectId/members` 不分页，也不提供搜索和自定义排序。Owner 和 Member 都可以查看所在项目成员；`active`、`finished`、`archived` 项目均允许查看，以便保留历史成员信息。
 
@@ -298,7 +291,7 @@
 
 失败规则：`projectId` 不是正整数时返回 `40001`；项目不存在或当前用户不是项目成员时统一返回 `40401`，不向非成员暴露项目是否存在。认证失败继续使用公共约定中的 `40102`、`40103`。
 
-#### 4.4.2 移除项目成员
+#### 4.3.2 移除项目成员
 
 `DELETE /api/projects/:projectId/members/:userId` 只允许项目 Owner 调用。`projectId` 表示目标项目，`userId` 表示被移除用户；当前操作者必须从 JWT 获取，不能由客户端提交。
 
@@ -340,7 +333,7 @@
 
 认证失败继续使用公共约定中的 `40102`、`40103`。
 
-### 4.5 任务 tasks
+### 4.4 任务 tasks
 
 | 方法 | 路径 | 权限 | 用途 |
 | --- | --- | --- | --- |
@@ -354,7 +347,7 @@
 | POST | `/api/tasks/:taskId/approve` | ProjectOwner | `submitted -> done`（模块 7） |
 | POST | `/api/tasks/:taskId/reject` | ProjectOwner | `submitted -> doing`（模块 7） |
 
-#### 4.5.1 创建和编辑任务
+#### 4.4.1 创建和编辑任务
 
 `POST /api/projects/:projectId/tasks` 和 `PUT /api/tasks/:taskId` 的请求体都完整提交以下字段：
 
@@ -381,7 +374,7 @@
 
 成功后返回 `data.task`。字段包括：`id`、`projectId`、`projectName`、`projectStatus`、`title`、`description`、负责人和创建人的 ID/用户名/昵称、`priority`、`status`、`tag`、`dueAt`、`submitContent`、`rejectionReason`、`submittedAt`、`reviewerUserId`、`reviewerUsername`、`reviewerNickname`、`reviewedAt`、`completedAt`、`createdAt`、`updatedAt`。未设置的可选字段返回 `null`。
 
-#### 4.5.2 任务列表和详情
+#### 4.4.2 任务列表和详情
 
 `GET /api/projects/:projectId/tasks` 对 Owner 和 Member 开放：两者都可以查看当前项目全部任务，只有 Owner 会在页面获得创建、编辑和改派入口。该列表支持以下查询参数：
 
@@ -411,7 +404,7 @@
 
 `GET /api/tasks/:taskId` 先反查任务所属项目，再校验当前用户是否是该项目成员；项目不存在、任务不存在或当前用户不是成员时统一返回 `40401`。
 
-#### 4.5.3 模块五错误规则
+#### 4.4.3 模块五错误规则
 
 | 场景 | HTTP 状态码 | 业务错误码 | 错误信息 |
 | --- | ---: | ---: | --- |
@@ -424,7 +417,7 @@
 
 认证失败继续使用公共约定中的 `40102`、`40103`。
 
-#### 4.5.4 模块六：开始任务
+#### 4.4.4 模块六：开始任务
 
 `POST /api/tasks/:taskId/start` 不接收请求体。当前登录用户必须仍是任务所属项目成员，并且其用户 ID 必须等于 `tasks.assignee_user_id`。
 
@@ -442,7 +435,7 @@
 
 模块六已经完成“开始任务”和 node-cron 定时逾期处理：每天检查 active 项目中已到期的 `todo/doing` 任务，并在同一事务中更新为 `overdue`、写入模块 10 站内通知。
 
-#### 4.5.5 模块七：提交与审核
+#### 4.4.5 模块七：提交与审核
 
 提交任务请求字段为可选的 `submitContent`，去除首尾空格后最多 10000 个字符。提交成功时服务端同时写入 `status=submitted` 和 `submitted_at`，并清空上一轮驳回和审核结果。
 
@@ -484,7 +477,7 @@
 
 模块七前后端闭环已经完成：成员可提交任务，Owner 可通过或填写原因驳回，任务详情展示提交、审核和审核人信息。仓库保留模块七、模块八真实 HTTP + MySQL 验收脚本，并在 GitHub Actions 中持续验证。
 
-### 4.6 评论 comments
+### 4.5 评论 comments
 
 | 方法 | 路径 | 权限 | 用途 |
 | --- | --- | --- | --- |
@@ -498,9 +491,11 @@
 
 `DELETE /api/comments/:commentId` 会通过评论反查任务和项目；只有评论作者本人或 `projects.owner_user_id` 对应的项目 Owner 可以删除。归档项目允许查看和按权限删除历史评论，但不允许新增评论。第一版不实现评论回复树、编辑、点赞或聊天室。
 
+列表成功返回 `data.comments`；新增成功返回 `data.comment`；删除成功返回 `{ "deletedCommentId": number }`。评论列表不分页，空列表固定返回 `[]`。
+
 失败规则：路径 ID 或评论内容格式错误返回 `40001`；任务不存在或当前用户不是所属项目成员返回 `40401`；评论不存在返回 `40401`；当前用户既不是评论作者也不是项目 Owner 返回 `40301`；归档项目新增评论返回 `40904`。
 
-### 4.7 文件 files
+### 4.6 文件 files
 
 | 方法 | 路径 | 权限 | 用途 |
 | --- | --- | --- | --- |
@@ -545,6 +540,8 @@
 
 任务附件列表字段相同，但 `taskId` 为目标任务 ID、`category` 为 `task`。`canDelete` 由后端根据当前用户是否为上传人或项目 Owner、项目是否归档计算，前端不能自行决定删除权限。
 
+项目文件和任务附件列表不分页，空列表固定返回 `data.files: []`。
+
 上传成功返回 `data.file`，字段与列表项一致。删除成功响应：
 
 ```json
@@ -559,7 +556,7 @@
 
 下载接口成功时直接返回二进制文件，并通过 `Content-Disposition: attachment` 使用原始文件名下载，不使用统一 JSON 成功结构。非法 ID、未选择文件、字段名错误、空文件、文件过大或类型不支持返回 `40001`；非 Owner 上传项目文件或无删除权限返回 `40301`；资源不存在或当前用户不是所属项目成员返回 `40401`；元数据存在但磁盘文件缺失返回 `40402`；归档项目上传或删除返回 `40904`。
 
-### 4.8 通知 notifications
+### 4.7 通知 notifications
 
 | 方法 | 路径 | 权限 | 用途 |
 | --- | --- | --- | --- |
@@ -570,7 +567,7 @@
 
 前端通过普通 HTTP 查询或按需轮询，不使用 WebSocket。
 
-列表查询支持 `page`、`pageSize` 和可选 `isRead`；`pageSize` 最大为 100，`isRead` 接受 `true/false` 或 `1/0`。列表返回 `id`、`receiverUserId`、`projectId`、`taskId`、`type`、`title`、`content`、`isRead`、`readAt`、`createdAt`、`updatedAt`，排序规则为创建时间和 ID 倒序。
+列表查询支持 `page`、`pageSize` 和可选 `isRead`；`page` 默认 `1`，`pageSize` 默认 `10`、最大为 `100`，`isRead` 接受 `true/false` 或 `1/0`。通知类型 `type` 只允许 `project`、`task`、`review`、`overdue`、`system`。列表返回 `id`、`receiverUserId`、`projectId`、`taskId`、`type`、`title`、`content`、`isRead`、`readAt`、`createdAt`、`updatedAt`，排序规则为创建时间和 ID 倒序。
 
 未读数量响应：
 
@@ -588,46 +585,51 @@
 
 通知在触发业务的 service 事务中写入：加入项目和任务分配通知给成员，提交任务通知 Owner，审核结果通知 Assignee，逾期通知 Assignee 和 Owner（同一人时去重），项目归档通知全部项目成员。通知写入失败时，对应业务事务整体回滚。
 
-### 4.9 统计 stats
+## 5. 未实现接口草案
 
-| 方法 | 路径 | 权限 | 用途 |
+本节接口没有挂载到 Express，当前不可调用，也不进入 `openapi.yaml`。草案字段允许在正式开发前重新讨论。
+
+### 5.1 个人中心待讨论草案
+
+| 方法 | 路径 | 当前状态 | 用途 |
 | --- | --- | --- | --- |
-| GET | `/api/projects/:projectId/stats/overview` | ProjectMember | 项目进度和任务状态分布 |
-| GET | `/api/projects/:projectId/stats/members` | ProjectOwner | 成员任务完成率 |
-| GET | `/api/users/me/task-stats` | User | 个人任务统计，与用户模块共用入口 |
+| GET | `/api/users/me` | 未实现 | 获取个人资料 |
+| PUT | `/api/users/me` | 未实现 | 修改昵称、头像、邮箱、手机号、方向 |
+| PUT | `/api/users/me/password` | 未实现 | 修改密码 |
+| GET | `/api/users/me/task-stats` | 未实现 | 个人任务统计，是否保留待讨论 |
 
-项目进度公式：`done 任务数 / 全部任务数 * 100%`；无任务时进度返回 `0`。
+### 5.2 第二版任务
 
-### 4.10 操作日志 logs
+- 统计：项目概览、成员完成率和个人任务统计接口。
+- 操作日志：项目关键操作日志分页查询。
+- 第二版开发前必须重新固定请求、响应、权限和错误码，不能把本节说明当成已发布接口契约。
 
-| 方法 | 路径 | 权限 | 用途 |
-| --- | --- | --- | --- |
-| GET | `/api/projects/:projectId/logs` | ProjectMember | 获取项目关键操作日志，支持分页 |
+## 6. 状态与副作用
 
-第一版不提供全平台日志查询，也不提供日志新增、修改或删除接口。
+下表描述第一版最终业务闭环。任务创建、开始、定时逾期、提交审核和站内通知已经形成闭环；操作日志延后到第二版。
 
-## 5. 状态与副作用
+| 动作 | 状态变化 | 通知 |
+| --- | --- | --- |
+| 创建任务 | 初始为 `todo` | 通知 Assignee |
+| 开始任务 | `todo/overdue -> doing` | 无 |
+| 提交任务 | `doing -> submitted` | 通知 Owner |
+| 审核通过 | `submitted -> done` | 通知 Assignee |
+| 审核驳回 | `submitted -> doing` | 通知 Assignee |
+| 定时逾期 | `todo/doing -> overdue` | 通知 Assignee 和 Owner |
+| 完成项目 | `active -> finished` | 无 |
+| 归档项目 | `finished -> archived` | 通知全部项目成员 |
 
-下表描述第一版最终业务闭环。任务创建、开始、定时逾期和提交审核已经形成闭环；站内通知已在模块 10 接入，操作日志留到模块 12。
-
-| 动作 | 状态变化 | 通知 | 操作日志 |
-| --- | --- | --- | --- |
-| 创建任务 | 初始为 `todo` | 通知 Assignee | 模块 12 接入 |
-| 开始任务 | `todo/overdue -> doing` | 无 | 模块 12 接入 |
-| 提交任务 | `doing -> submitted` | 通知 Owner | 模块 12 接入 |
-| 审核通过 | `submitted -> done` | 通知 Assignee | 模块 12 接入 |
-| 审核驳回 | `submitted -> doing` | 通知 Assignee | 模块 12 接入 |
-| 定时逾期 | `todo/doing -> overdue` | 通知 Assignee 和 Owner | 模块 12 接入 |
-| 完成项目 | `active -> finished` | 无 | 模块 12 接入 |
-| 归档项目 | `finished -> archived` | 通知全部项目成员 | 模块 12 接入 |
-
-状态变化、通知和日志必须由 service 协调；controller 不直接修改数据库。
+状态变化和通知必须由 service 协调；controller 不直接修改数据库。
 
 逾期检查使用 node-cron，每天 `00:05` 按 `Asia/Shanghai` 时区执行，只处理 `active` 项目中截止时间早于检查时间且状态为 `todo` 或 `doing` 的任务。任务状态和通知在同一事务中更新，任务负责人和项目 Owner 为同一用户时只生成一条通知。
 
-## 6. 第一版不提供
+真实业务流程内部读取最新数据失败时统一使用 `50001`；未识别的服务端异常由全局错误处理返回 `50000`。这两类错误不向客户端暴露数据库、磁盘路径或堆栈信息。
+
+## 7. 第一版不提供
 
 - WebSocket 或消息队列相关接口
 - 管理员、组织、部门和角色配置接口
 - 第三方登录和手机验证码接口
 - 文件版本、聊天、邮件通知接口
+- 统计和操作日志接口
+- 个人中心接口
