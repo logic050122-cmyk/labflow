@@ -1,116 +1,12 @@
-/* 登录后的主页面暂时复用 /dashboard 路由，但视觉语义是“我的项目”。 */
-.projects-page {
-  min-height: 100vh;
-  color: #1f2937;
-  background: #f7f8fc;
-}
-
-.projects-header {
-  display: flex;
-  min-height: 72px;
-  padding: 0 clamp(20px, 5vw, 76px);
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  background: #ffffff;
-  border-bottom: 1px solid #e8ebf2;
-}
-
-.projects-header__brand,
-.projects-user,
-.projects-nav,
 .projects-actions {
   display: flex;
   align-items: center;
 }
 
-.projects-header__brand {
-  min-width: 0;
-  gap: clamp(26px, 4vw, 56px);
-}
-
-.projects-nav {
-  align-self: stretch;
-  gap: 26px;
-}
-
-.projects-nav__item {
-  position: relative;
-  display: inline-flex;
-  height: 72px;
-  align-items: center;
-  color: #697386;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.projects-nav__item--active {
-  color: #1765d1;
-  font-weight: 700;
-}
-
-.projects-nav__item--active::after {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  height: 3px;
-  content: "";
-  background: #1765d1;
-  border-radius: 3px 3px 0 0;
-}
-
-.projects-user {
-  flex: 0 0 auto;
-  gap: 9px;
-}
-
-.projects-user__avatar {
-  color: #ffffff;
-  background: #316fd4;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.projects-user__info {
-  display: grid;
-  min-width: 0;
-  gap: 2px;
-  line-height: 1.2;
-}
-
-.projects-user__info strong {
-  overflow: hidden;
-  color: #263248;
-  font-size: 13px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.projects-user__info span {
-  overflow: hidden;
-  color: #8a94a6;
-  font-size: 11px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.projects-user__logout.el-button {
-  margin-left: 5px;
-  padding: 4px;
-  color: #667085;
-}
-
-.projects-user__logout.el-button:hover,
-.projects-user__logout.el-button:focus {
-  color: #1765d1;
-  background: transparent;
-}
-
 .projects-content {
-  width: min(1180px, calc(100% - 40px));
+  width: min(1320px, calc(100% - 48px));
   margin: 0 auto;
-  padding: clamp(42px, 6vw, 76px) 0 76px;
+  padding: clamp(30px, 4vw, 54px) 0 64px;
 }
 
 .projects-heading {
@@ -132,7 +28,7 @@
 .projects-heading h1 {
   margin: 0;
   color: #1d2939;
-  font-size: clamp(30px, 3.2vw, 38px);
+  font-size: clamp(28px, 2.8vw, 36px);
   line-height: 1.15;
   letter-spacing: -0.04em;
 }
@@ -200,6 +96,10 @@
   font-size: 12px;
 }
 
+.projects-panel__mobile-hint {
+  display: none;
+}
+
 .projects-panel__count {
   flex: 0 0 auto;
   padding: 5px 9px;
@@ -231,6 +131,39 @@
   font-size: 12px;
 }
 
+.projects-status-chip {
+  display: inline-flex;
+  min-width: 58px;
+  height: 26px;
+  padding: 0 10px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 24px;
+  white-space: nowrap;
+}
+
+.projects-status-chip--active {
+  color: #28734a;
+  background: #edf8f2;
+  border-color: #cce9d8;
+}
+
+.projects-status-chip--owner {
+  color: #1765d1;
+  background: #eef4fc;
+  border-color: #cbdcf5;
+}
+
+.projects-status-chip--muted {
+  color: #667085;
+  background: #f3f5f8;
+  border-color: #e1e5eb;
+}
+
 .projects-empty {
   min-height: 315px;
   padding: 46px 20px 35px;
@@ -252,23 +185,16 @@
   font-size: 12px;
 }
 
+.projects-pagination {
+  display: flex;
+  padding: 22px 24px;
+  justify-content: flex-end;
+  border-top: 1px solid #edf0f4;
+}
+
 @media (max-width: 720px) {
-  .projects-header {
-    min-height: 64px;
-    padding: 0 20px;
-  }
-
-  .projects-nav {
-    display: none;
-  }
-
-  .projects-user__info,
-  .projects-user__logout {
-    display: none;
-  }
-
   .projects-content {
-    width: min(100% - 32px, 560px);
+    width: min(calc(100% - 32px), 560px);
     padding-top: 42px;
   }
 
@@ -287,6 +213,18 @@
 
   .projects-panel__header {
     padding: 18px;
+  }
+
+  .projects-panel__mobile-hint {
+    display: block;
+    margin-top: 8px;
+    color: #5c7fb5;
+    font-size: 11px;
+  }
+
+  .projects-pagination {
+    padding: 18px 12px;
+    justify-content: center;
   }
 
   .projects-empty {

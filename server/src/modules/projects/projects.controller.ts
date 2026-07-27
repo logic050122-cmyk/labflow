@@ -3,7 +3,9 @@ import type { RequestHandler } from "express";
 import { AppError, sendSuccess } from "../../common/http";
 
 import {
+  archiveProject,
   createProject,
+  finishProject,
   getProject,
   listProjects,
   refreshProjectInviteCode,
@@ -93,6 +95,34 @@ export const refreshInviteCode: RequestHandler = async (request, response, next)
     const projectId = validateProjectIdParam(request.params.projectId);
     const result = await refreshProjectInviteCode(projectId, request.userId);
     sendSuccess(response, result, "邀请码刷新成功");
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const finish: RequestHandler = async (request, response, next) => {
+  try {
+    if (!request.userId) {
+      throw new AppError("请先登录", 401, 40102);
+    }
+
+    const projectId = validateProjectIdParam(request.params.projectId);
+    const result = await finishProject(projectId, request.userId);
+    sendSuccess(response, result, "项目已完成");
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const archive: RequestHandler = async (request, response, next) => {
+  try {
+    if (!request.userId) {
+      throw new AppError("请先登录", 401, 40102);
+    }
+
+    const projectId = validateProjectIdParam(request.params.projectId);
+    const result = await archiveProject(projectId, request.userId);
+    sendSuccess(response, result, "项目已归档");
   } catch (error) {
     next(error);
   }

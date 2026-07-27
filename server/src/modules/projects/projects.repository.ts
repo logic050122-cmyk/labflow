@@ -7,7 +7,9 @@ import type {
   ListProjectsRepositoryInput,
   Project,
   ProjectListItem,
-  ProjectRole
+  ProjectRole,
+  ProjectStatus,
+  ProjectStatusWriteTarget
 } from "./projects.types";
 
 interface ProjectRow extends RowDataPacket {
@@ -38,6 +40,17 @@ interface ProjectListRow extends RowDataPacket {
 
 interface ProjectCountRow extends RowDataPacket {
   total: number;
+}
+
+interface ProjectStatusWriteTargetRow extends RowDataPacket {
+  id: number;
+  name: string;
+  owner_user_id: number;
+  status: ProjectStatus;
+}
+
+interface ProjectMemberUserRow extends RowDataPacket {
+  user_id: number;
 }
 
 // MySQL 字段是 snake_case，接口返回字段统一转换为前端使用的 camelCase。
@@ -245,4 +258,69 @@ export const updateProjectInviteCode = async (input: {
   );
 
   return result.affectedRows === 1;
+};
+
+export const findProjectForStatusUpdate = async (
+  connection: PoolConnection,
+  input: { projectId: number; currentUserId: number }
+): Promise<ProjectStatusWriteTarget | null> => {
+  const [rows] = await connection.query<ProjectStatusWriteTargetRow[]>(
+    `SELECT projects.id, projects.name, projects.owner_user_id, projects.status
+     FROM projects
+     INNER JOIN project_members AS current_membership
+       ON current_membership.project_id = projects.id
+      AND current_membership.user_id = ?
+     WHERE projects.id = ?
+     LIMIT 1
+     FOR UPDATE`,
+    [input.currentUserId, input.projectId]
+  );
+
+  const project = rows[0];
+  if (!project) {
+    return null;
+  }
+
+  return {
+    id: Number(project.id),
+    name: project.name,
+    ownerUserId: Number(project.owner_user_id),
+    status: project.status
+  };
+};
+
+export const updateProjectStatus = async (
+  connection: PoolConnection,
+  input: {
+    projectId: number;
+    previousStatus: ProjectStatus;
+    nextStatus: ProjectStatus;
+  }
+): Promise<void> => {
+  const [result] = await connection.execute<ResultSetHeader>(
+    `UPDATE projects
+     SET status = ?,
+         archived_at = CASE WHEN ? = 'archived' THEN NOW() ELSE archived_at END
+     WHERE id = ? AND status = ?`,
+    [input.nextStatus, input.nextStatus, input.projectId, input.previousStatus]
+  );
+
+  if (result.affectedRows !== 1) {
+    throw new Error("项目状态更新失败");
+  }
+};
+
+export const findProjectMemberUserIds = async (
+  connection: PoolConnection,
+  projectId: number
+): Promise<number[]> => {
+  const [rows] = await connection.query<ProjectMemberUserRow[]>(
+    `SELECT user_id
+     FROM project_members
+     WHERE project_id = ?
+     ORDER BY id`,
+    [projectId]
+  );
+
+  return rows.map((row) => Number(row.user_id));
 };

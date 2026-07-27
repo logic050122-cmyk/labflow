@@ -2,6 +2,13 @@ import type { PoolConnection } from "mysql2/promise";
 
 import { AppError } from "../../common/http";
 import { db } from "../../config/db";
+import {
+  notifyTaskApproved,
+  notifyTaskAssigned,
+  notifyTaskOverdue,
+  notifyTaskRejected,
+  notifyTaskSubmitted
+} from "../notifications/notifications.service";
 import { findProjectByIdForUser } from "../projects/projects.repository";
 
 import {
@@ -9,6 +16,7 @@ import {
   findTaskDetailForUser,
   findTaskForReviewForUpdate,
   findTaskForStartForUpdate,
+  findDueTasksForUpdate,
   findTaskForTaskWriteForUpdate,
   findTasksByProject,
   findTasksForAssignee,
@@ -17,6 +25,7 @@ import {
   updateTask,
   updateTaskStatusToDoing,
   updateTaskStatusToDoingAfterRejection,
+  updateTaskStatusToOverdue,
   updateTaskStatusToDone,
   updateTaskStatusToSubmitted
 } from "./tasks.repository";
@@ -168,6 +177,14 @@ export const createTask = async (
       status: "todo"
     });
 
+    // 任务和分配通知在同一事务中写入，任一步失败都会整体回滚。
+    await notifyTaskAssigned(connection, {
+      assigneeUserId: task.assigneeUserId,
+      projectId: task.projectId,
+      taskId: task.id,
+      taskTitle: task.title
+    });
+
     await connection.commit();
     return { task };
   } catch (error) {
@@ -217,6 +234,16 @@ export const updateTaskByOwner = async (
       // updateTask 不会写 status，此处只为复用完整 repository 输入类型。
       status: taskTarget.taskStatus
     });
+
+    // 只有负责人确实变化时才发送新分配通知，普通标题或日期编辑不打扰成员。
+    if (taskTarget.assigneeUserId !== task.assigneeUserId) {
+      await notifyTaskAssigned(connection, {
+        assigneeUserId: task.assigneeUserId,
+        projectId: task.projectId,
+        taskId: task.id,
+        taskTitle: task.title
+      });
+    }
 
     await connection.commit();
     return { task };
@@ -332,6 +359,14 @@ export const submitTask = async (
       submitContent: input.submitContent
     });
 
+    await notifyTaskSubmitted(connection, {
+      ownerUserId: target.ownerUserId,
+      projectId: task.projectId,
+      taskId: task.id,
+      taskTitle: task.title,
+      assigneeName: task.assigneeNickname || task.assigneeUsername
+    });
+
     await connection.commit();
     return { task };
   } catch (error) {
@@ -372,6 +407,13 @@ export const approveTask = async (
     const task = await updateTaskStatusToDone(connection, {
       taskId: target.taskId,
       reviewerUserId: currentUserId
+    });
+
+    await notifyTaskApproved(connection, {
+      assigneeUserId: task.assigneeUserId,
+      projectId: task.projectId,
+      taskId: task.id,
+      taskTitle: task.title
     });
 
     await connection.commit();
@@ -418,8 +460,55 @@ export const rejectTask = async (
       reason: input.reason
     });
 
+    await notifyTaskRejected(connection, {
+      assigneeUserId: task.assigneeUserId,
+      projectId: task.projectId,
+      taskId: task.id,
+      taskTitle: task.title,
+      reason: input.reason
+    });
+
     await connection.commit();
     return { task };
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+};
+
+// 定时任务默认全量执行；可选 projectId 让运维检查或验收限定到一个明确项目。
+export const markOverdueTasks = async (
+  now = new Date(),
+  projectId?: number
+): Promise<number> => {
+  const connection = await db.getConnection();
+
+  try {
+    await connection.beginTransaction();
+    const targets = await findDueTasksForUpdate(connection, now, projectId);
+
+    for (const target of targets) {
+      await updateTaskStatusToOverdue(connection, target);
+
+      // 负责人和项目 Owner 都要收到通知；两者相同时只写一条，避免重复提醒。
+      const receiverUserIds = new Set([
+        target.assigneeUserId,
+        target.ownerUserId
+      ]);
+      for (const receiverUserId of receiverUserIds) {
+        await notifyTaskOverdue(connection, {
+          receiverUserId,
+          projectId: target.projectId,
+          taskId: target.taskId,
+          taskTitle: target.title
+        });
+      }
+    }
+
+    await connection.commit();
+    return targets.length;
   } catch (error) {
     await connection.rollback();
     throw error;

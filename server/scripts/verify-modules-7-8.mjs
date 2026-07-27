@@ -38,6 +38,8 @@ const cleanup = async () => {
   try {
     await database.beginTransaction();
     if (projectId) {
+      // 模块十接入后，任务提交和审核会产生通知，先清理通知才能删除任务和项目。
+      await database.execute("DELETE FROM notifications WHERE project_id = ?", [projectId]);
       await database.execute(
         `DELETE task_comments
          FROM task_comments

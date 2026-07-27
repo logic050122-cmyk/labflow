@@ -5,7 +5,6 @@ import { useAuthStore } from "@/stores/auth";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    { path: "/", redirect: "/dashboard" },
     {
       path: "/login",
       name: "login",
@@ -19,22 +18,42 @@ const router = createRouter({
       meta: { title: "注册" }
     },
     {
-      path: "/dashboard",
-      name: "dashboard",
-      component: () => import("@/views/DashboardView.vue"),
-      meta: { title: "工作台", requiresAuth: true }
-    },
-    {
-      path: "/projects/:projectId",
-      name: "project-detail",
-      component: () => import("@/views/ProjectDetailView.vue"),
-      meta: { title: "项目详情", requiresAuth: true }
-    },
-    {
-      path: "/tasks",
-      name: "my-tasks",
-      component: () => import("@/views/MyTasksView.vue"),
-      meta: { title: "我的任务", requiresAuth: true }
+      path: "/",
+      component: () => import("@/components/layout/AppLayout.vue"),
+      redirect: "/dashboard",
+      meta: { requiresAuth: true },
+      children: [
+        {
+          path: "dashboard",
+          name: "dashboard",
+          component: () => import("@/views/DashboardView.vue"),
+          meta: { title: "工作台" }
+        },
+        {
+          path: "projects",
+          name: "projects",
+          component: () => import("@/views/ProjectsView.vue"),
+          meta: { title: "我的项目" }
+        },
+        {
+          path: "projects/:projectId",
+          name: "project-detail",
+          component: () => import("@/views/ProjectDetailView.vue"),
+          meta: { title: "项目详情" }
+        },
+        {
+          path: "tasks",
+          name: "my-tasks",
+          component: () => import("@/views/MyTasksView.vue"),
+          meta: { title: "我的任务" }
+        },
+        {
+          path: "notifications",
+          name: "notifications",
+          component: () => import("@/views/NotificationsView.vue"),
+          meta: { title: "通知中心" }
+        }
+      ]
     },
     // 未知地址统一回到工作台，未登录时会再由守卫跳转到登录页。
     { path: "/:pathMatch(.*)*", redirect: "/dashboard" }

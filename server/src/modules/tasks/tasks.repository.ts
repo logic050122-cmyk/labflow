@@ -9,6 +9,7 @@ import { db } from "../../config/db";
 import type {
   CreateTaskRepositoryInput,
   ListTasksInput,
+  OverdueTaskTarget,
   Task,
   TaskProjectWriteTarget,
   TaskReviewTarget,
@@ -65,6 +66,15 @@ interface TaskWriteTargetRow extends RowDataPacket {
 
 interface ProjectMemberRow extends RowDataPacket {
   id: number;
+}
+
+interface OverdueTaskTargetRow extends RowDataPacket {
+  id: number;
+  project_id: number;
+  owner_user_id: number;
+  assignee_user_id: number;
+  title: string;
+  status: "todo" | "doing";
 }
 
 interface TaskStartTargetRow extends RowDataPacket {
@@ -297,6 +307,7 @@ export const findTaskForTaskWriteForUpdate = async (
   const [rows] = await connection.execute<TaskWriteTargetRow[]>(
     `SELECT tasks.id,
             tasks.project_id,
+            tasks.assignee_user_id,
             tasks.status AS task_status,
             projects.owner_user_id,
             projects.status AS project_status
@@ -319,6 +330,7 @@ export const findTaskForTaskWriteForUpdate = async (
   return {
     taskId: Number(task.id),
     projectId: Number(task.project_id),
+    assigneeUserId: Number(task.assignee_user_id),
     ownerUserId: Number(task.owner_user_id),
     status: task.project_status,
     taskStatus: task.task_status
@@ -644,4 +656,60 @@ export const findTaskDetailForUser = async (input: {
 
   const task = rows[0];
   return task ? toTask(task) : null;
+};
+
+export const findDueTasksForUpdate = async (
+  connection: PoolConnection,
+  dueBefore: Date,
+  projectId?: number
+): Promise<OverdueTaskTarget[]> => {
+  // 已完成或已归档项目不再产生新的任务状态变化，只处理 active 项目。
+  const projectCondition = projectId === undefined ? "" : " AND projects.id = ?";
+  const parameters: Array<Date | number> = [dueBefore];
+  if (projectId !== undefined) {
+    parameters.push(projectId);
+  }
+
+  const [rows] = await connection.query<OverdueTaskTargetRow[]>(
+    `SELECT tasks.id,
+            tasks.project_id,
+            projects.owner_user_id,
+            tasks.assignee_user_id,
+            tasks.title,
+            tasks.status
+     FROM tasks
+     INNER JOIN projects ON projects.id = tasks.project_id
+     WHERE projects.status = 'active'
+       AND tasks.status IN ('todo', 'doing')
+       AND tasks.due_at IS NOT NULL
+       AND tasks.due_at < ?${projectCondition}
+     ORDER BY tasks.id
+     FOR UPDATE`,
+    parameters
+  );
+
+  return rows.map((row) => ({
+    taskId: Number(row.id),
+    projectId: Number(row.project_id),
+    ownerUserId: Number(row.owner_user_id),
+    assigneeUserId: Number(row.assignee_user_id),
+    title: row.title,
+    taskStatus: row.status
+  }));
+};
+
+export const updateTaskStatusToOverdue = async (
+  connection: PoolConnection,
+  target: OverdueTaskTarget
+): Promise<void> => {
+  const [result] = await connection.execute<ResultSetHeader>(
+    `UPDATE tasks
+     SET status = 'overdue'
+     WHERE id = ? AND status = ?`,
+    [target.taskId, target.taskStatus]
+  );
+
+  if (result.affectedRows !== 1) {
+    throw new Error("标记逾期任务时状态更新失败");
+  }
 };

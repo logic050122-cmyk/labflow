@@ -10,7 +10,7 @@
 
 ### 2.1 固定技术栈
 
-- 前端：Vue 3、TypeScript、Vite、Vue Router、Pinia、Axios、Element Plus、ECharts
+- 前端：Vue 3、TypeScript、Vite、Vue Router、Pinia、Axios、Element Plus
 - 后端：Node.js、Express、TypeScript、JWT、Multer、node-cron
 - 数据库：MySQL
 
@@ -32,6 +32,7 @@
 - 第三方登录
 - 手机验证码
 - 管理员后台或管理员角色
+- 统计、操作日志、个人中心和任务看板
 
 ## 3. 总体架构
 
@@ -71,17 +72,17 @@ flowchart LR
 | 模块 | 核心职责 | 主要依赖 |
 | --- | --- | --- |
 | auth | 注册、登录、JWT 签发、当前用户 | users |
-| users | 个人资料、密码修改、个人任务统计入口 | auth |
+| users | 当前用户基础信息；个人中心待后续讨论 | auth |
 | projects | 项目创建、编辑、归档、邀请码 | users |
 | members | 加入项目、成员列表、移除成员、角色判断 | projects、users |
 | tasks | 创建分配、状态流转、提交、审核、筛选 | projects、members |
 | comments | 任务评论的新增、查询和删除 | tasks、members |
 | files | Owner 上传项目文件；项目成员上传任务附件；文件查询、下载和删除 | projects、tasks、members |
 | notifications | 站内通知、未读数量、已读状态 | users、projects、tasks |
-| stats | 项目进度、成员完成率、个人任务统计 | projects、tasks、members |
-| logs | 关键业务操作追踪 | users、projects、tasks |
+| stats（第二版） | 项目进度、成员完成率、个人任务统计 | projects、tasks、members |
+| logs（第二版） | 关键业务操作追踪 | users、projects、tasks |
 
-依赖原则：业务模块可以调用其他模块公开的 service，不直接访问其他模块的 repository；通知和日志由触发业务动作的 service 在同一业务流程中写入。
+依赖原则：业务模块可以调用其他模块公开的 service，不直接访问其他模块的 repository；第一版通知由触发业务动作的 service 在同一业务流程中写入，日志留到第二版。
 
 ## 6. 后端分层
 
@@ -101,7 +102,7 @@ src/modules/tasks/
 
 - routes：声明路径、中间件和 controller。
 - controller：读取请求参数，调用 service，返回统一响应。
-- service：权限判断、业务规则、事务边界、状态流转、通知和日志协调。
+- service：权限判断、业务规则、事务边界、状态流转和通知协调。
 - repository：仅执行本模块数据库查询，不做权限和业务判断。
 - validator：校验请求参数和格式。
 - types：维护模块内 TypeScript 类型。
@@ -144,7 +145,6 @@ flowchart LR
   Review -->|"通过"| Done["完成并更新进度"]
   Review -->|"驳回"| Work
   Done --> Notice["发送站内通知"]
-  Notice --> Log["记录操作日志"]
 ```
 
 ### 8.2 任务状态
@@ -178,7 +178,7 @@ stateDiagram-v2
 - 错误：参数、认证、权限、资源不存在、状态冲突使用不同错误码。
 - 事务：创建项目及 Owner 关系、加入项目、任务审核等多表操作必须使用事务。
 - 时间：数据库保存统一时区的时间，接口使用 ISO 8601 字符串。
-- 日志：只记录创建项目、加入项目、成员管理、任务流转、文件上传和项目归档等关键动作。
+- 第二版日志：计划记录创建项目、加入项目、成员管理、任务流转、文件上传和项目归档等关键动作。
 
 ## 10. 文档关系
 

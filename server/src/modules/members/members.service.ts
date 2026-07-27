@@ -1,5 +1,6 @@
 import { AppError } from "../../common/http";
 import { db } from "../../config/db";
+import { notifyProjectJoined } from "../notifications/notifications.service";
 
 import {
   deleteProjectMember,
@@ -74,6 +75,13 @@ export const joinProject = async (
     if (!project) {
       throw new AppError("加入项目后无法读取项目数据", 500, 50001);
     }
+
+    // 成员关系和加入成功通知使用同一个事务，避免加入成功却没有通知。
+    await notifyProjectJoined(connection, {
+      userId: currentUserId,
+      projectId: project.id,
+      projectName: project.name
+    });
 
     await connection.commit();
     return { project };

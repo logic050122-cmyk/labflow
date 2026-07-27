@@ -2,354 +2,633 @@ openapi: 3.0.3
 info:
   title: LabFlow API
   version: 1.0.0
-  description: |
-    LabFlow 当前已实现的认证接口定义。
-    本文件只描述已经在 Express 应用中真实挂载的接口，供 Apifox 导入和调试使用。
+  description: LabFlow 第一版已真实挂载的 35 个接口。未实现的个人中心、统计和操作日志不在本文件中。
 servers:
   - url: http://127.0.0.1:3000
     description: 本地开发服务器
+security:
+  - bearerAuth: []
 tags:
   - name: Auth
-    description: 用户注册、登录和当前用户信息
+  - name: Projects
+  - name: Members
+  - name: Tasks
+  - name: Comments
+  - name: Files
+  - name: Notifications
 paths:
   /api/auth/register:
     post:
-      tags:
-        - Auth
+      tags: [Auth]
       summary: 用户注册
-      operationId: registerUser
       security: []
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/RegisterRequest'
-            example:
-              username: alice
-              password: Test123456!
-              nickname: 小林
-              email: alice@example.com
+            schema: {$ref: '#/components/schemas/RegisterRequest'}
       responses:
-        '200':
-          description: 注册成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RegisterResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/ServerError'
-
+        '200': {$ref: '#/components/responses/Success'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '409': {$ref: '#/components/responses/Conflict'}
   /api/auth/login:
     post:
-      tags:
-        - Auth
+      tags: [Auth]
       summary: 用户登录并获取 JWT
-      operationId: loginUser
       security: []
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/LoginRequest'
-            example:
-              username: alice
-              password: Test123456!
+            schema: {$ref: '#/components/schemas/LoginRequest'}
       responses:
-        '200':
-          description: 登录成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LoginResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/UnauthorizedLogin'
-        '500':
-          $ref: '#/components/responses/ServerError'
-
+        '200': {$ref: '#/components/responses/Success'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
   /api/auth/me:
     get:
-      tags:
-        - Auth
-      summary: 获取当前用户
-      operationId: getCurrentUser
-      security:
-        - bearerAuth: []
+      tags: [Auth]
+      summary: 获取当前登录用户
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/projects:
+    get:
+      tags: [Projects]
+      summary: 获取当前用户的项目
+      parameters:
+        - {$ref: '#/components/parameters/Page'}
+        - {$ref: '#/components/parameters/ProjectPageSize'}
+        - {$ref: '#/components/parameters/ProjectStatusQuery'}
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+    post:
+      tags: [Projects]
+      summary: 创建项目并建立 Owner 关系
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ProjectWriteRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/projects/join:
+    post:
+      tags: [Members]
+      summary: 使用邀请码加入项目
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/JoinProjectRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/projects/{projectId}:
+    parameters:
+      - {$ref: '#/components/parameters/ProjectId'}
+    get:
+      tags: [Projects]
+      summary: 获取项目详情
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      tags: [Projects]
+      summary: Owner 编辑项目
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ProjectWriteRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/projects/{projectId}/invite-code:
+    parameters:
+      - {$ref: '#/components/parameters/ProjectId'}
+    post:
+      tags: [Projects]
+      summary: Owner 生成或刷新邀请码
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/projects/{projectId}/finish:
+    parameters:
+      - {$ref: '#/components/parameters/ProjectId'}
+    post:
+      tags: [Projects]
+      summary: Owner 完成项目
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/projects/{projectId}/archive:
+    parameters:
+      - {$ref: '#/components/parameters/ProjectId'}
+    post:
+      tags: [Projects]
+      summary: Owner 归档已完成项目
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/projects/{projectId}/members:
+    parameters:
+      - {$ref: '#/components/parameters/ProjectId'}
+    get:
+      tags: [Members]
+      summary: 获取项目成员和任务概况
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/projects/{projectId}/members/{userId}:
+    parameters:
+      - {$ref: '#/components/parameters/ProjectId'}
+      - {$ref: '#/components/parameters/UserId'}
+    delete:
+      tags: [Members]
+      summary: Owner 移除项目成员
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/tasks:
+    get:
+      tags: [Tasks]
+      summary: 获取当前用户负责的任务
+      parameters:
+        - {$ref: '#/components/parameters/Page'}
+        - {$ref: '#/components/parameters/TaskPageSize'}
+        - {$ref: '#/components/parameters/TaskStatusQuery'}
+        - {$ref: '#/components/parameters/TaskPriorityQuery'}
+        - {$ref: '#/components/parameters/TaskTagQuery'}
+        - {$ref: '#/components/parameters/KeywordQuery'}
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+  /api/projects/{projectId}/tasks:
+    parameters:
+      - {$ref: '#/components/parameters/ProjectId'}
+    get:
+      tags: [Tasks]
+      summary: 获取项目任务
+      parameters:
+        - {$ref: '#/components/parameters/Page'}
+        - {$ref: '#/components/parameters/TaskPageSize'}
+        - {$ref: '#/components/parameters/TaskStatusQuery'}
+        - {$ref: '#/components/parameters/AssigneeUserIdQuery'}
+        - {$ref: '#/components/parameters/TaskPriorityQuery'}
+        - {$ref: '#/components/parameters/TaskTagQuery'}
+        - {$ref: '#/components/parameters/KeywordQuery'}
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    post:
+      tags: [Tasks]
+      summary: Owner 创建并分配任务
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/TaskWriteRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/tasks/{taskId}:
+    parameters:
+      - {$ref: '#/components/parameters/TaskId'}
+    get:
+      tags: [Tasks]
+      summary: 获取任务详情
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      tags: [Tasks]
+      summary: Owner 编辑或重新分配 todo 任务
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/TaskWriteRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/tasks/{taskId}/start:
+    parameters:
+      - {$ref: '#/components/parameters/TaskId'}
+    post:
+      tags: [Tasks]
+      summary: Assignee 开始任务
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/tasks/{taskId}/submit:
+    parameters:
+      - {$ref: '#/components/parameters/TaskId'}
+    post:
+      tags: [Tasks]
+      summary: Assignee 提交任务
+      requestBody:
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/SubmitTaskRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/tasks/{taskId}/approve:
+    parameters:
+      - {$ref: '#/components/parameters/TaskId'}
+    post:
+      tags: [Tasks]
+      summary: Owner 审核通过任务
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/tasks/{taskId}/reject:
+    parameters:
+      - {$ref: '#/components/parameters/TaskId'}
+    post:
+      tags: [Tasks]
+      summary: Owner 驳回任务
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/RejectTaskRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/tasks/{taskId}/comments:
+    parameters:
+      - {$ref: '#/components/parameters/TaskId'}
+    get:
+      tags: [Comments]
+      summary: 获取任务评论
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    post:
+      tags: [Comments]
+      summary: 发布任务评论
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CommentRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/comments/{commentId}:
+    parameters:
+      - {$ref: '#/components/parameters/CommentId'}
+    delete:
+      tags: [Comments]
+      summary: 作者或 Owner 删除评论
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/projects/{projectId}/files:
+    parameters:
+      - {$ref: '#/components/parameters/ProjectId'}
+    get:
+      tags: [Files]
+      summary: 获取项目文件
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    post:
+      tags: [Files]
+      summary: Owner 上传项目文件
+      requestBody: {$ref: '#/components/requestBodies/FileUpload'}
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/tasks/{taskId}/files:
+    parameters:
+      - {$ref: '#/components/parameters/TaskId'}
+    get:
+      tags: [Files]
+      summary: 获取任务附件
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    post:
+      tags: [Files]
+      summary: 项目成员上传任务附件
+      requestBody: {$ref: '#/components/requestBodies/FileUpload'}
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/files/{fileId}/download:
+    parameters:
+      - {$ref: '#/components/parameters/FileId'}
+    get:
+      tags: [Files]
+      summary: 下载文件
       responses:
         '200':
-          description: 获取当前用户成功
+          description: 文件二进制内容，文件名由 Content-Disposition 返回
+          headers:
+            Content-Disposition:
+              schema: {type: string}
           content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CurrentUserResponse'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/ServerError'
-
+            application/octet-stream:
+              schema: {type: string, format: binary}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/files/{fileId}:
+    parameters:
+      - {$ref: '#/components/parameters/FileId'}
+    delete:
+      tags: [Files]
+      summary: 上传人或 Owner 删除文件
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/notifications:
+    get:
+      tags: [Notifications]
+      summary: 获取当前用户通知
+      parameters:
+        - {$ref: '#/components/parameters/Page'}
+        - {$ref: '#/components/parameters/TaskPageSize'}
+        - {$ref: '#/components/parameters/IsReadQuery'}
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+  /api/notifications/unread-count:
+    get:
+      tags: [Notifications]
+      summary: 获取未读通知数量
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+  /api/notifications/read-all:
+    patch:
+      tags: [Notifications]
+      summary: 将当前用户全部通知标记已读
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+  /api/notifications/{notificationId}/read:
+    parameters:
+      - {$ref: '#/components/parameters/NotificationId'}
+    patch:
+      tags: [Notifications]
+      summary: 标记自己的单条通知已读
+      responses:
+        '200': {$ref: '#/components/responses/Success'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: 登录接口返回的 JWT。请求头格式为 Authorization: Bearer <token>。
-
+  parameters:
+    Page:
+      name: page
+      in: query
+      schema: {type: integer, minimum: 1, default: 1}
+    ProjectPageSize:
+      name: pageSize
+      in: query
+      schema: {type: integer, minimum: 1, maximum: 100, default: 20}
+    TaskPageSize:
+      name: pageSize
+      in: query
+      schema: {type: integer, minimum: 1, maximum: 100, default: 10}
+    ProjectStatusQuery:
+      name: status
+      in: query
+      schema: {$ref: '#/components/schemas/ProjectStatus'}
+    TaskStatusQuery:
+      name: status
+      in: query
+      schema: {$ref: '#/components/schemas/TaskStatus'}
+    TaskPriorityQuery:
+      name: priority
+      in: query
+      schema: {$ref: '#/components/schemas/TaskPriority'}
+    TaskTagQuery:
+      name: tag
+      in: query
+      schema: {$ref: '#/components/schemas/TaskTag'}
+    KeywordQuery:
+      name: keyword
+      in: query
+      schema: {type: string, maxLength: 100}
+    AssigneeUserIdQuery:
+      name: assigneeUserId
+      in: query
+      schema: {type: integer, minimum: 1}
+    IsReadQuery:
+      name: isRead
+      in: query
+      schema: {type: boolean}
+    ProjectId:
+      name: projectId
+      in: path
+      required: true
+      schema: {type: integer, minimum: 1}
+    TaskId:
+      name: taskId
+      in: path
+      required: true
+      schema: {type: integer, minimum: 1}
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema: {type: integer, minimum: 1}
+    CommentId:
+      name: commentId
+      in: path
+      required: true
+      schema: {type: integer, minimum: 1}
+    FileId:
+      name: fileId
+      in: path
+      required: true
+      schema: {type: integer, minimum: 1}
+    NotificationId:
+      name: notificationId
+      in: path
+      required: true
+      schema: {type: integer, minimum: 1}
+  requestBodies:
+    FileUpload:
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            required: [file]
+            properties:
+              file:
+                type: string
+                format: binary
+                description: 单文件，最大 10 MB，允许 API.md 中列出的 MIME 类型
   schemas:
+    ProjectStatus:
+      type: string
+      enum: [active, finished, archived]
+    TaskStatus:
+      type: string
+      enum: [todo, doing, submitted, done, overdue]
+    TaskPriority:
+      type: string
+      enum: [low, medium, high, urgent]
+    TaskTag:
+      type: string
+      enum: [功能, Bug, 优化, 文档, 测试, UI]
+    NotificationType:
+      type: string
+      enum: [project, task, review, overdue, system]
     RegisterRequest:
       type: object
-      required:
-        - username
-        - password
-        - nickname
+      required: [username, password, nickname]
       properties:
-        username:
-          type: string
-          maxLength: 50
-          description: 登录用户名
-          example: alice
-        password:
-          type: string
-          format: password
-          description: 登录密码
-          example: Test123456!
-        nickname:
-          type: string
-          maxLength: 50
-          description: 用户昵称
-          example: 小林
-        email:
-          type: string
-          format: email
-          maxLength: 100
-          description: 可选邮箱
-          example: alice@example.com
-        phone:
-          type: string
-          maxLength: 20
-          description: 可选手机号
-          example: '13800138000'
-        direction:
-          type: string
-          maxLength: 50
-          description: 可选所属方向
-          example: 软件工程
-
+        username: {type: string, maxLength: 50}
+        password: {type: string, format: password}
+        nickname: {type: string, maxLength: 50}
+        email: {type: string, maxLength: 100, nullable: true}
+        phone: {type: string, maxLength: 20, nullable: true}
+        direction: {type: string, maxLength: 50, nullable: true}
     LoginRequest:
       type: object
-      required:
-        - username
-        - password
+      required: [username, password]
       properties:
-        username:
-          type: string
-          maxLength: 50
-          description: 登录用户名
-          example: alice
-        password:
-          type: string
-          format: password
-          description: 登录密码
-          example: Test123456!
-
-    User:
+        username: {type: string, maxLength: 50}
+        password: {type: string, format: password}
+    ProjectWriteRequest:
       type: object
-      required:
-        - id
-        - username
-        - nickname
-        - email
-        - createdAt
-        - updatedAt
+      required: [name, startDate, endDate]
       properties:
-        id:
-          type: integer
-          format: int64
-          example: 1
-        username:
-          type: string
-          example: alice
-        nickname:
-          type: string
-          example: 小林
-        email:
-          type: string
-          format: email
-          nullable: true
-          example: alice@example.com
-        createdAt:
-          type: string
-          format: date-time
-          example: '2026-07-09T10:00:00.000Z'
-        updatedAt:
-          type: string
-          format: date-time
-          example: '2026-07-09T10:00:00.000Z'
-
-    RegisterResponseData:
+        name: {type: string, maxLength: 100}
+        description: {type: string, maxLength: 2000, nullable: true}
+        startDate: {type: string, format: date}
+        endDate: {type: string, format: date}
+    JoinProjectRequest:
       type: object
-      required:
-        - user
+      required: [inviteCode]
       properties:
-        user:
-          $ref: '#/components/schemas/User'
-
-    LoginResponseData:
+        inviteCode: {type: string, minLength: 1, maxLength: 32, pattern: '^[A-Za-z0-9]+$'}
+    TaskWriteRequest:
       type: object
-      required:
-        - token
+      required: [title, assigneeUserId, priority]
       properties:
-        token:
-          type: string
-          description: JWT 访问令牌
-          example: eyJhbGciOiJIUzI1NiIs...
-
-    CurrentUserResponseData:
+        title: {type: string, minLength: 1, maxLength: 150}
+        description: {type: string, maxLength: 2000, nullable: true}
+        assigneeUserId: {type: integer, minimum: 1}
+        priority: {$ref: '#/components/schemas/TaskPriority'}
+        tag: {$ref: '#/components/schemas/TaskTag'}
+        dueAt: {type: string, format: date-time, nullable: true}
+    SubmitTaskRequest:
       type: object
-      required:
-        - user
       properties:
-        user:
-          $ref: '#/components/schemas/User'
-
-    RegisterResponse:
+        submitContent: {type: string, maxLength: 10000}
+    RejectTaskRequest:
       type: object
-      required:
-        - code
-        - message
-        - data
+      required: [reason]
       properties:
-        code:
-          type: integer
-          example: 0
-        message:
-          type: string
-          example: 注册成功
-        data:
-          $ref: '#/components/schemas/RegisterResponseData'
-
-    LoginResponse:
+        reason: {type: string, minLength: 1, maxLength: 500}
+    CommentRequest:
       type: object
-      required:
-        - code
-        - message
-        - data
+      required: [content]
       properties:
-        code:
-          type: integer
-          example: 0
-        message:
-          type: string
-          example: 登录成功
-        data:
-          $ref: '#/components/schemas/LoginResponseData'
-
-    CurrentUserResponse:
+        content: {type: string, minLength: 1, maxLength: 2000}
+    SuccessResponse:
       type: object
-      required:
-        - code
-        - message
-        - data
+      required: [code, message, data]
       properties:
-        code:
-          type: integer
-          example: 0
-        message:
-          type: string
-          example: 获取当前用户成功
-        data:
-          $ref: '#/components/schemas/CurrentUserResponseData'
-
-    ErrorResponse:
-      type: object
-      required:
-        - code
-        - message
-        - data
-      properties:
-        code:
-          type: integer
-          example: 40101
-        message:
-          type: string
-          example: 用户名或密码错误
+        code: {type: integer, enum: [0]}
+        message: {type: string}
         data:
           type: object
-          nullable: true
-          example: null
-
+          additionalProperties: true
+    ErrorResponse:
+      type: object
+      required: [code, message, data]
+      properties:
+        code: {type: integer}
+        message: {type: string}
+        data: {nullable: true}
   responses:
+    Success:
+      description: 操作成功，具体 data 字段见 API.md
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/SuccessResponse'}
     BadRequest:
-      description: 请求参数错误
+      description: 参数错误，业务码 40001
       content:
         application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            code: 40001
-            message: 请求参数不正确
-            data: null
-
+          schema: {$ref: '#/components/schemas/ErrorResponse'}
     Unauthorized:
-      description: 未登录、Token 格式错误或 Token 无效
+      description: 认证失败，业务码 40101、40102 或 40103
       content:
         application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            code: 40102
-            message: 请先登录
-            data: null
-
-    UnauthorizedLogin:
-      description: 用户名不存在或密码错误
+          schema: {$ref: '#/components/schemas/ErrorResponse'}
+    Forbidden:
+      description: 权限不足，业务码 40301 或 40302
       content:
         application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            code: 40101
-            message: 用户名或密码错误
-            data: null
-
+          schema: {$ref: '#/components/schemas/ErrorResponse'}
     NotFound:
-      description: 当前用户不存在
+      description: 资源不存在或不可见，业务码 40401、40402 或 40403
       content:
         application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            code: 40401
-            message: 当前用户不存在
-            data: null
-
+          schema: {$ref: '#/components/schemas/ErrorResponse'}
     Conflict:
-      description: 用户名已存在
+      description: 数据或状态冲突，业务码 409xx
       content:
         application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            code: 40901
-            message: 用户名已存在
-            data: null
-
-    ServerError:
-      description: 服务器内部错误
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            code: 50000
-            message: 服务器内部错误
-            data: null
+          schema: {$ref: '#/components/schemas/ErrorResponse'}
