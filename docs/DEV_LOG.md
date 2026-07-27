@@ -4,6 +4,27 @@
 
 ## 2026-07-27
 
+### 仿 vue-pure-admin 重做登录注册页（仅前端）
+
+- 参考 vue-pure-admin 在线演示登录注册页的视觉风格，重写 LabFlow `/login`、`/register` 两页布局与样式，不改后端、接口、认证逻辑、路由守卫。
+- `AuthPageLayout.vue`：改为 pure-admin 式全屏布局——全屏渐变背景 + 背景柔光、左侧内联 SVG 协作插画（看板/人物/勾选节点）、右侧表单区、底部版权信息；移除原左侧文字介绍与功能列表、顶部品牌栏。
+- `AuthCard.vue`：仅改模板与 scoped 样式——去掉卡片边框/阴影/玻璃质感，表单直接置于背景上，固定 360px 宽；顶部新增 BrandLogo + 大写 `LabFlow` 标题（Consolas 字体、灰色，对应 pure-admin 的 avatar + h2）；保留原有标签切换、动态高度和过渡动画逻辑。
+- `auth-layout.css`：重写为 pure-admin 风格——全屏渐变背景、左右两栏 grid（18rem 间距）、968px 以下隐藏插画与柔光并单栏居中，与 pure-admin 断点一致。
+- `auth.css`：输入框改 Element Plus large 尺寸（48px 高、8px 圆角），隐藏 label 改用 placeholder，聚焦主色边框 + 光晕；主按钮改 Element Plus primary 全宽风格；错误色改为 `#f56c6c`，分隔线/链接色调对齐 Element Plus。
+- `LoginView.vue` / `RegisterView.vue`：仅改模板——输入框加 `#prefix` 内联 SVG 图标（用户/锁/昵称/邮箱/手机/方向/确认密码），加 `size="large"`；移除原 `auth-field--username/password` 伪元素图标类；注册页移除冗余的 `创建账号` header（标题已由 AuthCard 统一提供）。
+- `register.css`：移除已删除的 `.auth-form__header` 样式。
+- 保留 LabFlow 现有路由标签切换交互、注册字段与校验逻辑；未引入新依赖；未实现 pure-admin 的验证码、第三方登录、手机登录、二维码等范围外功能。
+- 前端 TypeScript 类型检查和生产构建通过；浏览器目测登录、注册两页表单、prefix 图标、按钮、标签切换均正常，宽屏显示左右分栏 + 插画，968px 以下单栏居中。
+
+### 登录注册页面视觉美化（仅前端样式）
+
+- 仅优化 `/login`、`/register` 两个页面的视觉外观，不改动任何交互逻辑、组件结构、后端代码、接口、数据库或认证逻辑。
+- `auth-layout.css`：背景由纯色改为柔和蓝白渐变，原装饰圆改为模糊径向渐变模拟极光柔光；顶部栏改为半透明 + `backdrop-filter` 毛玻璃；左侧介绍区标题加大、`LabFlow` 文字与下划线改为渐变色，三个能力图标背景改为浅色渐变。
+- `auth.css`：输入框圆角加大到 8px、高度 42px，聚焦光晕改为 4px 柔和蓝光；主按钮改为蓝色渐变背景 + 投影，悬停轻微上浮，禁用/加载态用浅蓝渐变；切换链接增加颜色过渡。
+- `AuthCard.vue`：仅修改 `<style scoped>`——卡片圆角加大到 18px，改为半透明白 + `backdrop-filter` 玻璃质感与分层投影，标签下划线指示条改为渐变。
+- 未修改 `base.css` 全局变量、`register.css`、任何 `<script>` 逻辑、`api/`、`stores/`、`router/`；样式仍以 `.auth-*` 类名隔离，不影响其它页面。
+- 前端 TypeScript 类型检查和生产构建通过；本地浏览器目测登录、注册两页渐变背景、玻璃卡片和渐变按钮均正常显示。
+
 ### 登录与注册入口视觉统一
 
 - 新增 `AuthPageLayout.vue` 公共认证布局，让登录页和注册页共用顶部品牌栏、左侧能力说明和背景装饰；新增 `AuthCard.vue` 统一维护右侧卡片、路由页签、移动下划线、动态高度和表单过渡。

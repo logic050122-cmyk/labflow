@@ -1,26 +1,10 @@
 /* 注册页只维护字段分组和两列排版，公共输入样式保留在 auth.css。 */
-.auth-form__header {
-  margin-top: 14px;
-  text-align: center;
-}
-
-.auth-form__header h1 {
-  margin: 0;
-  color: var(--auth-text);
-  font-size: 19px;
-  font-weight: 700;
-  line-height: 1.35;
-}
-
-.auth-form__header p {
-  margin: 5px 0 0;
-  color: var(--auth-muted);
-  font-size: 11px;
-  line-height: 1.5;
-}
-
 .auth-form__section {
   margin-top: 14px;
+}
+
+.auth-form__section:first-of-type {
+  margin-top: 4px;
 }
 
 .auth-form__section-title {

@@ -2,6 +2,8 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
 import { RouterLink, RouterView, useRoute } from "vue-router";
 
+import BrandLogo from "@/components/auth/BrandLogo.vue";
+
 const route = useRoute();
 const bodyElement = ref<HTMLElement | null>(null);
 const bodyHeight = ref<number | null>(null);
@@ -82,6 +84,12 @@ onBeforeUnmount(() => {
 
 <template>
   <section class="auth-card-shell" aria-label="登录与注册">
+    <!-- 顶部 logo + 大写标题，仿 pure-admin 的 avatar + h2。 -->
+    <div class="auth-card__header">
+      <BrandLogo :width="300" />
+      <h2 class="auth-card__title">LabFlow</h2>
+    </div>
+
     <nav class="auth-card__tabs" aria-label="账号入口">
       <RouterLink
         class="auth-card__tab"
@@ -121,21 +129,36 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+/* 仿 pure-admin：表单无卡片边框/阴影，直接置于背景上，固定 360px 宽。 */
 .auth-card-shell {
-  width: 100%;
-  max-width: 500px;
-  overflow: hidden;
-  padding: 20px 28px 24px;
-  border: 1px solid #edf1f7;
-  border-radius: 12px;
-  background: #ffffff;
-  box-shadow: 0 14px 38px rgba(30, 64, 120, 0.1);
+  width: 360px;
+  max-width: 100%;
+  text-align: center;
+}
+
+.auth-card__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.auth-card__title {
+  margin: 15px 0;
+  color: #999;
+  font:
+    bold 200% Consolas,
+    Monaco,
+    monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .auth-card__tabs {
   position: relative;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
+  margin-bottom: 20px;
   border-bottom: 1px solid #e7edf5;
 }
 
@@ -150,7 +173,7 @@ onBeforeUnmount(() => {
 }
 
 .auth-card__tab--active {
-  color: #1677ff;
+  color: var(--el-color-primary);
 }
 
 .auth-card__indicator {
@@ -169,7 +192,7 @@ onBeforeUnmount(() => {
   left: 20%;
   height: 2px;
   border-radius: 2px;
-  background: #1677ff;
+  background: var(--el-color-primary);
   content: "";
 }
 
@@ -225,16 +248,14 @@ onBeforeUnmount(() => {
   transform: translateX(-20px);
 }
 
-@media (max-width: 760px) {
+@media screen and (max-width: 1180px) {
   .auth-card-shell {
-    padding: 20px 24px 24px;
+    width: 290px;
   }
-}
 
-@media (max-width: 420px) {
-  .auth-card-shell {
-    padding-right: 20px;
-    padding-left: 20px;
+  .auth-card__title {
+    font-size: 2.4rem;
+    margin: 8px 0;
   }
 }
 

@@ -97,7 +97,7 @@ const handleSubmit = async () => {
 
     <div class="auth-form__grid auth-form__grid--login">
       <el-form-item
-        class="auth-field auth-field--username"
+        class="auth-field"
         label="用户名"
         :error="errors.username"
       >
@@ -106,11 +106,19 @@ const handleSubmit = async () => {
           v-model="form.username"
           placeholder="请输入用户名"
           autocomplete="username"
-        />
+          size="large"
+        >
+          <template #prefix>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+              <circle cx="12" cy="8" r="3.5" />
+              <path d="M5.5 20c.5-4 2.7-6 6.5-6s6 2 6.5 6" />
+            </svg>
+          </template>
+        </el-input>
       </el-form-item>
 
       <el-form-item
-        class="auth-field auth-field--password"
+        class="auth-field"
         label="密码"
         :error="errors.password"
       >
@@ -121,7 +129,15 @@ const handleSubmit = async () => {
           placeholder="请输入密码"
           autocomplete="current-password"
           show-password
-        />
+          size="large"
+        >
+          <template #prefix>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+              <rect x="5" y="10" width="14" height="10" rx="2" />
+              <path d="M8.5 10V7.5a3.5 3.5 0 0 1 7 0V10M12 14v2.5" />
+            </svg>
+          </template>
+        </el-input>
       </el-form-item>
     </div>
 

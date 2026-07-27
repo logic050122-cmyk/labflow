@@ -1,276 +1,130 @@
-/* 1. 登录和注册共用顶部品牌栏、能力说明区与表单区域。 */
+/* 仿 vue-pure-admin 登录页布局：全屏渐变背景 + 左右两栏（插画 + 表单）+ 底部版权。 */
+
 .auth-page {
   position: relative;
-  display: flex;
-  min-height: 100vh;
-  min-height: 100dvh;
-  overflow-x: hidden;
-  overflow-y: auto;
-  flex-direction: column;
-  background: #fbfdff;
+  width: 100vw;
+  height: 100vh;
+  max-width: 100%;
+  overflow: hidden;
+  /* 全屏渐变背景，代替 pure-admin 的 wave 背景图。 */
+  background: linear-gradient(135deg, #e8ecff 0%, #f5f7ff 40%, #eef1ff 100%);
   isolation: isolate;
 }
 
-.auth-page::before,
-.auth-page::after {
+/* 背景装饰柔光块，模拟 pure-admin 背景图中的光晕。 */
+.auth-page::before {
   position: absolute;
   z-index: -1;
-  border-radius: 50%;
+  top: -15%;
+  left: -8%;
+  width: 55%;
+  height: 130%;
+  background: radial-gradient(
+    ellipse at 30% 50%,
+    rgba(99, 132, 255, 0.18),
+    rgba(99, 132, 255, 0) 60%
+  );
   content: "";
   pointer-events: none;
 }
 
-.auth-page::before {
-  top: -165px;
-  right: -105px;
-  width: 340px;
-  height: 340px;
-  background: rgba(213, 228, 255, 0.72);
-}
-
 .auth-page::after {
-  bottom: -280px;
-  left: -125px;
-  width: 430px;
-  height: 430px;
-  background: rgba(225, 236, 255, 0.64);
-  box-shadow: 95px -35px 0 42px rgba(237, 244, 255, 0.58);
-}
-
-.auth-page__header {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  display: flex;
-  min-height: 58px;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 clamp(24px, 3.5vw, 46px);
-  border-bottom: 1px solid #e8eef7;
-  background: rgba(255, 255, 255, 0.9);
-}
-
-.auth-page__promise {
-  display: flex;
-  min-width: 0;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  color: #64748b;
-  font-size: 12px;
-  white-space: nowrap;
-}
-
-.auth-page__promise-icon {
-  display: grid;
-  width: 18px;
-  height: 18px;
-  place-items: center;
-  border: 1px solid #94a3b8;
-  border-radius: 50%;
-}
-
-.auth-page__promise-icon svg {
-  width: 13px;
-  height: 13px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.4;
-  stroke-linecap: round;
-}
-
-.auth-page__content {
-  display: grid;
-  width: min(100%, 920px);
-  flex: 1;
-  grid-template-columns: minmax(250px, 280px) minmax(390px, 520px);
-  align-items: center;
-  justify-content: center;
-  gap: clamp(30px, 4vw, 40px);
-  margin: 0 auto;
-  padding: 30px 24px 42px;
-}
-
-/* 2. 左侧内容只说明当前已有的项目、任务和通知能力。 */
-.auth-intro {
-  position: relative;
-  padding: 24px 0 0 30px;
-}
-
-.auth-intro::before {
   position: absolute;
-  top: -12px;
-  left: -24px;
-  width: 82px;
-  height: 54px;
-  background: radial-gradient(circle, #cfe1ff 2px, transparent 2.5px) 0 0 / 15px 15px;
+  z-index: -1;
+  right: -10%;
+  bottom: -20%;
+  width: 50%;
+  height: 80%;
+  background: radial-gradient(
+    ellipse at 60% 70%,
+    rgba(168, 140, 255, 0.14),
+    rgba(168, 140, 255, 0) 65%
+  );
   content: "";
+  pointer-events: none;
 }
 
-.auth-intro__copy h1 {
-  margin: 0;
-  color: #1e293b;
-  font-size: clamp(23px, 2.3vw, 27px);
-  font-weight: 750;
-  letter-spacing: -0.04em;
-  line-height: 1.3;
-}
-
-.auth-intro__copy > strong {
-  display: block;
-  margin-top: 2px;
-  color: #1677ff;
-  font-size: clamp(24px, 2.4vw, 28px);
-  line-height: 1.35;
-}
-
-.auth-intro__accent {
-  display: block;
-  width: 27px;
-  height: 3px;
-  margin-top: 12px;
-  border-radius: 4px;
-  background: #1677ff;
-}
-
-.auth-intro__copy p {
-  margin: 12px 0 0;
-  color: #64748b;
-  font-size: 13px;
-  line-height: 1.75;
-}
-
-.auth-features {
+/* 左右两栏容器：左侧插画，右侧表单。 */
+.auth-page__container {
   display: grid;
-  gap: 9px;
-  margin: 20px 0 0;
-  padding: 0;
-  list-style: none;
+  width: 100vw;
+  height: 100vh;
+  max-width: 100%;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 18rem;
+  padding: 0 2rem;
 }
 
-.auth-feature {
-  display: grid;
-  grid-template-columns: 40px 1fr;
+/* 左侧插画区。 */
+.auth-page__illustration {
+  display: flex;
+  justify-content: flex-end;
   align-items: center;
-  gap: 13px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #eef2f7;
 }
 
-.auth-feature:last-child {
-  padding-bottom: 0;
-  border-bottom: 0;
+.auth-page__illustration svg {
+  width: 460px;
+  max-width: 100%;
+  height: auto;
 }
 
-.auth-feature__icon {
-  display: grid;
-  width: 40px;
-  height: 40px;
-  place-items: center;
-  border-radius: 11px;
+/* 右侧表单容器，垂直居中。 */
+.auth-page__box {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  overflow: hidden;
 }
 
-.auth-feature__icon svg {
-  width: 22px;
-  height: 22px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.7;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.auth-feature__icon--project {
-  color: #1677ff;
-  background: #edf5ff;
-}
-
-.auth-feature__icon--task {
-  color: #10b981;
-  background: #eafaf3;
-}
-
-.auth-feature__icon--notice {
-  color: #f59e0b;
-  background: #fff7df;
-}
-
-.auth-feature__copy strong,
-.auth-feature__copy small {
-  display: block;
-}
-
-.auth-feature__copy strong {
-  color: #1e293b;
+/* 底部版权信息。 */
+.auth-page__footer {
+  position: absolute;
+  bottom: 12px;
+  left: 0;
+  width: 100%;
+  color: rgba(0, 0, 0, 0.55);
   font-size: 14px;
-  line-height: 1.4;
+  text-align: center;
 }
 
-.auth-feature__copy small {
-  margin-top: 3px;
-  color: #718096;
-  font-size: 11px;
-  line-height: 1.55;
+.auth-page__footer a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 200ms ease;
 }
 
-@media (min-width: 761px) and (max-width: 1024px) {
-  .auth-page__content {
-    width: min(100%, 880px);
-    grid-template-columns: minmax(220px, 250px) minmax(360px, 500px);
-    gap: 24px;
-    padding-right: 20px;
-    padding-left: 20px;
+.auth-page__footer a:hover {
+  color: var(--el-color-primary);
+}
+
+@media screen and (max-width: 1180px) {
+  .auth-page__container {
+    grid-gap: 9rem;
   }
 
-  .auth-intro {
-    padding-left: 20px;
+  .auth-page__illustration svg {
+    width: 340px;
   }
 }
 
-@media (max-width: 760px) {
-  .auth-page__header {
-    min-height: 58px;
-    padding: 0 22px;
-  }
-
-  .auth-page__promise {
+/* 968px 以下隐藏背景柔光与插画，表单单栏居中。 */
+@media screen and (max-width: 968px) {
+  .auth-page::before,
+  .auth-page::after {
     display: none;
   }
 
-  .auth-page__content {
-    display: block;
-    width: min(100%, 540px);
-    padding: 24px 20px 36px;
-  }
-
-  .auth-intro {
+  .auth-page__illustration {
     display: none;
   }
-}
 
-@media (max-width: 420px) {
-  .auth-page__header {
-    padding: 0 18px;
+  .auth-page__container {
+    grid-template-columns: 1fr;
+    justify-items: center;
   }
 
-  .auth-page__content {
-    padding: 18px 16px 28px;
-  }
-}
-
-@media (min-width: 761px) and (max-height: 700px) {
-  .auth-page__header {
-    min-height: 54px;
-  }
-
-  .auth-page__content {
-    padding-top: 20px;
-    padding-bottom: 26px;
-  }
-
-  .auth-features {
-    gap: 7px;
-    margin-top: 16px;
+  .auth-page__box {
+    justify-content: center;
   }
 }

@@ -117,16 +117,11 @@ const handleSubmit = async () => {
 <template>
   <!-- 页面只保留注册字段和校验，公共卡片负责导航及动画。 -->
   <el-form class="auth-form auth-form--register" :model="form" @submit.prevent="handleSubmit">
-    <header class="auth-form__header">
-      <h1>创建账号</h1>
-      <p>填写基础信息，加入 LabFlow 开启团队协作</p>
-    </header>
-
     <section class="auth-form__section" aria-labelledby="register-basic-title">
       <h2 id="register-basic-title" class="auth-form__section-title">基本信息</h2>
       <div class="auth-form__grid auth-form__grid--register">
         <el-form-item
-          class="auth-field auth-field--username"
+          class="auth-field"
           label="用户名"
           :error="errors.username"
         >
@@ -136,7 +131,15 @@ const handleSubmit = async () => {
             placeholder="请输入用户名"
             autocomplete="username"
             :maxlength="50"
-          />
+            size="large"
+          >
+            <template #prefix>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                <circle cx="12" cy="8" r="3.5" />
+                <path d="M5.5 20c.5-4 2.7-6 6.5-6s6 2 6.5 6" />
+              </svg>
+            </template>
+          </el-input>
         </el-form-item>
 
         <el-form-item
@@ -150,7 +153,15 @@ const handleSubmit = async () => {
             placeholder="请输入昵称"
             autocomplete="nickname"
             :maxlength="50"
-          />
+            size="large"
+          >
+            <template #prefix>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                <circle cx="12" cy="8" r="4" />
+                <path d="M4 20c1-4 4-6 8-6s7 2 8 6" />
+              </svg>
+            </template>
+          </el-input>
         </el-form-item>
 
         <el-form-item
@@ -165,7 +176,15 @@ const handleSubmit = async () => {
             placeholder="请输入电子邮箱"
             autocomplete="email"
             :maxlength="100"
-          />
+            size="large"
+          >
+            <template #prefix>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                <rect x="3" y="5" width="18" height="14" rx="2" />
+                <path d="m3 7 9 6 9-6" />
+              </svg>
+            </template>
+          </el-input>
         </el-form-item>
 
         <el-form-item class="auth-field" label="手机号（选填）">
@@ -176,7 +195,15 @@ const handleSubmit = async () => {
             placeholder="请输入手机号"
             autocomplete="tel"
             :maxlength="20"
-          />
+            size="large"
+          >
+            <template #prefix>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                <rect x="7" y="2" width="10" height="20" rx="2" />
+                <path d="M11 18h2" />
+              </svg>
+            </template>
+          </el-input>
         </el-form-item>
 
         <el-form-item
@@ -188,7 +215,14 @@ const handleSubmit = async () => {
             v-model="form.direction"
             placeholder="例如：前端、后端、测试"
             :maxlength="50"
-          />
+            size="large"
+          >
+            <template #prefix>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                <path d="M12 2 4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6z" />
+              </svg>
+            </template>
+          </el-input>
         </el-form-item>
       </div>
     </section>
@@ -197,7 +231,7 @@ const handleSubmit = async () => {
       <h2 id="register-security-title" class="auth-form__section-title">账号安全</h2>
       <div class="auth-form__grid auth-form__grid--register">
         <el-form-item
-          class="auth-field auth-field--password"
+          class="auth-field"
           label="密码"
           :error="errors.password"
         >
@@ -208,11 +242,19 @@ const handleSubmit = async () => {
             placeholder="请输入密码"
             autocomplete="new-password"
             show-password
-          />
+            size="large"
+          >
+            <template #prefix>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                <rect x="5" y="10" width="14" height="10" rx="2" />
+                <path d="M8.5 10V7.5a3.5 3.5 0 0 1 7 0V10M12 14v2.5" />
+              </svg>
+            </template>
+          </el-input>
         </el-form-item>
 
         <el-form-item
-          class="auth-field auth-field--password"
+          class="auth-field"
           label="确认密码"
           :error="errors.confirmPassword"
         >
@@ -223,7 +265,16 @@ const handleSubmit = async () => {
             placeholder="请再次输入密码"
             autocomplete="new-password"
             show-password
-          />
+            size="large"
+          >
+            <template #prefix>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                <path d="M9 12l2 2 4-4" />
+                <rect x="5" y="10" width="14" height="10" rx="2" />
+                <path d="M8.5 10V7.5a3.5 3.5 0 0 1 7 0V10" />
+              </svg>
+            </template>
+          </el-input>
         </el-form-item>
       </div>
     </section>
