@@ -2,8 +2,6 @@
 import { reactive, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
-import authIllustration from "@/assets/auth-illustration.png";
-import BrandLogo from "@/components/auth/BrandLogo.vue";
 import { useAuthStore } from "@/stores/auth";
 
 // 登录成功后，通过 authStore 保存后端返回的 Token。
@@ -30,6 +28,7 @@ const errors = reactive({
 
 // 保存登录失败后显示在页面上的错误提示。
 const statusMessage = ref("");
+const isSubmitting = ref(false);
 
 // 验证表单输入，输入了内容就为true，否则为false。
 const validate = () => {
@@ -49,11 +48,17 @@ const validate = () => {
 
 // 处理登录表单提交
 const handleSubmit = async () => {
-  statusMessage.value = ""; 
+  if (isSubmitting.value) {
+    return;
+  }
+
+  statusMessage.value = "";
 
   if (!validate()) { //输入框没有内容直接返回，不进行登录请求
     return;
   }
+
+  isSubmitting.value = true;
 
   try {
     // 调用 authStore 的 login 方法进行登录请求
@@ -72,76 +77,72 @@ const handleSubmit = async () => {
     await router.replace(redirect);
   } catch (error: unknown) {
     statusMessage.value = error instanceof Error ? error.message : "登录失败，请稍后重试";
+  } finally {
+    isSubmitting.value = false;
   }
 };
 </script>
 
 <template>
-  <main class="login-page">
-    <section class="login-intro" aria-labelledby="login-product-title">
-      <BrandLogo :width="100" />
+  <!-- 页面只保留登录表单，卡片外壳、导航和切换动画由 AuthCard 统一负责。 -->
+  <el-form class="auth-form auth-form--login" :model="form" @submit.prevent="handleSubmit">
+    <el-alert
+      v-if="registeredSuccessfully"
+      class="auth-success-alert"
+      title="注册成功，请使用新账号登录"
+      type="success"
+      show-icon
+      :closable="false"
+    />
 
-      <div class="login-intro__copy">
-        <h1 id="login-product-title">LabFlow 项目协作管理平台</h1>
-        <p>面向实验室 / 工作室 / 学生团队的项目协作管理平台</p>
-      </div>
-
-      <img class="login-intro__image" :src="authIllustration" alt="青蓝色数据面板科技插图" />
-      <small class="auth-copyright">© 2024 LabFlow. All rights reserved.</small>
-    </section>
-
-    <section class="login-panel" aria-label="登录区域">
-      <el-form class="auth-card auth-card--login" :model="form" @submit.prevent="handleSubmit">
-        <header class="auth-card__header">
-          <h2>欢迎登录</h2>
-          <p>登录以继续访问您的项目</p>
-        </header>
-
-        <el-alert
-          v-if="registeredSuccessfully"
-          class="auth-success-alert"
-          title="注册成功，请使用新账号登录"
-          type="success"
-          show-icon
-          :closable="false"
+    <div class="auth-form__grid auth-form__grid--login">
+      <el-form-item
+        class="auth-field auth-field--username"
+        label="用户名"
+        :error="errors.username"
+      >
+        <el-input
+          id="login-username"
+          v-model="form.username"
+          placeholder="请输入用户名"
+          autocomplete="username"
         />
+      </el-form-item>
 
-        <div class="auth-card__fields">
-          <el-form-item
-            class="auth-field"
-            label="用户名"
-            :error="errors.username"
-          >
-            <el-input
-              id="login-username"
-              v-model="form.username"
-              placeholder="输入您的用户名"
-              autocomplete="username"
-            />
-          </el-form-item>
+      <el-form-item
+        class="auth-field auth-field--password"
+        label="密码"
+        :error="errors.password"
+      >
+        <el-input
+          id="login-password"
+          v-model="form.password"
+          type="password"
+          placeholder="请输入密码"
+          autocomplete="current-password"
+          show-password
+        />
+      </el-form-item>
+    </div>
 
-          <el-form-item
-            class="auth-field"
-            label="密码"
-            :error="errors.password"
-          >
-            <el-input
-              id="login-password"
-              v-model="form.password"
-              type="password"
-              placeholder="输入您的密码"
-              autocomplete="current-password"
-              show-password
-            />
-          </el-form-item>
-        </div>
+    <el-button
+      class="auth-submit"
+      native-type="submit"
+      :loading="isSubmitting"
+      :disabled="isSubmitting"
+    >
+      登录
+    </el-button>
+    <p v-if="statusMessage" class="auth-status" role="status" aria-live="polite">
+      {{ statusMessage }}
+    </p>
 
-        <el-button class="auth-submit" native-type="submit">登录</el-button>
-        <p v-if="statusMessage" class="auth-status" role="status" aria-live="polite">
-          {{ statusMessage }}
-        </p>
-        <p class="auth-switch">没有账号？<RouterLink to="/register">去注册</RouterLink></p>
-      </el-form>
-    </section>
-  </main>
+    <div class="auth-divider" aria-hidden="true">
+      <span>或</span>
+    </div>
+    <p class="auth-switch">
+      还没有账号？
+      <RouterLink to="/register">立即注册</RouterLink>
+    </p>
+  </el-form>
 </template>

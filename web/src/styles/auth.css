@@ -1,3 +1,4 @@
+/* 品牌原图带有白边，统一在小容器内裁切成横向 Logo。 */
 .brand-logo {
   --brand-logo-width: 112px;
   position: relative;
@@ -17,129 +18,47 @@
   mix-blend-mode: multiply;
 }
 
-/* 登录页按“介绍区 + 表单区”双栏排版，和文档里的桌面布局保持一致。 */
-.login-page {
-  display: grid;
-  min-height: 100vh;
-  grid-template-columns: 1fr 1fr;
-  background: #f9f9ff;
-}
-
-/* 左侧只负责品牌感和产品说明，不承担表单交互。 */
-.login-intro {
-  display: flex;
-  min-height: 100vh;
-  flex-direction: column;
-  padding: clamp(42px, 5vw, 58px) clamp(42px, 5vw, 64px) 40px;
-  background: #eef2ff;
-}
-
-.login-intro__copy {
-  /* 品牌原图的图标比设计稿更高，用负间距保持标题和主视觉的原始纵向节奏。 */
-  margin-top: -7px;
-}
-
-.login-intro__copy h1 {
-  margin: 0;
-  color: #111827;
-  font-size: clamp(25px, 2.25vw, 31px);
-  font-weight: 700;
-  letter-spacing: -0.04em;
-}
-
-.login-intro__copy p {
-  margin: 10px 0 0;
-  color: #344054;
-  font-size: 14px;
-}
-
-/* 这张图是登录页的核心视觉，固定方形比例以稳定对齐原稿。 */
-.login-intro__image {
-  width: min(100%, 366px);
-  aspect-ratio: 1;
-  margin: 32px auto 28px;
-  object-fit: cover;
-  box-shadow: 0 12px 26px rgba(5, 36, 55, 0.16);
-}
-
-.auth-copyright {
-  margin-top: auto;
-  color: #667085;
-  font-size: 11px;
-  letter-spacing: 0.01em;
-}
-
-/* 右侧把表单卡片居中，保证桌面端和参考图一样是独立登录区。 */
-.login-panel {
-  display: grid;
-  min-height: 100vh;
-  place-items: center;
-  padding: 40px;
-}
-
-.auth-card {
+/* 登录和注册页面只维护表单内容，卡片外壳由 AuthCard 统一提供。 */
+.auth-form {
   width: 100%;
-  border: 1px solid #e4e7ec;
-  border-radius: 7px;
-  background: var(--auth-surface);
-  box-shadow: 0 12px 32px rgba(16, 24, 40, 0.08);
 }
 
-/* 登录卡片要比注册卡片更紧凑，避免占满右半屏。 */
-.auth-card--login {
-  max-width: 352px;
-  padding: 30px 27px 23px;
+.auth-form--login {
+  padding-top: 24px;
 }
 
-.auth-card__header h1,
-.auth-card__header h2 {
-  margin: 0;
-  color: var(--auth-text);
-  font-size: 22px;
-  font-weight: 700;
-  line-height: 1.35;
-}
-
-.auth-card__header p {
-  margin: 4px 0 0;
-  color: var(--auth-muted);
-  font-size: 12px;
-}
-
-/* 注册成功提示放在登录表单上方，让用户跳转后能立即看到结果。 */
 .auth-success-alert {
-  margin-top: 20px;
+  margin-bottom: 18px;
 }
 
 .auth-success-alert .el-alert__title {
   font-size: 12px;
 }
 
-.auth-card--login .auth-success-alert + .auth-card__fields {
-  margin-top: 18px;
-}
-
-/* 表单项统一间距，保证字段、提示和按钮之间的节奏稳定。 */
-.auth-card__fields {
+.auth-form__grid {
   display: grid;
   gap: 14px;
-  margin-top: 29px;
+}
+
+.auth-form__grid--login {
+  gap: 18px;
 }
 
 .auth-field {
   display: block;
+  min-width: 0;
   margin-bottom: 0;
 }
 
 .auth-field .el-form-item__label {
   display: block;
   height: auto;
-  margin-bottom: 7px;
+  margin-bottom: 6px;
   padding: 0;
-  color: #24272e;
-  font-size: 13px;
-  font-weight: 500;
-  line-height: normal;
+  color: #293244;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.4;
   text-align: left;
 }
 
@@ -150,13 +69,16 @@
 
 .auth-field .el-input__wrapper {
   width: 100%;
-  height: 37px;
-  padding: 0 11px;
-  border: 1px solid var(--auth-border);
-  border-radius: 0;
+  height: 40px;
+  gap: 8px;
+  padding: 0 12px;
+  border: 1px solid #d8e0eb;
+  border-radius: 6px;
   background: #ffffff;
   box-shadow: none;
-  transition: border-color 150ms ease, box-shadow 150ms ease;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .auth-field .el-input__inner {
@@ -169,12 +91,13 @@
 }
 
 .auth-field .el-input__wrapper.is-focus {
-  border-color: var(--auth-blue);
-  box-shadow: 0 0 0 3px rgba(7, 95, 197, 0.12);
+  border-color: #1677ff;
+  box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.12);
 }
 
 .auth-field.is-error .el-input__wrapper {
   border-color: #d92d20;
+  box-shadow: 0 0 0 2px rgba(217, 45, 32, 0.08);
 }
 
 .auth-field .el-form-item__error {
@@ -182,69 +105,107 @@
   padding-top: 5px;
   color: #b42318;
   font-size: 11px;
+  line-height: 1.4;
+}
+
+/* 用户名和密码使用统一的轻量提示图标，不改变 Element Plus 输入行为。 */
+.auth-field--username .el-input__wrapper::before,
+.auth-field--password .el-input__wrapper::before {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  background: center / contain no-repeat;
+  content: "";
+}
+
+.auth-field--username .el-input__wrapper::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='1.8' stroke-linecap='round'%3E%3Ccircle cx='12' cy='8' r='3.5'/%3E%3Cpath d='M5.5 20c.5-4 2.7-6 6.5-6s6 2 6.5 6'/%3E%3C/svg%3E");
+}
+
+.auth-field--password .el-input__wrapper::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='1.8' stroke-linecap='round'%3E%3Crect x='5' y='10' width='14' height='10' rx='2'/%3E%3Cpath d='M8.5 10V7.5a3.5 3.5 0 0 1 7 0V10M12 14v2.5'/%3E%3C/svg%3E");
 }
 
 .auth-submit {
   width: 100%;
-  height: 38px;
-  margin-top: 26px;
+  height: 42px;
+  margin-top: 22px;
   border: 0;
-  border-radius: 1px;
+  border-radius: 6px;
   color: #ffffff;
-  background: var(--auth-blue);
+  background: #1677ff;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
-  transition: background 150ms ease, transform 150ms ease;
+  transition:
+    background 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
 }
 
 .auth-submit.el-button {
   margin-left: 0;
   color: #ffffff;
-  background: var(--auth-blue);
+  background: #1677ff;
 }
 
 .auth-submit.el-button:hover,
 .auth-submit.el-button:focus {
   color: #ffffff;
-  background: var(--auth-blue-dark);
+  background: #0f6fe5;
+  box-shadow: 0 8px 18px rgba(22, 119, 255, 0.2);
 }
 
-.auth-submit:hover {
-  background: var(--auth-blue-dark);
-}
-
-.auth-submit:active {
+.auth-submit.el-button:active {
   transform: translateY(1px);
 }
 
-.auth-submit:disabled,
-.auth-submit.is-loading {
-  cursor: wait;
-  opacity: 0.68;
+.auth-submit.el-button.is-disabled,
+.auth-submit.el-button.is-disabled:hover,
+.auth-submit.el-button.is-loading {
+  color: #ffffff;
+  background: #8bbcff;
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 0.82;
   transform: none;
 }
 
 .auth-status {
-  margin: 10px 0 -4px;
-  color: var(--auth-muted);
+  margin: 10px 0 0;
+  color: #b42318;
+  font-size: 11px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  color: #9aa6b5;
+  font-size: 10px;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  height: 1px;
+  flex: 1;
+  background: #edf1f6;
+  content: "";
+}
+
+.auth-switch {
+  margin: 14px 0 0;
+  color: #7b8798;
   font-size: 11px;
   text-align: center;
 }
 
-.auth-switch {
-  margin: 29px 0 0;
-  color: var(--auth-blue);
-  font-size: 12px;
-  text-align: center;
-}
-
-.auth-card--login .auth-switch {
-  margin-top: 22px;
-}
-
 .auth-switch a {
-  color: inherit;
+  color: #1677ff;
+  font-weight: 650;
   text-decoration: none;
 }
 
@@ -253,35 +214,22 @@
   text-underline-offset: 3px;
 }
 
-@media (max-width: 760px) {
-  /* 小屏下改成单栏，先保留信息区，再把表单收窄到可触达范围。 */
-  .login-page {
-    grid-template-columns: 1fr;
-  }
+.auth-page__panel {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  place-items: center;
+}
 
-  .login-intro {
-    min-height: auto;
-    padding: 28px 24px 22px;
+@media (max-width: 420px) {
+  .auth-form--login {
+    padding-top: 20px;
   }
+}
 
-  .login-intro__copy {
-    margin-top: 14px;
-  }
-
-  .login-intro__copy h1 {
-    font-size: 23px;
-  }
-
-  .login-intro__image {
-    display: none;
-  }
-
-  .login-intro .auth-copyright {
-    display: none;
-  }
-
-  .login-panel {
-    min-height: auto;
-    padding: 48px 20px;
+@media (prefers-reduced-motion: reduce) {
+  .auth-field .el-input__wrapper,
+  .auth-submit {
+    transition-duration: 0.01ms;
   }
 }
