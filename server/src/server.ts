@@ -1,6 +1,5 @@
 import type { Server } from "node:http";
 import type { ScheduledTask } from "node-cron";
-
 import { createApp } from "./app";
 import { closeDatabase, connectDatabase } from "./config/db";
 import { env } from "./config/env";
@@ -14,7 +13,7 @@ const startServer = async () => {
   const server = app.listen(env.port, () => {
     console.log(`LabFlow server is running on port ${env.port}.`);
   });
-  const overdueTaskJob = startOverdueTaskJob();
+  const overdueTaskJob = startOverdueTaskJob();//这是一个定时任务，用于检查逾期任务并发送通知。
 
   registerShutdown(server, overdueTaskJob);
 };

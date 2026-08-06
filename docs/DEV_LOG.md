@@ -4,6 +4,11 @@
 
 ## 2026-07-27
 
+### 修复登录请求被 CORS 中间件挂起
+
+- 移除 `server/src/app.ts` 中参数形式错误的 CORS 中间件；该写法会等待未执行的配置回调，导致 `/api/auth/login` 等所有后端请求一直无响应。
+- 本地开发继续使用 `web/vite.config.ts` 已有的 `/api` 代理访问 Express，不改变登录接口、JWT、数据库或权限逻辑，也不引入新依赖。
+
 ### 仿 vue-pure-admin 重做登录注册页（仅前端）
 
 - 参考 vue-pure-admin 在线演示登录注册页的视觉风格，重写 LabFlow `/login`、`/register` 两页布局与样式，不改后端、接口、认证逻辑、路由守卫。
